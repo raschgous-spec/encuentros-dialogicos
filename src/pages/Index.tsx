@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { Header } from '@/components/Header';
 import { StudentResults } from '@/types/diagnostic';
 import { calculateOverallResults } from '@/utils/evaluation';
 import { IntroStep } from '@/components/steps/IntroStep';
@@ -12,6 +15,8 @@ import { ReportStep } from '@/components/steps/ReportStep';
 import { diagnosticConfig } from '@/data/diagnosticConfig';
 
 const Index = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [studentResults, setStudentResults] = useState<StudentResults>({
     brainstorming: [],
@@ -21,6 +26,27 @@ const Index = () => {
     pareto: {},
   });
   const [reportData, setReportData] = useState<ReturnType<typeof calculateOverallResults> | null>(null);
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg">Cargando...</p>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated
+  if (!user) {
+    return null;
+  }
 
   const handleBrainstormingToggle = (optionId: string) => {
     setStudentResults((prev) => {
@@ -100,8 +126,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="py-8 px-4">
+        <div className="max-w-4xl mx-auto">
         <div className="bg-card rounded-lg shadow-lg overflow-hidden">
           <div className="p-8">
             {currentStep === 0 && <IntroStep />}
@@ -141,6 +169,7 @@ const Index = () => {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
