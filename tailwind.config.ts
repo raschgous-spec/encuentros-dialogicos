@@ -47,15 +47,35 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
+        level: {
+          avanzado: {
+            DEFAULT: "hsl(var(--level-avanzado))",
+            foreground: "hsl(var(--level-avanzado-fg))",
+          },
+          intermedio: {
+            DEFAULT: "hsl(var(--level-intermedio))",
+            foreground: "hsl(var(--level-intermedio-fg))",
+          },
+          basico: {
+            DEFAULT: "hsl(var(--level-basico))",
+            foreground: "hsl(var(--level-basico-fg))",
+          },
+          inicial: {
+            DEFAULT: "hsl(var(--level-inicial))",
+            foreground: "hsl(var(--level-inicial-fg))",
+          },
         },
       },
       borderRadius: {
