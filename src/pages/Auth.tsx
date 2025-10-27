@@ -8,13 +8,23 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
+import { z } from 'zod';
+
+const signUpSchema = z.object({
+  email: z.string().email('Email inválido').max(255, 'Email muy largo'),
+  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  fullName: z.string().trim().min(3, 'El nombre debe tener al menos 3 caracteres').max(100, 'Nombre muy largo'),
+  codigoCurso: z.string().trim().optional(),
+});
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [codigoCurso, setCodigoCurso] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -28,6 +38,7 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
     setIsLoading(true);
 
     try {
@@ -47,17 +58,24 @@ const Auth = () => {
           navigate('/');
         }
       } else {
-        if (!fullName.trim()) {
-          toast({
-            title: 'Error',
-            description: 'Por favor ingresa tu nombre completo',
-            variant: 'destructive',
-          });
-          setIsLoading(false);
-          return;
+        // Validar formulario de registro
+        try {
+          signUpSchema.parse({ email, password, fullName, codigoCurso });
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            const errors: Record<string, string> = {};
+            error.errors.forEach((err) => {
+              if (err.path[0]) {
+                errors[err.path[0].toString()] = err.message;
+              }
+            });
+            setFormErrors(errors);
+            setIsLoading(false);
+            return;
+          }
         }
 
-        const { error } = await signUp(email, password, fullName);
+        const { error } = await signUp(email, password, fullName, codigoCurso || undefined);
         if (error) {
           toast({
             title: 'Error al registrarse',
@@ -141,8 +159,12 @@ const Auth = () => {
                     placeholder="Juan Pérez"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
+                    className={formErrors.fullName ? 'border-destructive' : ''}
                     required
                   />
+                  {formErrors.fullName && (
+                    <p className="text-sm text-destructive">{formErrors.fullName}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
@@ -152,8 +174,12 @@ const Auth = () => {
                     placeholder="tu@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className={formErrors.email ? 'border-destructive' : ''}
                     required
                   />
+                  {formErrors.email && (
+                    <p className="text-sm text-destructive">{formErrors.email}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Contraseña</Label>
@@ -163,9 +189,30 @@ const Auth = () => {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className={formErrors.password ? 'border-destructive' : ''}
                     required
                     minLength={6}
                   />
+                  {formErrors.password && (
+                    <p className="text-sm text-destructive">{formErrors.password}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="codigoCurso">Código de Curso (opcional)</Label>
+                  <Input
+                    id="codigoCurso"
+                    type="text"
+                    placeholder="PROG-2024-A"
+                    value={codigoCurso}
+                    onChange={(e) => setCodigoCurso(e.target.value.toUpperCase())}
+                    className={formErrors.codigoCurso ? 'border-destructive' : ''}
+                  />
+                  {formErrors.codigoCurso && (
+                    <p className="text-sm text-destructive">{formErrors.codigoCurso}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Si tienes un código de curso, ingrésalo aquí para asociarte con tu docente
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Registrando...' : 'Crear Cuenta'}

@@ -2,6 +2,7 @@ import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Users, FileText, PlusCircle, BarChart3, FolderOpen } from 'lucide-react';
+import { CursosManager } from '@/components/CursosManager';
 
 const DocenteDashboard = () => {
   return (
@@ -118,6 +119,10 @@ const DocenteDashboard = () => {
                 <Button className="w-full">Ver Recursos</Button>
               </CardContent>
             </Card>
+          </div>
+
+          <div className="mt-8">
+            <CursosManager />
           </div>
 
           <Card className="mt-8">

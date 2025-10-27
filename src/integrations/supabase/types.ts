@@ -14,9 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      cursos: {
+        Row: {
+          codigo: string
+          created_at: string
+          descripcion: string | null
+          docente_id: string
+          id: string
+          nombre: string
+          updated_at: string
+        }
+        Insert: {
+          codigo: string
+          created_at?: string
+          descripcion?: string | null
+          docente_id: string
+          id?: string
+          nombre: string
+          updated_at?: string
+        }
+        Update: {
+          codigo?: string
+          created_at?: string
+          descripcion?: string | null
+          docente_id?: string
+          id?: string
+          nombre?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cursos_docente_id_fkey"
+            columns: ["docente_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
+          curso_id: string | null
           email: string
           full_name: string | null
           id: string
@@ -24,6 +63,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          curso_id?: string | null
           email: string
           full_name?: string | null
           id: string
@@ -31,12 +71,21 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          curso_id?: string | null
           email?: string
           full_name?: string | null
           id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_curso_id_fkey"
+            columns: ["curso_id"]
+            isOneToOne: false
+            referencedRelation: "cursos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

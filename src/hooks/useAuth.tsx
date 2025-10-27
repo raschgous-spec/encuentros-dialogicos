@@ -81,19 +81,49 @@ export const useAuth = () => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, codigoCurso?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    // Si hay código de curso, verificar que exista
+    if (codigoCurso) {
+      const { data: cursoData, error: cursoError } = await supabase
+        .from('cursos')
+        .select('id')
+        .eq('codigo', codigoCurso.toUpperCase())
+        .maybeSingle();
+      
+      if (cursoError || !cursoData) {
+        return { error: { message: 'Código de curso inválido' } as any };
+      }
+    }
+    
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          codigo_curso: codigoCurso?.toUpperCase(),
         },
       },
     });
+    
+    // Si el registro fue exitoso y hay código de curso, actualizar el perfil
+    if (!error && data.user && codigoCurso) {
+      const { data: cursoData } = await supabase
+        .from('cursos')
+        .select('id')
+        .eq('codigo', codigoCurso.toUpperCase())
+        .maybeSingle();
+      
+      if (cursoData) {
+        await supabase
+          .from('profiles')
+          .update({ curso_id: cursoData.id })
+          .eq('id', data.user.id);
+      }
+    }
     
     return { error };
   };
