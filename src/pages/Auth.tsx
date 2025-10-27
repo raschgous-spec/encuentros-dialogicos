@@ -8,8 +8,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
+import { Shield, BookOpen, GraduationCap } from 'lucide-react';
+
+type UserType = 'estudiante' | 'docente' | 'admin';
 
 const Auth = () => {
+  const [userType, setUserType] = useState<UserType>('estudiante');
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -48,6 +52,17 @@ const Auth = () => {
           navigate('/');
         }
       } else {
+        // Solo los estudiantes pueden registrarse
+        if (userType !== 'estudiante') {
+          toast({
+            title: 'Registro no disponible',
+            description: 'Solo los estudiantes pueden registrarse. Contacta al administrador.',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+
         if (!fullName.trim()) {
           toast({
             title: 'Error',
@@ -94,22 +109,91 @@ const Auth = () => {
     }
   };
 
+  const getUserTypeInfo = () => {
+    switch (userType) {
+      case 'admin':
+        return {
+          title: 'Acceso Administrador',
+          description: 'Gestión completa del sistema',
+          icon: Shield,
+        };
+      case 'docente':
+        return {
+          title: 'Acceso Gestor del Conocimiento',
+          description: 'Gestión de cursos y estudiantes',
+          icon: BookOpen,
+        };
+      default:
+        return {
+          title: 'Acceso Estudiante',
+          description: 'Realiza diagnósticos y consulta tu progreso',
+          icon: GraduationCap,
+        };
+    }
+  };
+
+  const info = getUserTypeInfo();
+  const Icon = info.icon;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-2xl">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
             Sistema de Gestión UCundinamarca
           </CardTitle>
           <CardDescription className="text-center">
-            Accede a tu cuenta o crea una nueva
+            Selecciona tu tipo de acceso
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+          {/* Selector de tipo de usuario */}
+          <div className="grid grid-cols-3 gap-3">
+            <Button
+              type="button"
+              variant={userType === 'estudiante' ? 'default' : 'outline'}
+              className="flex flex-col items-center gap-2 h-auto py-4"
+              onClick={() => setUserType('estudiante')}
+            >
+              <GraduationCap className="h-6 w-6" />
+              <span className="text-xs">Estudiante</span>
+            </Button>
+            <Button
+              type="button"
+              variant={userType === 'docente' ? 'default' : 'outline'}
+              className="flex flex-col items-center gap-2 h-auto py-4"
+              onClick={() => setUserType('docente')}
+            >
+              <BookOpen className="h-6 w-6" />
+              <span className="text-xs">Gestor</span>
+            </Button>
+            <Button
+              type="button"
+              variant={userType === 'admin' ? 'default' : 'outline'}
+              className="flex flex-col items-center gap-2 h-auto py-4"
+              onClick={() => setUserType('admin')}
+            >
+              <Shield className="h-6 w-6" />
+              <span className="text-xs">Admin</span>
+            </Button>
+          </div>
+
+          {/* Info del tipo de usuario seleccionado */}
+          <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+            <Icon className="h-8 w-8 text-primary" />
+            <div>
+              <h3 className="font-semibold">{info.title}</h3>
+              <p className="text-sm text-muted-foreground">{info.description}</p>
+            </div>
+          </div>
+
+          {/* Formularios de login/registro */}
           <Tabs value={isLogin ? 'login' : 'signup'} onValueChange={(v) => setIsLogin(v === 'login')}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
-              <TabsTrigger value="signup">Registrarse</TabsTrigger>
+              <TabsTrigger value="signup" disabled={userType !== 'estudiante'}>
+                Registrarse
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="login">
@@ -200,9 +284,15 @@ const Auth = () => {
           </Tabs>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2 text-sm text-muted-foreground">
-          <p className="text-center">
-            Al registrarte como estudiante, debes ingresar el código de curso proporcionado por tu docente.
-          </p>
+          {userType === 'estudiante' ? (
+            <p className="text-center">
+              Al registrarte como estudiante, debes ingresar el código de curso proporcionado por tu docente.
+            </p>
+          ) : (
+            <p className="text-center">
+              Si eres {userType === 'admin' ? 'administrador' : 'gestor del conocimiento'}, contacta al administrador del sistema para obtener tus credenciales de acceso.
+            </p>
+          )}
         </CardFooter>
       </Card>
     </div>
