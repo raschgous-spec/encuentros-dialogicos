@@ -31,15 +31,25 @@ export const EstudiantesManager = () => {
     try {
       setIsLoading(true);
       
-      // Obtener cursos del docente
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No autenticado');
 
-      const { data: cursosData } = await supabase
-        .from('cursos')
-        .select('id')
-        .eq('docente_id', user.id);
+      // Verificar si el usuario es admin
+      const { data: rolesData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
 
+      const isAdmin = rolesData?.some(r => r.role === 'admin');
+
+      // Si es admin, obtener todos los cursos; si no, solo los propios
+      let cursosQuery = supabase.from('cursos').select('id');
+      
+      if (!isAdmin) {
+        cursosQuery = cursosQuery.eq('docente_id', user.id);
+      }
+
+      const { data: cursosData } = await cursosQuery;
       const cursoIds = cursosData?.map(c => c.id) || [];
 
       // Obtener estudiantes de esos cursos
