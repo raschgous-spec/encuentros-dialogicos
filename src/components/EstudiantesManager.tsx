@@ -3,8 +3,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Mail, BookOpen, Calendar } from 'lucide-react';
+import { Users, Mail, BookOpen, Calendar, Award, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+
+interface Evaluacion {
+  id: string;
+  fecha: string;
+  puntaje_promedio: number | null;
+  nivel: string | null;
+  puntaje_brainstorming: number | null;
+  puntaje_affinity: number | null;
+  puntaje_ishikawa: number | null;
+  puntaje_dofa: number | null;
+  puntaje_pareto: number | null;
+}
 
 interface Estudiante {
   id: string;
@@ -15,7 +27,7 @@ interface Estudiante {
     nombre: string;
     codigo: string;
   } | null;
-  evaluaciones_count: number;
+  evaluaciones: Evaluacion[];
 }
 
 export const EstudiantesManager = () => {
@@ -70,13 +82,14 @@ export const EstudiantesManager = () => {
 
       if (profilesError) throw profilesError;
 
-      // Obtener conteo de evaluaciones para cada estudiante
-      const estudiantesWithCount = await Promise.all(
+      // Obtener evaluaciones para cada estudiante
+      const estudiantesWithEvaluaciones = await Promise.all(
         (profilesData || []).map(async (profile: any) => {
-          const { count } = await supabase
+          const { data: evaluacionesData } = await supabase
             .from('evaluaciones')
-            .select('*', { count: 'exact', head: true })
-            .eq('estudiante_id', profile.id);
+            .select('id, fecha, puntaje_promedio, nivel, puntaje_brainstorming, puntaje_affinity, puntaje_ishikawa, puntaje_dofa, puntaje_pareto')
+            .eq('estudiante_id', profile.id)
+            .order('fecha', { ascending: false });
           
           return {
             id: profile.id,
@@ -84,12 +97,12 @@ export const EstudiantesManager = () => {
             full_name: profile.full_name,
             created_at: profile.created_at,
             curso: profile.cursos,
-            evaluaciones_count: count || 0
+            evaluaciones: evaluacionesData || []
           };
         })
       );
 
-      setEstudiantes(estudiantesWithCount);
+      setEstudiantes(estudiantesWithEvaluaciones);
     } catch (error) {
       console.error('Error fetching estudiantes:', error);
       toast({
@@ -135,6 +148,13 @@ export const EstudiantesManager = () => {
         </p>
       </div>
 
+      {estudiantes.some(e => e.evaluaciones.length > 0) && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Award className="h-4 w-4" />
+          <span>Mostrando resultados de evaluaciones completadas</span>
+        </div>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {estudiantes.map((estudiante) => (
           <Card key={estudiante.id} className="hover:shadow-lg transition-shadow">
@@ -171,9 +191,66 @@ export const EstudiantesManager = () => {
                   {new Date(estudiante.created_at).toLocaleDateString()}
                 </div>
                 <Badge variant="secondary">
-                  {estudiante.evaluaciones_count} evaluación(es)
+                  {estudiante.evaluaciones.length} evaluación(es)
                 </Badge>
               </div>
+
+              {estudiante.evaluaciones.length > 0 && (
+                <div className="mt-3 pt-3 border-t space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <TrendingUp className="h-4 w-4" />
+                    Resultados de Evaluaciones
+                  </div>
+                  {estudiante.evaluaciones.map((evaluacion) => (
+                    <div key={evaluacion.id} className="bg-muted/50 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(evaluacion.fecha).toLocaleDateString()}
+                        </span>
+                        {evaluacion.nivel && (
+                          <Badge 
+                            variant={
+                              evaluacion.nivel === 'avanzado' ? 'default' : 
+                              evaluacion.nivel === 'intermedio' ? 'secondary' : 
+                              'outline'
+                            }
+                            className="text-xs"
+                          >
+                            {evaluacion.nivel}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {evaluacion.puntaje_promedio !== null && (
+                        <div className="flex items-center gap-2">
+                          <Award className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-semibold">
+                            Promedio: {evaluacion.puntaje_promedio.toFixed(1)}%
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        {evaluacion.puntaje_brainstorming !== null && (
+                          <div>Brainstorming: <span className="font-medium">{evaluacion.puntaje_brainstorming.toFixed(0)}%</span></div>
+                        )}
+                        {evaluacion.puntaje_affinity !== null && (
+                          <div>Afinidad: <span className="font-medium">{evaluacion.puntaje_affinity.toFixed(0)}%</span></div>
+                        )}
+                        {evaluacion.puntaje_ishikawa !== null && (
+                          <div>Ishikawa: <span className="font-medium">{evaluacion.puntaje_ishikawa.toFixed(0)}%</span></div>
+                        )}
+                        {evaluacion.puntaje_dofa !== null && (
+                          <div>DOFA: <span className="font-medium">{evaluacion.puntaje_dofa.toFixed(0)}%</span></div>
+                        )}
+                        {evaluacion.puntaje_pareto !== null && (
+                          <div>Pareto: <span className="font-medium">{evaluacion.puntaje_pareto.toFixed(0)}%</span></div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
