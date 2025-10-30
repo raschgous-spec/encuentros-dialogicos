@@ -1,20 +1,27 @@
+import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Users, FileText, PlusCircle, BarChart3, FolderOpen } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CursosManager } from '@/components/CursosManager';
+import { EstudiantesManager } from '@/components/EstudiantesManager';
+import { EvaluacionesManager } from '@/components/EvaluacionesManager';
 
 const DocenteDashboard = () => {
+  const [activeTab, setActiveTab] = useState('overview');
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <div className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
-          <Tabs defaultValue="overview" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList>
               <TabsTrigger value="overview">Panel General</TabsTrigger>
               <TabsTrigger value="cursos">Mis Cursos</TabsTrigger>
+              <TabsTrigger value="estudiantes">Estudiantes</TabsTrigger>
+              <TabsTrigger value="evaluaciones">Evaluaciones</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -73,7 +80,9 @@ const DocenteDashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full">Ver Estudiantes</Button>
+                    <Button className="w-full" onClick={() => setActiveTab('estudiantes')}>
+                      Ver Estudiantes
+                    </Button>
                   </CardContent>
                 </Card>
 
@@ -90,7 +99,9 @@ const DocenteDashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full">Ver Evaluaciones</Button>
+                    <Button className="w-full" onClick={() => setActiveTab('evaluaciones')}>
+                      Ver Evaluaciones
+                    </Button>
                   </CardContent>
                 </Card>
 
@@ -135,35 +146,21 @@ const DocenteDashboard = () => {
                   <CardDescription>Últimos diagnósticos completados por estudiantes</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between py-3 border-b">
-                      <div>
-                        <p className="font-medium">Juan Pérez - Diagnóstico Completo</p>
-                        <p className="text-sm text-muted-foreground">Completado hace 10 minutos</p>
-                      </div>
-                      <Button variant="outline" size="sm">Revisar</Button>
-                    </div>
-                    <div className="flex items-center justify-between py-3 border-b">
-                      <div>
-                        <p className="font-medium">María García - Diagnóstico Completo</p>
-                        <p className="text-sm text-muted-foreground">Completado hace 1 hora</p>
-                      </div>
-                      <Button variant="outline" size="sm">Revisar</Button>
-                    </div>
-                    <div className="flex items-center justify-between py-3">
-                      <div>
-                        <p className="font-medium">Carlos López - Diagnóstico Completo</p>
-                        <p className="text-sm text-muted-foreground">Completado hace 2 horas</p>
-                      </div>
-                      <Button variant="outline" size="sm">Revisar</Button>
-                    </div>
-                  </div>
+                  <EvaluacionesManager showRecent={true} />
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="cursos">
               <CursosManager />
+            </TabsContent>
+
+            <TabsContent value="estudiantes">
+              <EstudiantesManager />
+            </TabsContent>
+
+            <TabsContent value="evaluaciones">
+              <EvaluacionesManager showRecent={false} />
             </TabsContent>
           </Tabs>
         </div>

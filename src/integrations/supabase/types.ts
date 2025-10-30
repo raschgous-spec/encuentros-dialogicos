@@ -52,6 +52,68 @@ export type Database = {
           },
         ]
       }
+      evaluaciones: {
+        Row: {
+          created_at: string
+          curso_id: string | null
+          estudiante_id: string
+          fecha: string
+          id: string
+          nivel: string | null
+          puntaje_affinity: number | null
+          puntaje_brainstorming: number | null
+          puntaje_dofa: number | null
+          puntaje_ishikawa: number | null
+          puntaje_pareto: number | null
+          puntaje_promedio: number | null
+          respuestas_completas: Json | null
+          tiempos_respuesta: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          curso_id?: string | null
+          estudiante_id: string
+          fecha?: string
+          id?: string
+          nivel?: string | null
+          puntaje_affinity?: number | null
+          puntaje_brainstorming?: number | null
+          puntaje_dofa?: number | null
+          puntaje_ishikawa?: number | null
+          puntaje_pareto?: number | null
+          puntaje_promedio?: number | null
+          respuestas_completas?: Json | null
+          tiempos_respuesta?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          curso_id?: string | null
+          estudiante_id?: string
+          fecha?: string
+          id?: string
+          nivel?: string | null
+          puntaje_affinity?: number | null
+          puntaje_brainstorming?: number | null
+          puntaje_dofa?: number | null
+          puntaje_ishikawa?: number | null
+          puntaje_pareto?: number | null
+          puntaje_promedio?: number | null
+          respuestas_completas?: Json | null
+          tiempos_respuesta?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evaluaciones_curso_id_fkey"
+            columns: ["curso_id"]
+            isOneToOne: false
+            referencedRelation: "cursos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string

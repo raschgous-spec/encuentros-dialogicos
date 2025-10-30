@@ -13,10 +13,14 @@ import { DOFAStep } from '@/components/steps/DOFAStep';
 import { ParetoStep } from '@/components/steps/ParetoStep';
 import { ReportStep } from '@/components/steps/ReportStep';
 import { diagnosticConfig } from '@/data/diagnosticConfig';
+import { useTimeTracking } from '@/hooks/useTimeTracking';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, profile } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [studentResults, setStudentResults] = useState<StudentResults>({
     brainstorming: [],
@@ -26,6 +30,8 @@ const Index = () => {
     pareto: {},
   });
   const [reportData, setReportData] = useState<ReturnType<typeof calculateOverallResults> | null>(null);
+  const { stepTimes, startTracking, stopTracking } = useTimeTracking();
+  const [isSaving, setIsSaving] = useState(false);
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -33,6 +39,14 @@ const Index = () => {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
+
+  // Start tracking time when step changes
+  useEffect(() => {
+    const stepNames = ['intro', 'brainstorming', 'affinity', 'ishikawa', 'dofa', 'pareto', 'report'];
+    if (currentStep < stepNames.length) {
+      startTracking(stepNames[currentStep]);
+    }
+  }, [currentStep]);
 
   // Show loading state
   if (loading) {
@@ -109,13 +123,61 @@ const Index = () => {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 5) {
+      stopTracking();
       const results = calculateOverallResults(studentResults);
       setReportData(results);
       setCurrentStep(6);
+      
+      // Guardar evaluación en la base de datos
+      await saveEvaluacion(results);
     } else {
       setCurrentStep((prev) => prev + 1);
+    }
+  };
+
+  const saveEvaluacion = async (results: ReturnType<typeof calculateOverallResults>) => {
+    try {
+      setIsSaving(true);
+      
+      if (!user || !profile) {
+        console.error('No user or profile found');
+        return;
+      }
+
+      const { error } = await supabase.from('evaluaciones').insert({
+        estudiante_id: user.id,
+        curso_id: (profile as any).curso_id || null,
+        puntaje_brainstorming: results.results[0].score,
+        puntaje_affinity: results.results[1].score,
+        puntaje_ishikawa: results.results[2].score,
+        puntaje_dofa: results.results[3].score,
+        puntaje_pareto: results.results[4].score,
+        puntaje_promedio: results.averageScore,
+        nivel: results.overallLevel,
+        respuestas_completas: studentResults as any,
+        tiempos_respuesta: stepTimes as any
+      });
+
+      if (error) {
+        console.error('Error saving evaluation:', error);
+        throw error;
+      }
+
+      toast({
+        title: 'Evaluación guardada',
+        description: 'Tu evaluación ha sido registrada exitosamente',
+      });
+    } catch (error) {
+      console.error('Error in saveEvaluacion:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo guardar la evaluación',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
