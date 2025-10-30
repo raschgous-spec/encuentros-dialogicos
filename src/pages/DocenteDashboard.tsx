@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CursosManager } from '@/components/CursosManager';
 import { EstudiantesManager } from '@/components/EstudiantesManager';
 import { EvaluacionesManager } from '@/components/EvaluacionesManager';
+import { EstadisticasManager } from '@/components/EstadisticasManager';
 
 const DocenteDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -22,6 +23,7 @@ const DocenteDashboard = () => {
               <TabsTrigger value="cursos">Mis Cursos</TabsTrigger>
               <TabsTrigger value="estudiantes">Estudiantes</TabsTrigger>
               <TabsTrigger value="evaluaciones">Evaluaciones</TabsTrigger>
+              <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -118,7 +120,9 @@ const DocenteDashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full">Ver Estadísticas</Button>
+                    <Button className="w-full" onClick={() => setActiveTab('estadisticas')}>
+                      Ver Estadísticas
+                    </Button>
                   </CardContent>
                 </Card>
 
@@ -161,6 +165,10 @@ const DocenteDashboard = () => {
 
             <TabsContent value="evaluaciones">
               <EvaluacionesManager showRecent={false} />
+            </TabsContent>
+
+            <TabsContent value="estadisticas">
+              <EstadisticasManager />
             </TabsContent>
           </Tabs>
         </div>
