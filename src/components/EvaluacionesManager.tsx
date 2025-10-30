@@ -70,56 +70,48 @@ export const EvaluacionesManager = ({ showRecent = false }: { showRecent?: boole
       const { data: cursosData } = await cursosQuery;
       const cursoIds = cursosData?.map(c => c.id) || [];
 
-      // Query para evaluaciones
-      let query = supabase
+      // Obtener todas las evaluaciones de los cursos
+      const { data: evaluacionesData, error: evalError } = await supabase
         .from('evaluaciones')
-        .select(`
-          id,
-          fecha,
-          puntaje_brainstorming,
-          puntaje_affinity,
-          puntaje_ishikawa,
-          puntaje_dofa,
-          puntaje_pareto,
-          puntaje_promedio,
-          nivel,
-          tiempos_respuesta,
-          profiles!evaluaciones_estudiante_id_fkey (
-            full_name,
-            email
-          ),
-          cursos (
-            nombre,
-            codigo
-          )
-        `)
+        .select('*')
         .in('curso_id', cursoIds)
         .order('fecha', { ascending: false });
 
-      if (showRecent) {
-        query = query.limit(5);
+      if (evalError) {
+        console.error('Error fetching evaluaciones:', evalError);
+        throw evalError;
       }
 
-      const { data: evaluacionesData, error } = await query;
+      // Obtener información de estudiantes y cursos
+      const evaluacionesConInfo = await Promise.all(
+        (evaluacionesData || []).map(async (evaluacion: any) => {
+          const { data: estudianteData } = await supabase
+            .from('profiles')
+            .select('full_name, email')
+            .eq('id', evaluacion.estudiante_id)
+            .single();
 
-      if (error) throw error;
+          const { data: cursoData } = await supabase
+            .from('cursos')
+            .select('nombre, codigo')
+            .eq('id', evaluacion.curso_id)
+            .single();
 
-      const formattedData = (evaluacionesData || []).map((ev: any) => ({
-        id: ev.id,
-        fecha: ev.fecha,
-        puntaje_brainstorming: ev.puntaje_brainstorming,
-        puntaje_affinity: ev.puntaje_affinity,
-        puntaje_ishikawa: ev.puntaje_ishikawa,
-        puntaje_dofa: ev.puntaje_dofa,
-        puntaje_pareto: ev.puntaje_pareto,
-        puntaje_promedio: ev.puntaje_promedio,
-        nivel: ev.nivel,
-        tiempos_respuesta: ev.tiempos_respuesta,
-        estudiante: ev.profiles,
-        curso: ev.cursos
-      }));
+          return {
+            ...evaluacion,
+            estudiante: estudianteData || { full_name: null, email: '' },
+            curso: cursoData
+          };
+        })
+      );
 
-      setEvaluaciones(formattedData);
+      let finalQuery = evaluacionesConInfo;
+
+      if (showRecent) {
+        finalQuery = finalQuery.slice(0, 5);
+      }
+
+      setEvaluaciones(finalQuery as Evaluacion[]);
     } catch (error) {
       console.error('Error fetching evaluaciones:', error);
       toast({

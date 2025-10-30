@@ -64,20 +64,10 @@ export const EstudiantesManager = () => {
       const { data: cursosData } = await cursosQuery;
       const cursoIds = cursosData?.map(c => c.id) || [];
 
-      // Obtener estudiantes de esos cursos con información del curso
+      // Obtener estudiantes de esos cursos
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          id,
-          email,
-          full_name,
-          created_at,
-          curso_id,
-          cursos!curso_id (
-            nombre,
-            codigo
-          )
-        `)
+        .select('id, email, full_name, created_at, curso_id')
         .in('curso_id', cursoIds)
         .order('created_at', { ascending: false });
 
@@ -86,11 +76,15 @@ export const EstudiantesManager = () => {
         throw profilesError;
       }
 
-      console.log('Profiles data:', profilesData);
-
-      // Obtener evaluaciones para cada estudiante
+      // Obtener información de cursos y evaluaciones para cada estudiante
       const estudiantesWithEvaluaciones = await Promise.all(
         (profilesData || []).map(async (profile: any) => {
+          const { data: cursoData } = await supabase
+            .from('cursos')
+            .select('nombre, codigo')
+            .eq('id', profile.curso_id)
+            .maybeSingle();
+
           const { data: evaluacionesData, error: evalError } = await supabase
             .from('evaluaciones')
             .select('id, fecha, puntaje_promedio, nivel, puntaje_brainstorming, puntaje_affinity, puntaje_ishikawa, puntaje_dofa, puntaje_pareto')
@@ -100,21 +94,18 @@ export const EstudiantesManager = () => {
           if (evalError) {
             console.error('Error fetching evaluaciones for student:', profile.id, evalError);
           }
-
-          console.log(`Evaluaciones for ${profile.full_name}:`, evaluacionesData);
           
           return {
             id: profile.id,
             email: profile.email,
             full_name: profile.full_name,
             created_at: profile.created_at,
-            curso: profile.cursos,
+            curso: cursoData,
             evaluaciones: evaluacionesData || []
           };
         })
       );
 
-      console.log('Students with evaluaciones:', estudiantesWithEvaluaciones);
       setEstudiantes(estudiantesWithEvaluaciones);
     } catch (error) {
       console.error('Error fetching estudiantes:', error);
