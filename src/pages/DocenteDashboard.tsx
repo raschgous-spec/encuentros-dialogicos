@@ -48,7 +48,9 @@ const DocenteDashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full">Nuevo Contenido</Button>
+                    <Button className="w-full" onClick={() => setActiveTab('cursos')}>
+                      Nuevo Contenido
+                    </Button>
                   </CardContent>
                 </Card>
 
@@ -65,7 +67,9 @@ const DocenteDashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full">Ver Contenido</Button>
+                    <Button className="w-full" onClick={() => setActiveTab('cursos')}>
+                      Ver Contenido
+                    </Button>
                   </CardContent>
                 </Card>
 
@@ -139,7 +143,9 @@ const DocenteDashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full">Ver Recursos</Button>
+                    <Button className="w-full" onClick={() => setActiveTab('cursos')}>
+                      Ver Recursos
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
