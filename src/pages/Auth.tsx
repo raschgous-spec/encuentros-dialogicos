@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import { Shield, BookOpen, GraduationCap } from 'lucide-react';
-import { CreateAdminButton } from '@/components/CreateAdminButton';
 
 type UserType = 'estudiante' | 'docente' | 'admin';
 
@@ -285,9 +284,6 @@ const Auth = () => {
           </Tabs>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4 text-sm text-muted-foreground">
-          <div className="w-full flex justify-center">
-            <CreateAdminButton />
-          </div>
           {userType === 'estudiante' ? (
             <p className="text-center">
               Al registrarte como estudiante, debes ingresar el código de curso proporcionado por tu docente.
