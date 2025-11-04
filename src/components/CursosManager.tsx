@@ -100,11 +100,19 @@ export const CursosManager = () => {
       setIsOpen(false);
       fetchCursos();
     } catch (error: any) {
+      console.error('Error creating curso:', error);
+      
+      // Map database errors to user-friendly messages
+      const getSafeErrorMessage = () => {
+        if (error.code === '23505') {
+          return 'Ya existe un curso con este código. Por favor usa un código diferente.';
+        }
+        return 'No se pudo crear el curso. Por favor intenta nuevamente.';
+      };
+      
       toast({
         title: 'Error',
-        description: error.message === 'duplicate key value violates unique constraint "cursos_codigo_key"'
-          ? 'Ya existe un curso con ese código'
-          : 'No se pudo crear el curso',
+        description: getSafeErrorMessage(),
         variant: 'destructive',
       });
     } finally {

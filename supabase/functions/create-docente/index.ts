@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
     if (createError) {
       console.error('Error creating user:', createError);
       return new Response(
-        JSON.stringify({ error: createError.message }),
+        JSON.stringify({ error: 'No se pudo crear el gestor del conocimiento' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -161,9 +161,8 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in create-docente function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: 'Error al procesar la solicitud. Por favor intenta nuevamente.' }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

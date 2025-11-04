@@ -133,7 +133,7 @@ export const DocentesManager = () => {
       console.error('Error creating docente:', error);
       toast({
         title: 'Error',
-        description: error.message || 'No se pudo crear el gestor del conocimiento',
+        description: 'No se pudo crear el gestor del conocimiento. Por favor intenta nuevamente.',
         variant: 'destructive',
       });
     } finally {
