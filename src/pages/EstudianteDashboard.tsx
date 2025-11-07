@@ -46,6 +46,18 @@ const EstudianteDashboard = () => {
 
         if (progressError) throw progressError;
 
+        // Check if student passed the nivelatorio evaluation
+        const { data: evalData } = await supabase
+          .from('student_evaluations')
+          .select('passed')
+          .eq('user_id', user.id)
+          .eq('momento', 'nivelatorio')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        const nivelatorioPassedEvaluation = evalData?.passed || false;
+
         // Build progress map
         const progress: Record<string, boolean> = {
           diagnostico: true, // Always accessible
@@ -61,11 +73,16 @@ const EstudianteDashboard = () => {
             if (item.completado) {
               progress[item.momento] = true;
               
-              // Unlock next moment if current is completed
-              const momentOrder = ['diagnostico', 'nivelatorio', 'encuentro1', 'encuentro2', 'encuentro3', 'encuentro4'];
-              const currentIndex = momentOrder.indexOf(item.momento);
-              if (currentIndex < momentOrder.length - 1) {
-                progress[momentOrder[currentIndex + 1]] = true;
+              // Special case: encuentro1 requires passing nivelatorio evaluation
+              if (item.momento === 'nivelatorio') {
+                progress['encuentro1'] = nivelatorioPassedEvaluation;
+              } else if (item.momento !== 'encuentro1') {
+                // For other moments, unlock next if current is completed
+                const momentOrder = ['diagnostico', 'nivelatorio', 'encuentro1', 'encuentro2', 'encuentro3', 'encuentro4'];
+                const currentIndex = momentOrder.indexOf(item.momento);
+                if (currentIndex < momentOrder.length - 1) {
+                  progress[momentOrder[currentIndex + 1]] = true;
+                }
               }
             }
           });

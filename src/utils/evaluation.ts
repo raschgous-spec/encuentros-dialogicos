@@ -107,3 +107,99 @@ export function calculateOverallResults(studentResults: StudentResults): {
 
   return { results, averageScore, overallLevel, suggestion };
 }
+
+// Case Study Evaluation Functions
+export function evaluateCaseBrainstorming(data: any): number {
+  // Score based on number of ideas (20 points max)
+  const ideas = data?.ideas || [];
+  const ideaCount = ideas.length;
+  const ideaScore = Math.min((ideaCount / 10) * 20, 20); // 10 or more ideas = full points
+  
+  return Math.round(ideaScore);
+}
+
+export function evaluateCaseAffinity(data: any): number {
+  // Score based on groups created (20 points max)
+  const groups = data?.groups || [];
+  const groupCount = groups.length;
+  const groupScore = Math.min((groupCount / 4) * 10, 10); // 4 or more groups = 10 points
+  
+  // Check if groups have meaningful labels
+  const labeledGroups = groups.filter((g: any) => g.label && g.label.trim().length > 0);
+  const labelScore = Math.min((labeledGroups.length / groupCount) * 10, 10);
+  
+  return Math.round(groupScore + labelScore);
+}
+
+export function evaluateCaseIshikawa(data: any): number {
+  // Score based on causes identified across 6M categories (20 points max)
+  const categories = ['metodos', 'maquinaria', 'manoObra', 'materiales', 'medioAmbiente', 'medicion'];
+  const causes = data?.causes || {};
+  
+  let totalCauses = 0;
+  let categoriesUsed = 0;
+  
+  categories.forEach(category => {
+    const categoryCauses = causes[category] || [];
+    if (categoryCauses.length > 0) {
+      categoriesUsed++;
+      totalCauses += categoryCauses.length;
+    }
+  });
+  
+  const categoryScore = (categoriesUsed / 6) * 10; // Use all 6 categories = 10 points
+  const causeScore = Math.min((totalCauses / 12) * 10, 10); // 12 or more causes = 10 points
+  
+  return Math.round(categoryScore + causeScore);
+}
+
+export function evaluateCaseDOFA(data: any): number {
+  // Score based on DOFA matrix completeness (20 points max)
+  const fortalezas = data?.fortalezas || [];
+  const debilidades = data?.debilidades || [];
+  const oportunidades = data?.oportunidades || [];
+  const amenazas = data?.amenazas || [];
+  
+  const fScore = Math.min((fortalezas.length / 3) * 5, 5);
+  const dScore = Math.min((debilidades.length / 3) * 5, 5);
+  const oScore = Math.min((oportunidades.length / 3) * 5, 5);
+  const aScore = Math.min((amenazas.length / 3) * 5, 5);
+  
+  return Math.round(fScore + dScore + oScore + aScore);
+}
+
+export function evaluateCasePareto(data: any): number {
+  // Score based on causes identified with frequencies (20 points max)
+  const causes = data?.causes || [];
+  
+  if (causes.length === 0) return 0;
+  
+  const causeScore = Math.min((causes.length / 5) * 10, 10); // 5 or more causes = 10 points
+  
+  // Check if frequencies are assigned
+  const withFrequency = causes.filter((c: any) => c.frequency && c.frequency > 0);
+  const frequencyScore = Math.min((withFrequency.length / causes.length) * 10, 10);
+  
+  return Math.round(causeScore + frequencyScore);
+}
+
+export function calculateCaseStudyScore(evaluacionData: any): {
+  automaticScore: number;
+  maxScore: number;
+  passed: boolean;
+  breakdown: Record<string, number>;
+} {
+  const breakdown = {
+    brainstorming: evaluateCaseBrainstorming(evaluacionData.brainstorming),
+    affinity: evaluateCaseAffinity(evaluacionData.affinity),
+    ishikawa: evaluateCaseIshikawa(evaluacionData.ishikawa),
+    dofa: evaluateCaseDOFA(evaluacionData.dofa),
+    pareto: evaluateCasePareto(evaluacionData.pareto)
+  };
+  
+  const automaticScore = Object.values(breakdown).reduce((sum, score) => sum + score, 0);
+  const maxScore = 100;
+  const passed = automaticScore >= 60; // 60% to pass
+  
+  return { automaticScore, maxScore, passed, breakdown };
+}

@@ -9,7 +9,11 @@ import { ParetoEval } from './ParetoEval';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, XCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { calculateCaseStudyScore } from '@/utils/evaluation';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 interface EvaluacionData {
   problematica?: string;
@@ -46,12 +50,20 @@ const toolsConfig: Record<ToolComponent, { name: string; icon: string }> = {
 };
 
 export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [step, setStep] = useState<'selection' | 'evaluation' | 'complete'>('selection');
   const [selectedProblematica, setSelectedProblematica] = useState<Problematica | null>(null);
   const [selectedItem, setSelectedItem] = useState<string>('');
   const [currentToolIndex, setCurrentToolIndex] = useState(0);
   const [toolsOrder, setToolsOrder] = useState<ToolComponent[]>([]);
   const [evaluacionData, setEvaluacionData] = useState<EvaluacionData>({});
+  const [evaluationResult, setEvaluationResult] = useState<{
+    automaticScore: number;
+    maxScore: number;
+    passed: boolean;
+  } | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     // Randomize tools order when component mounts
@@ -69,7 +81,7 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
     setStep('evaluation');
   };
 
-  const handleToolComplete = (toolName: ToolComponent, data: any) => {
+  const handleToolComplete = async (toolName: ToolComponent, data: any) => {
     const updatedData = {
       ...evaluacionData,
       [toolName]: data
@@ -79,8 +91,64 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
     if (currentToolIndex < toolsOrder.length - 1) {
       setCurrentToolIndex(currentToolIndex + 1);
     } else {
+      // All tools completed, calculate score and save
+      await saveEvaluation(updatedData);
+    }
+  };
+
+  const saveEvaluation = async (finalData: EvaluacionData) => {
+    if (!user) return;
+    
+    setSaving(true);
+    
+    try {
+      // Calculate automatic score
+      const result = calculateCaseStudyScore(finalData);
+      setEvaluationResult(result);
+      
+      // Save to database
+      const { error } = await supabase
+        .from('student_evaluations')
+        .insert({
+          user_id: user.id,
+          momento: 'nivelatorio',
+          dimension: finalData.dimension || '',
+          problematica: finalData.problematica || '',
+          brainstorming_data: finalData.brainstorming,
+          affinity_data: finalData.affinity,
+          ishikawa_data: finalData.ishikawa,
+          dofa_data: finalData.dofa,
+          pareto_data: finalData.pareto,
+          automatic_score: result.automaticScore,
+          max_score: result.maxScore,
+          passed: result.passed
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: result.passed ? "¡Evaluación Aprobada!" : "Evaluación Completada",
+        description: result.passed 
+          ? `Has obtenido ${result.automaticScore}/${result.maxScore} puntos. Has desbloqueado el Momento 3.`
+          : `Has obtenido ${result.automaticScore}/${result.maxScore} puntos. Necesitas al menos 60 puntos para continuar.`,
+        variant: result.passed ? "default" : "destructive"
+      });
+
       setStep('complete');
-      onComplete?.(updatedData);
+      
+      // Only call onComplete if passed
+      if (result.passed) {
+        onComplete?.(finalData);
+      }
+    } catch (error) {
+      console.error('Error saving evaluation:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo guardar la evaluación. Por favor intenta nuevamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -92,17 +160,55 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
   }
 
   if (step === 'complete') {
+    if (!evaluationResult) return null;
+    
+    const passed = evaluationResult.passed;
+    
     return (
       <Card>
         <CardContent className="py-12 text-center space-y-4">
-          <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto" />
-          <h2 className="text-2xl font-bold">¡Evaluación Completada!</h2>
-          <p className="text-muted-foreground">
-            Has completado exitosamente el análisis de la problemática usando las 5 herramientas de calidad.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Tu evaluación será revisada por el coordinador.
-          </p>
+          {passed ? (
+            <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto" />
+          ) : (
+            <XCircle className="h-16 w-16 text-destructive mx-auto" />
+          )}
+          <h2 className="text-2xl font-bold">
+            {passed ? '¡Evaluación Aprobada!' : 'Evaluación Completada'}
+          </h2>
+          <div className="space-y-2">
+            <p className="text-3xl font-bold">
+              {evaluationResult.automaticScore}/{evaluationResult.maxScore}
+            </p>
+            <p className="text-muted-foreground">
+              {passed 
+                ? 'Has completado exitosamente el análisis de la problemática usando las 5 herramientas de calidad.'
+                : 'Has completado el análisis, pero necesitas al menos 60 puntos para aprobar y desbloquear el Momento 3.'}
+            </p>
+          </div>
+          {passed ? (
+            <>
+              <p className="text-sm text-success font-medium">
+                ✓ Has desbloqueado el Momento 3 - Encuentro 1
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Tu evaluación será revisada por el coordinador para la calificación final.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Puedes intentar nuevamente para mejorar tu calificación.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (saving) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center">
+          <p className="text-lg">Guardando evaluación...</p>
         </CardContent>
       </Card>
     );

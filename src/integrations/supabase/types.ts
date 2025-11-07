@@ -179,6 +179,75 @@ export type Database = {
           },
         ]
       }
+      student_evaluations: {
+        Row: {
+          affinity_data: Json | null
+          automatic_score: number
+          brainstorming_data: Json | null
+          completed_at: string
+          coordinator_comments: string | null
+          coordinator_reviewed: boolean
+          coordinator_score: number | null
+          created_at: string
+          dimension: string
+          dofa_data: Json | null
+          id: string
+          ishikawa_data: Json | null
+          max_score: number
+          momento: string
+          pareto_data: Json | null
+          passed: boolean
+          problematica: string
+          reviewed_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          affinity_data?: Json | null
+          automatic_score?: number
+          brainstorming_data?: Json | null
+          completed_at?: string
+          coordinator_comments?: string | null
+          coordinator_reviewed?: boolean
+          coordinator_score?: number | null
+          created_at?: string
+          dimension: string
+          dofa_data?: Json | null
+          id?: string
+          ishikawa_data?: Json | null
+          max_score?: number
+          momento: string
+          pareto_data?: Json | null
+          passed?: boolean
+          problematica: string
+          reviewed_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          affinity_data?: Json | null
+          automatic_score?: number
+          brainstorming_data?: Json | null
+          completed_at?: string
+          coordinator_comments?: string | null
+          coordinator_reviewed?: boolean
+          coordinator_score?: number | null
+          created_at?: string
+          dimension?: string
+          dofa_data?: Json | null
+          id?: string
+          ishikawa_data?: Json | null
+          max_score?: number
+          momento?: string
+          pareto_data?: Json | null
+          passed?: boolean
+          problematica?: string
+          reviewed_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
