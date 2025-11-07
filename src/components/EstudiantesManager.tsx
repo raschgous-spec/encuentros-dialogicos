@@ -2,9 +2,18 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Mail, BookOpen, Calendar, Award, TrendingUp } from 'lucide-react';
+import { Users, Mail, BookOpen, Calendar, Award, TrendingUp, MapPin, ChevronRight, CheckCircle2, XCircle, FileText } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Evaluacion {
   id: string;
@@ -18,6 +27,30 @@ interface Evaluacion {
   puntaje_pareto: number | null;
 }
 
+interface MomentoProgreso {
+  momento: string;
+  completado: boolean;
+  fecha_completado: string | null;
+}
+
+interface NivelatorioEvaluation {
+  id: string;
+  dimension: string;
+  problematica: string;
+  brainstorming_data: any;
+  affinity_data: any;
+  ishikawa_data: any;
+  dofa_data: any;
+  pareto_data: any;
+  automatic_score: number;
+  max_score: number;
+  passed: boolean;
+  coordinator_reviewed: boolean;
+  coordinator_score: number | null;
+  coordinator_comments: string | null;
+  completed_at: string;
+}
+
 interface Estudiante {
   id: string;
   email: string;
@@ -28,11 +61,14 @@ interface Estudiante {
     codigo: string;
   } | null;
   evaluaciones: Evaluacion[];
+  momentoProgreso: MomentoProgreso[];
+  nivelatorioEval: NivelatorioEvaluation | null;
 }
 
 export const EstudiantesManager = () => {
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedStudent, setSelectedStudent] = useState<Estudiante | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -76,7 +112,7 @@ export const EstudiantesManager = () => {
         throw profilesError;
       }
 
-      // Obtener información de cursos y evaluaciones para cada estudiante
+      // Obtener información de cursos, evaluaciones, progreso y evaluación nivelatorio para cada estudiante
       const estudiantesWithEvaluaciones = await Promise.all(
         (profilesData || []).map(async (profile: any) => {
           const { data: cursoData } = await supabase
@@ -94,6 +130,23 @@ export const EstudiantesManager = () => {
           if (evalError) {
             console.error('Error fetching evaluaciones for student:', profile.id, evalError);
           }
+
+          // Fetch momento progreso
+          const { data: momentoData } = await supabase
+            .from('momento_progreso')
+            .select('momento, completado, fecha_completado')
+            .eq('estudiante_id', profile.id)
+            .order('fecha_completado', { ascending: false });
+
+          // Fetch nivelatorio evaluation
+          const { data: nivelatorioData } = await supabase
+            .from('student_evaluations')
+            .select('*')
+            .eq('user_id', profile.id)
+            .eq('momento', 'nivelatorio')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
           
           return {
             id: profile.id,
@@ -101,7 +154,9 @@ export const EstudiantesManager = () => {
             full_name: profile.full_name,
             created_at: profile.created_at,
             curso: cursoData,
-            evaluaciones: evaluacionesData || []
+            evaluaciones: evaluacionesData || [],
+            momentoProgreso: momentoData || [],
+            nivelatorioEval: nivelatorioData
           };
         })
       );
@@ -117,6 +172,37 @@ export const EstudiantesManager = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getMomentoActual = (progreso: MomentoProgreso[]) => {
+    const momentos = ['diagnostico', 'nivelatorio', 'encuentro1', 'encuentro2', 'encuentro3', 'encuentro4'];
+    
+    // Find the last completed moment
+    const completed = progreso.filter(p => p.completado).map(p => p.momento);
+    
+    if (completed.length === 0) return 'Diagnóstico';
+    
+    const lastCompletedIndex = Math.max(...completed.map(m => momentos.indexOf(m)));
+    
+    // If all completed, return the last one
+    if (lastCompletedIndex === momentos.length - 1) {
+      return 'Encuentro 4 (Completado)';
+    }
+    
+    // Return next moment
+    const nextMomentoIndex = lastCompletedIndex + 1;
+    const nextMomento = momentos[nextMomentoIndex];
+    
+    const momentoNames: Record<string, string> = {
+      'diagnostico': 'Diagnóstico',
+      'nivelatorio': 'Nivelatorio',
+      'encuentro1': 'Encuentro 1',
+      'encuentro2': 'Encuentro 2',
+      'encuentro3': 'Encuentro 3',
+      'encuentro4': 'Encuentro 4'
+    };
+    
+    return momentoNames[nextMomento] || 'Diagnóstico';
   };
 
   if (isLoading) {
@@ -255,6 +341,26 @@ export const EstudiantesManager = () => {
                   ))}
                 </div>
               )}
+
+              <div className="mt-3 pt-3 border-t">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Momento Actual</p>
+                      <p className="text-sm font-semibold">{getMomentoActual(estudiante.momentoProgreso)}</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedStudent(estudiante)}
+                  >
+                    Ver Detalles
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -272,6 +378,266 @@ export const EstudiantesManager = () => {
           </Card>
         )}
       </div>
+
+      {/* Modal de detalles del estudiante */}
+      <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              {selectedStudent?.full_name || selectedStudent?.email}
+            </DialogTitle>
+            <DialogDescription>
+              Progreso y evaluaciones del estudiante
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedStudent && (
+            <Tabs defaultValue="progreso" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="progreso">Progreso de Momentos</TabsTrigger>
+                <TabsTrigger value="nivelatorio">
+                  Evaluación Nivelatorio
+                  {selectedStudent.nivelatorioEval && (
+                    selectedStudent.nivelatorioEval.passed ? (
+                      <CheckCircle2 className="h-4 w-4 ml-2 text-green-500" />
+                    ) : (
+                      <XCircle className="h-4 w-4 ml-2 text-destructive" />
+                    )
+                  )}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="progreso" className="space-y-4">
+                <div className="space-y-3">
+                  {['diagnostico', 'nivelatorio', 'encuentro1', 'encuentro2', 'encuentro3', 'encuentro4'].map((momento) => {
+                    const progreso = selectedStudent.momentoProgreso.find(p => p.momento === momento);
+                    const isCompleted = progreso?.completado || false;
+                    
+                    const momentoNames: Record<string, string> = {
+                      'diagnostico': 'MOMENTO 1 - Diagnóstico',
+                      'nivelatorio': 'MOMENTO 2 - Nivelatorio',
+                      'encuentro1': 'MOMENTO 3 - Encuentro 1',
+                      'encuentro2': 'MOMENTO 4 - Encuentro 2',
+                      'encuentro3': 'MOMENTO 5 - Encuentro 3',
+                      'encuentro4': 'MOMENTO 6 - Encuentro 4'
+                    };
+
+                    return (
+                      <Card key={momento} className={isCompleted ? 'border-green-500' : ''}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              {isCompleted ? (
+                                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                              ) : (
+                                <div className="h-5 w-5 rounded-full border-2 border-muted-foreground" />
+                              )}
+                              <div>
+                                <p className="font-semibold">{momentoNames[momento]}</p>
+                                {progreso?.fecha_completado && (
+                                  <p className="text-xs text-muted-foreground">
+                                    Completado: {new Date(progreso.fecha_completado).toLocaleString()}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <Badge variant={isCompleted ? 'default' : 'secondary'}>
+                              {isCompleted ? 'Completado' : 'Pendiente'}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="nivelatorio" className="space-y-4">
+                {selectedStudent.nivelatorioEval ? (
+                  <div className="space-y-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Información General</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Dimensión</p>
+                            <p className="text-sm">{selectedStudent.nivelatorioEval.dimension}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Problemática</p>
+                            <p className="text-sm">{selectedStudent.nivelatorioEval.problematica}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Calificación Automática</p>
+                            <p className="text-sm font-bold">
+                              {selectedStudent.nivelatorioEval.automatic_score}/{selectedStudent.nivelatorioEval.max_score}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Estado</p>
+                            <Badge variant={selectedStudent.nivelatorioEval.passed ? 'default' : 'destructive'}>
+                              {selectedStudent.nivelatorioEval.passed ? 'Aprobado' : 'No Aprobado'}
+                            </Badge>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Fecha</p>
+                            <p className="text-sm">
+                              {new Date(selectedStudent.nivelatorioEval.completed_at).toLocaleString()}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Revisión Coordinador</p>
+                            <Badge variant={selectedStudent.nivelatorioEval.coordinator_reviewed ? 'default' : 'outline'}>
+                              {selectedStudent.nivelatorioEval.coordinator_reviewed ? 'Revisado' : 'Pendiente'}
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Respuestas detalladas por herramienta */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">🧠 Brainstorming</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium">Ideas generadas:</p>
+                          <ul className="list-disc list-inside space-y-1">
+                            {selectedStudent.nivelatorioEval.brainstorming_data?.ideas?.map((idea: string, idx: number) => (
+                              <li key={idx} className="text-sm">{idea}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">🧩 Diagrama de Afinidad</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {selectedStudent.nivelatorioEval.affinity_data?.groups?.map((group: any, idx: number) => (
+                            <div key={idx} className="border rounded p-3">
+                              <p className="font-semibold text-sm mb-2">{group.label}</p>
+                              <ul className="list-disc list-inside space-y-1">
+                                {group.items?.map((item: string, iIdx: number) => (
+                                  <li key={iIdx} className="text-sm text-muted-foreground">{item}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">🪶 Diagrama de Ishikawa</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {Object.entries(selectedStudent.nivelatorioEval.ishikawa_data?.causes || {}).map(([category, causes]: [string, any]) => (
+                            <div key={category}>
+                              <p className="font-semibold text-sm mb-2 capitalize">{category.replace(/([A-Z])/g, ' $1')}</p>
+                              <ul className="list-disc list-inside space-y-1">
+                                {causes?.map((cause: string, idx: number) => (
+                                  <li key={idx} className="text-sm text-muted-foreground">{cause}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">🧭 Matriz DOFA</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="font-semibold text-sm mb-2">Fortalezas</p>
+                            <ul className="list-disc list-inside space-y-1">
+                              {selectedStudent.nivelatorioEval.dofa_data?.fortalezas?.map((item: string, idx: number) => (
+                                <li key={idx} className="text-sm">{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm mb-2">Debilidades</p>
+                            <ul className="list-disc list-inside space-y-1">
+                              {selectedStudent.nivelatorioEval.dofa_data?.debilidades?.map((item: string, idx: number) => (
+                                <li key={idx} className="text-sm">{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm mb-2">Oportunidades</p>
+                            <ul className="list-disc list-inside space-y-1">
+                              {selectedStudent.nivelatorioEval.dofa_data?.oportunidades?.map((item: string, idx: number) => (
+                                <li key={idx} className="text-sm">{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm mb-2">Amenazas</p>
+                            <ul className="list-disc list-inside space-y-1">
+                              {selectedStudent.nivelatorioEval.dofa_data?.amenazas?.map((item: string, idx: number) => (
+                                <li key={idx} className="text-sm">{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">📊 Diagrama de Pareto</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <table className="w-full">
+                            <thead>
+                              <tr className="border-b">
+                                <th className="text-left text-sm font-semibold p-2">Causa</th>
+                                <th className="text-right text-sm font-semibold p-2">Frecuencia</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {selectedStudent.nivelatorioEval.pareto_data?.causes?.map((cause: any, idx: number) => (
+                                <tr key={idx} className="border-b">
+                                  <td className="text-sm p-2">{cause.name}</td>
+                                  <td className="text-sm text-right p-2">{cause.frequency}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  <Card>
+                    <CardContent className="py-12 text-center">
+                      <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        El estudiante aún no ha completado la evaluación del nivelatorio.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
