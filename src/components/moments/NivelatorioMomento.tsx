@@ -66,7 +66,8 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         'Categorías principales (6M): Métodos, Mano de obra, Materiales, Maquinaria, Medición, Medio ambiente.',
         'Proceso: Definir el problema, identificar categorías principales, encontrar causas potenciales, analizar y verificar.',
         'Ventajas: Visualización clara, enfoque estructurado, identificación de causas raíz.'
-      ]
+      ],
+      pdfUrl: '/documents/Ishikawa.pdf'
     },
     {
       id: 'pareto',
