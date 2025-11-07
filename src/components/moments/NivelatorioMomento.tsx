@@ -5,6 +5,7 @@ import { BookOpen, Video, FileCheck, Download } from 'lucide-react';
 import { useState } from 'react';
 import dofaImage from '@/assets/dofa-diagram.webp';
 import brainstormingImage from '@/assets/brainstorming-diagram.png';
+import affinityImage from '@/assets/affinity-diagram.png';
 
 interface NivelatorioMomentoProps {
   onComplete?: () => void;
@@ -45,6 +46,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
       id: 'affinity',
       title: 'Diagrama de Afinidad',
       description: 'Organización y agrupación de ideas relacionadas',
+      image: affinityImage,
       content: [
         'Técnica que permite organizar grandes cantidades de ideas, opiniones o datos en grupos según sus relaciones naturales.',
         'Proceso: Recopilar datos, escribir en tarjetas, agrupar por afinidad, crear encabezados, y analizar relaciones.',
