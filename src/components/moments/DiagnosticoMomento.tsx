@@ -33,14 +33,55 @@ export const DiagnosticoMomento = ({ onComplete }: DiagnosticoMomentoProps) => {
   const [reportData, setReportData] = useState<ReturnType<typeof calculateOverallResults> | null>(null);
   const { stepTimes, startTracking, stopTracking } = useTimeTracking();
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingPrevious, setIsLoadingPrevious] = useState(true);
+  const [hasCompletedBefore, setHasCompletedBefore] = useState(false);
 
-  // Start tracking time when step changes
+  // Check if student has already completed the diagnostic
   useEffect(() => {
+    const loadPreviousEvaluation = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('evaluaciones')
+          .select('*')
+          .eq('estudiante_id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          // Student has already completed the diagnostic
+          setHasCompletedBefore(true);
+          
+          // Load saved results
+          const savedResults = data.respuestas_completas as unknown as StudentResults;
+          setStudentResults(savedResults);
+          
+          // Calculate and show report
+          const results = calculateOverallResults(savedResults);
+          setReportData(results);
+          setCurrentStep(6); // Go directly to report step
+        }
+      } catch (error) {
+        console.error('Error loading previous evaluation:', error);
+      } finally {
+        setIsLoadingPrevious(false);
+      }
+    };
+
+    loadPreviousEvaluation();
+  }, [user]);
+
+  // Start tracking time when step changes (only if not viewing previous results)
+  useEffect(() => {
+    if (hasCompletedBefore) return;
+    
     const stepNames = ['intro', 'brainstorming', 'affinity', 'ishikawa', 'dofa', 'pareto', 'report'];
     if (currentStep < stepNames.length) {
       startTracking(stepNames[currentStep]);
     }
-  }, [currentStep]);
+  }, [currentStep, hasCompletedBefore]);
 
   const handleBrainstormingToggle = (optionId: string) => {
     setStudentResults((prev) => {
@@ -168,8 +209,25 @@ export const DiagnosticoMomento = ({ onComplete }: DiagnosticoMomentoProps) => {
     }
   };
 
+  // Show loading state while checking for previous evaluation
+  if (isLoadingPrevious) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-muted-foreground">Cargando...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {hasCompletedBefore && currentStep === 6 && (
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4">
+          <p className="text-sm text-muted-foreground">
+            Estás viendo los resultados de tu diagnóstico completado anteriormente.
+          </p>
+        </div>
+      )}
+      
       {currentStep === 0 && <IntroStep />}
       {currentStep === 1 && (
         <BrainstormingStep
@@ -190,7 +248,7 @@ export const DiagnosticoMomento = ({ onComplete }: DiagnosticoMomentoProps) => {
         />
       )}
 
-      {currentStep < 6 && (
+      {currentStep < 6 && !hasCompletedBefore && (
         <div className="flex justify-end pt-6">
           <Button onClick={handleNext} disabled={!isStepValid() || isSaving} size="lg">
             {getButtonText()}
