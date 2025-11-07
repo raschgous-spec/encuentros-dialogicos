@@ -78,7 +78,8 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         'Componentes: Gráfico de barras ordenado por frecuencia + línea acumulativa de porcentaje.',
         'Pasos: Identificar problemas, medir frecuencia, ordenar de mayor a menor, graficar, analizar.',
         'Utilidad: Priorizar esfuerzos, identificar problemas críticos, optimizar recursos, tomar decisiones basadas en datos.'
-      ]
+      ],
+      pdfUrl: '/documents/Pareto.pdf'
     }
   ];
 
