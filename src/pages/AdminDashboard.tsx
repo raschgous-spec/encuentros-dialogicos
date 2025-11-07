@@ -14,7 +14,7 @@ const AdminDashboard = () => {
           <Tabs defaultValue="overview" className="space-y-6">
             <TabsList>
               <TabsTrigger value="overview">Panel General</TabsTrigger>
-              <TabsTrigger value="docentes">Gestores del Conocimiento</TabsTrigger>
+              <TabsTrigger value="docentes">Coordinadores</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">

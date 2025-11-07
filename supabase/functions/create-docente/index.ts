@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
     if (createError) {
       console.error('Error creating user:', createError);
       return new Response(
-        JSON.stringify({ error: 'No se pudo crear el gestor del conocimiento' }),
+        JSON.stringify({ error: 'No se pudo crear el coordinador' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

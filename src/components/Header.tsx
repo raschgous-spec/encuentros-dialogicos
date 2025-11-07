@@ -91,7 +91,7 @@ export const Header = () => {
                 className="flex items-center gap-2"
               >
                 <BookOpen className="h-4 w-4" />
-                Gestor
+                Coordinador
               </Button>
             )}
             <Button

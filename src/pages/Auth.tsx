@@ -119,7 +119,7 @@ const Auth = () => {
         };
       case 'docente':
         return {
-          title: 'Acceso Gestor del Conocimiento',
+          title: 'Acceso Coordinador',
           description: 'Gestión de cursos y estudiantes',
           icon: BookOpen,
         };
@@ -165,7 +165,7 @@ const Auth = () => {
               onClick={() => setUserType('docente')}
             >
               <BookOpen className="h-6 w-6" />
-              <span className="text-xs">Gestor</span>
+              <span className="text-xs">Coordinador</span>
             </Button>
             <Button
               type="button"
@@ -290,7 +290,7 @@ const Auth = () => {
             </p>
           ) : (
             <p className="text-center">
-              Si eres {userType === 'admin' ? 'administrador' : 'gestor del conocimiento'}, contacta al administrador del sistema para obtener tus credenciales de acceso.
+              Si eres {userType === 'admin' ? 'administrador' : 'coordinador'}, contacta al administrador del sistema para obtener tus credenciales de acceso.
             </p>
           )}
         </CardFooter>

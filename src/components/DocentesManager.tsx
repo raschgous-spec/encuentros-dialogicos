@@ -122,7 +122,7 @@ export const DocentesManager = () => {
       }
 
       toast({
-        title: 'Gestor del Conocimiento creado',
+        title: 'Coordinador creado',
         description: `Se ha creado el usuario exitosamente`,
       });
 
@@ -133,7 +133,7 @@ export const DocentesManager = () => {
       console.error('Error creating docente:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo crear el gestor del conocimiento. Por favor intenta nuevamente.',
+        description: 'No se pudo crear el coordinador. Por favor intenta nuevamente.',
         variant: 'destructive',
       });
     } finally {
@@ -158,8 +158,8 @@ export const DocentesManager = () => {
       if (roleError) throw roleError;
 
       toast({
-        title: 'Gestor eliminado',
-        description: 'El rol de gestor del conocimiento ha sido eliminado',
+        title: 'Coordinador eliminado',
+        description: 'El rol de coordinador ha sido eliminado',
       });
 
       setDeleteDialogOpen(false);
@@ -168,7 +168,7 @@ export const DocentesManager = () => {
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error.message || 'No se pudo eliminar el gestor',
+        description: error.message || 'No se pudo eliminar el coordinador',
         variant: 'destructive',
       });
     }
@@ -178,24 +178,24 @@ export const DocentesManager = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Gestión de Gestores del Conocimiento</h2>
+          <h2 className="text-2xl font-bold">Gestión de Coordinadores</h2>
           <p className="text-muted-foreground">
-            Crea y administra las cuentas de los gestores del conocimiento
+            Crea y administra las cuentas de los coordinadores
           </p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Nuevo Gestor
+              Nuevo Coordinador
             </Button>
           </DialogTrigger>
           <DialogContent>
             <form onSubmit={handleCreateDocente}>
               <DialogHeader>
-                <DialogTitle>Crear Gestor del Conocimiento</DialogTitle>
+                <DialogTitle>Crear Coordinador</DialogTitle>
                 <DialogDescription>
-                  Crea las credenciales de acceso para un nuevo gestor
+                  Crea las credenciales de acceso para un nuevo coordinador
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
@@ -238,13 +238,13 @@ export const DocentesManager = () => {
                     minLength={6}
                   />
                   <p className="text-xs text-muted-foreground">
-                    El gestor podrá cambiar su contraseña después
+                    El coordinador podrá cambiar su contraseña después
                   </p>
                 </div>
               </div>
               <DialogFooter>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? 'Creando...' : 'Crear Gestor'}
+                  {isLoading ? 'Creando...' : 'Crear Coordinador'}
                 </Button>
               </DialogFooter>
             </form>
@@ -295,7 +295,7 @@ export const DocentesManager = () => {
           <Card className="col-span-full">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <p className="text-muted-foreground">
-                No hay gestores del conocimiento creados. Crea el primero para comenzar.
+                No hay coordinadores creados. Crea el primero para comenzar.
               </p>
             </CardContent>
           </Card>
@@ -307,7 +307,7 @@ export const DocentesManager = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará el rol de gestor del conocimiento. El usuario no podrá acceder al panel de gestión pero sus cursos permanecerán.
+              Esta acción eliminará el rol de coordinador. El usuario no podrá acceder al panel de gestión pero sus cursos permanecerán.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -28,7 +28,7 @@ const DocenteDashboard = () => {
 
             <TabsContent value="overview" className="space-y-6">
               <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Panel del Gestor del Conocimiento</h1>
+                <h1 className="text-3xl font-bold mb-2">Panel del Coordinador</h1>
                 <p className="text-muted-foreground">
                   Gestiona contenido, estudiantes y supervisa el progreso académico
                 </p>
