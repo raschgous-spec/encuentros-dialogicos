@@ -21,67 +21,76 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
   const materials = [
     {
       id: 'dofa',
-      title: 'DOFA (FODA)',
+      title: '🧭 Matriz DOFA / FODA (SWOT)',
       description: 'Análisis estratégico de Debilidades, Oportunidades, Fortalezas y Amenazas',
       image: dofaImage,
       content: [
-        'El análisis DOFA es una herramienta de planificación estratégica que permite evaluar factores internos y externos de una organización o proyecto.',
-        'Debilidades: Factores internos negativos que limitan el rendimiento.',
-        'Oportunidades: Factores externos positivos que se pueden aprovechar.',
-        'Fortalezas: Factores internos positivos que dan ventaja competitiva.',
-        'Amenazas: Factores externos negativos que representan riesgos.'
+        '📖 Referencia: Talancón, H. P. (2007). La matriz FODA: alternativa de diagnóstico y planeación estratégica.',
+        '💡 Concepto: El análisis FODA identifica Fortalezas, Oportunidades, Debilidades y Amenazas de una organización o situación, brindando una visión integral para la toma de decisiones estratégicas.',
+        '🔧 Uso y desarrollo: Talancón explica su evolución desde el método SOFT de los años 60. Se usa ampliamente en planificación organizacional, educativa y social para evaluar entornos internos y externos.',
+        '✅ Ventajas: Permite diagnósticos claros y decisiones estratégicas. Sencillo y adaptable a distintos contextos.',
+        '⚠️ Limitaciones: No cuantifica la magnitud de los factores. Puede depender del criterio subjetivo de los participantes.',
+        '📌 Ejemplo: Evaluación de una institución educativa para definir estrategias de mejora.'
       ],
       pdfUrl: '/documents/DOFA.pdf'
     },
     {
       id: 'brainstorming',
-      title: 'Brainstorming (Lluvia de Ideas)',
+      title: '🧠 Brainstorming (Lluvia de Ideas)',
       description: 'Técnica de generación creativa de ideas en grupo',
       image: brainstormingImage,
       content: [
-        'Es una técnica de creatividad grupal que busca generar la mayor cantidad de ideas posibles sin juzgarlas inicialmente.',
-        'Reglas básicas: No criticar, fomentar ideas locas, buscar cantidad sobre calidad, combinar y mejorar ideas.',
-        'Fases: Generación de ideas, clasificación, evaluación y selección.',
-        'Útil para: Solución de problemas, innovación, planificación de proyectos.'
+        '📖 Referencia: Delgado, C. (2022). Estrategias didácticas para fortalecer el pensamiento creativo en estudiantes de educación básica.',
+        '💡 Concepto: El brainstorming es una técnica grupal que busca generar la mayor cantidad posible de ideas sobre un problema, suspendiendo el juicio crítico durante la fase inicial.',
+        '🔧 Uso y desarrollo: Delgado resalta su valor pedagógico como herramienta para fomentar la creatividad y la participación activa. Se originó en los años 40 con Alex Osborn, y su aplicación se ha ampliado en entornos educativos, empresariales y de innovación.',
+        '✅ Ventajas: Estimula la creatividad colectiva. Promueve la colaboración y el pensamiento divergente.',
+        '⚠️ Limitaciones: Puede verse afectado por la presión social o por participantes dominantes. Requiere moderación adecuada.',
+        '📌 Ejemplo: Generación de ideas para proyectos escolares o soluciones innovadoras en grupos de trabajo.'
       ],
       pdfUrl: '/documents/Brainstorming.pdf'
     },
     {
       id: 'affinity',
-      title: 'Diagrama de Afinidad',
+      title: '🧩 Diagrama de Afinidad (Método KJ)',
       description: 'Organización y agrupación de ideas relacionadas',
       image: affinityImage,
       content: [
-        'Técnica que permite organizar grandes cantidades de ideas, opiniones o datos en grupos según sus relaciones naturales.',
-        'Proceso: Recopilar datos, escribir en tarjetas, agrupar por afinidad, crear encabezados, y analizar relaciones.',
-        'Beneficios: Identifica patrones, facilita la comprensión, promueve el consenso del equipo.',
-        'Aplicaciones: Análisis de problemas complejos, organización de feedback, planificación estratégica.'
+        '📖 Referencia: García, M., & Carrero de Blanco, A. (2008). Aplicación del diagrama de afinidad para plantear problemas ambientales.',
+        '💡 Concepto: El diagrama de afinidad agrupa ideas o datos cualitativos en categorías basadas en su relación natural, ayudando a clarificar temas complejos.',
+        '🔧 Uso y desarrollo: Originado por Jiro Kawakita (método KJ), este enfoque se utiliza para organizar información de manera visual. García y Carrero lo aplican a problemas ambientales, mostrando su utilidad en la estructuración participativa de causas y efectos.',
+        '✅ Ventajas: Permite visualizar patrones ocultos en datos cualitativos. Facilita la colaboración interdisciplinaria.',
+        '⚠️ Limitaciones: Requiere consenso para agrupar datos. Puede ser subjetivo si no se guía correctamente.',
+        '📌 Ejemplo: Clasificación de problemas ambientales por tipo de causa o impacto.'
       ],
       pdfUrl: '/documents/Affinity.pdf'
     },
     {
       id: 'ishikawa',
-      title: 'Diagrama de Ishikawa (Espina de Pescado)',
+      title: '🪶 Diagrama de Ishikawa (Causa-Efecto)',
       description: 'Análisis causa-efecto para identificar raíces de problemas',
       image: ishikawaImage,
       content: [
-        'También conocido como diagrama causa-efecto, ayuda a identificar, clasificar y visualizar las causas de un problema.',
-        'Categorías principales (6M): Métodos, Mano de obra, Materiales, Maquinaria, Medición, Medio ambiente.',
-        'Proceso: Definir el problema, identificar categorías principales, encontrar causas potenciales, analizar y verificar.',
-        'Ventajas: Visualización clara, enfoque estructurado, identificación de causas raíz.'
+        '📖 Referencia: Bermúdez, E. R. (2010). El uso del diagrama causa-efecto en el análisis de casos.',
+        '💡 Concepto: También conocido como "espina de pescado", este diagrama identifica y organiza las causas potenciales de un problema en categorías (métodos, maquinaria, mano de obra, materiales, medio ambiente, medición).',
+        '🔧 Uso y desarrollo: Bermúdez explica cómo la herramienta, desarrollada por Kaoru Ishikawa en los años 50, ayuda a encontrar causas raíz dentro de la gestión de calidad o el análisis de procesos.',
+        '✅ Ventajas: Clarifica relaciones causa-efecto. Sirve de base para la mejora continua.',
+        '⚠️ Limitaciones: Puede omitir factores no evidentes si el grupo carece de experiencia.',
+        '📌 Ejemplo: Análisis de causas de retrasos en una línea de producción o en la entrega de servicios.'
       ],
       pdfUrl: '/documents/Ishikawa.pdf'
     },
     {
       id: 'pareto',
-      title: 'Diagrama de Pareto',
+      title: '📊 Diagrama de Pareto (Principio 80/20)',
       description: 'Principio 80/20 para priorizar problemas o causas',
       image: paretoImage,
       content: [
-        'Basado en el principio de Pareto (80/20): el 80% de los problemas provienen del 20% de las causas.',
-        'Componentes: Gráfico de barras ordenado por frecuencia + línea acumulativa de porcentaje.',
-        'Pasos: Identificar problemas, medir frecuencia, ordenar de mayor a menor, graficar, analizar.',
-        'Utilidad: Priorizar esfuerzos, identificar problemas críticos, optimizar recursos, tomar decisiones basadas en datos.'
+        '📖 Referencia: Borjas, C. M. B. (2005). La ley de Pareto aplicada a la fiabilidad.',
+        '💡 Concepto: El principio de Pareto establece que un pequeño número de causas genera la mayoría de los efectos (80/20). El diagrama correspondiente permite priorizar acciones sobre las causas más influyentes.',
+        '🔧 Uso y desarrollo: Borjas describe su aplicación en ingeniería de fiabilidad para detectar los fallos más recurrentes. Es útil en control de calidad, gestión del tiempo y mejora de procesos.',
+        '✅ Ventajas: Enfoca esfuerzos en los factores de mayor impacto. Se integra fácilmente con otras herramientas de calidad.',
+        '⚠️ Limitaciones: No muestra relaciones causales. Depende de datos cuantitativos precisos.',
+        '📌 Ejemplo: Priorización de defectos en una línea de producción o análisis de causas frecuentes de fallas en sistemas técnicos.'
       ],
       pdfUrl: '/documents/Pareto.pdf'
     }
