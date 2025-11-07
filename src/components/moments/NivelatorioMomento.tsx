@@ -4,6 +4,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { BookOpen, Video, FileCheck, Download } from 'lucide-react';
 import { useState } from 'react';
 import dofaImage from '@/assets/dofa-diagram.webp';
+import brainstormingImage from '@/assets/brainstorming-diagram.png';
 
 interface NivelatorioMomentoProps {
   onComplete?: () => void;
@@ -32,6 +33,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
       id: 'brainstorming',
       title: 'Brainstorming (Lluvia de Ideas)',
       description: 'Técnica de generación creativa de ideas en grupo',
+      image: brainstormingImage,
       content: [
         'Es una técnica de creatividad grupal que busca generar la mayor cantidad de ideas posibles sin juzgarlas inicialmente.',
         'Reglas básicas: No criticar, fomentar ideas locas, buscar cantidad sobre calidad, combinar y mejorar ideas.',
