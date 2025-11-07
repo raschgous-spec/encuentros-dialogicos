@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { BookOpen, Video, FileCheck, Download } from 'lucide-react';
 import { useState } from 'react';
+import dofaImage from '@/assets/dofa-diagram.webp';
 
 interface NivelatorioMomentoProps {
   onComplete?: () => void;
@@ -17,6 +18,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
       id: 'dofa',
       title: 'DOFA (FODA)',
       description: 'Análisis estratégico de Debilidades, Oportunidades, Fortalezas y Amenazas',
+      image: dofaImage,
       content: [
         'El análisis DOFA es una herramienta de planificación estratégica que permite evaluar factores internos y externos de una organización o proyecto.',
         'Debilidades: Factores internos negativos que limitan el rendimiento.',
@@ -179,6 +181,15 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
+                    {material.image && (
+                      <div className="mb-4">
+                        <img 
+                          src={material.image} 
+                          alt={material.title}
+                          className="w-full max-w-md mx-auto rounded-lg"
+                        />
+                      </div>
+                    )}
                     {material.content.map((paragraph, index) => (
                       <p key={index} className="text-sm text-muted-foreground leading-relaxed">
                         {paragraph}
