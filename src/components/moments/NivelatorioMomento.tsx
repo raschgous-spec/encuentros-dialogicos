@@ -42,7 +42,8 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         'Reglas básicas: No criticar, fomentar ideas locas, buscar cantidad sobre calidad, combinar y mejorar ideas.',
         'Fases: Generación de ideas, clasificación, evaluación y selección.',
         'Útil para: Solución de problemas, innovación, planificación de proyectos.'
-      ]
+      ],
+      pdfUrl: '/documents/Brainstorming.pdf'
     },
     {
       id: 'affinity',
