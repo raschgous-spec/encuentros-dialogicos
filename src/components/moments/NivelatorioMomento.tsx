@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { BookOpen, Video, FileCheck } from 'lucide-react';
+import { BookOpen, Video, FileCheck, Download } from 'lucide-react';
 import { useState } from 'react';
 
 interface NivelatorioMomentoProps {
@@ -23,7 +23,8 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         'Oportunidades: Factores externos positivos que se pueden aprovechar.',
         'Fortalezas: Factores internos positivos que dan ventaja competitiva.',
         'Amenazas: Factores externos negativos que representan riesgos.'
-      ]
+      ],
+      pdfUrl: '/documents/DOFA.pdf'
     },
     {
       id: 'brainstorming',
@@ -183,6 +184,18 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
                         {paragraph}
                       </p>
                     ))}
+                    {material.pdfUrl && (
+                      <div className="pt-4">
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => window.open(material.pdfUrl, '_blank')}
+                        >
+                          <Download className="mr-2 h-4 w-4" />
+                          Descargar Material Completo (PDF)
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
