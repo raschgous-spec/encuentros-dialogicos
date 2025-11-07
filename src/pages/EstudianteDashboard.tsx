@@ -76,7 +76,7 @@ const EstudianteDashboard = () => {
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
             <TabsTrigger value="diagnostico" className="flex flex-col items-center gap-1 justify-center py-3">
               {diagnosticoCompleted && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-              <span className="font-semibold text-xs text-center">MOMENTO 1 - DIAGNÓSTICO</span>
+              <span className="font-semibold text-xs text-center">DIAGNÓSTICO</span>
             </TabsTrigger>
             <TabsTrigger 
               value="nivelatorio" 
@@ -84,7 +84,7 @@ const EstudianteDashboard = () => {
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
               {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
-              <span className="font-semibold text-xs text-center">MOMENTO 2 - NIVELATORIO</span>
+              <span className="font-semibold text-xs text-center">NIVELATORIO</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro1" 
@@ -92,7 +92,7 @@ const EstudianteDashboard = () => {
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
               {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
-              <span className="font-semibold text-xs text-center">MOMENTO 3 - ENCUENTRO 1</span>
+              <span className="font-semibold text-xs text-center">ENCUENTRO 1</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro2" 
@@ -100,7 +100,7 @@ const EstudianteDashboard = () => {
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
               {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
-              <span className="font-semibold text-xs text-center">MOMENTO 4 - ENCUENTRO 2</span>
+              <span className="font-semibold text-xs text-center">ENCUENTRO 2</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro3" 
@@ -108,7 +108,7 @@ const EstudianteDashboard = () => {
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
               {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
-              <span className="font-semibold text-xs text-center">MOMENTO 5 - ENCUENTRO 3</span>
+              <span className="font-semibold text-xs text-center">ENCUENTRO 3</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro4" 
@@ -116,7 +116,7 @@ const EstudianteDashboard = () => {
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
               {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
-              <span className="font-semibold text-xs text-center">MOMENTO 6 - ENCUENTRO 4</span>
+              <span className="font-semibold text-xs text-center">ENCUENTRO 4</span>
             </TabsTrigger>
           </TabsList>
 
