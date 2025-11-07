@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Video, FileText, CheckSquare } from 'lucide-react';
+import { BookOpen, Video, FileCheck } from 'lucide-react';
 
 interface NivelatorioMomentoProps {
   onComplete?: () => void;
@@ -9,7 +9,13 @@ interface NivelatorioMomentoProps {
 export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-2">
+      <div>
+        <h1 className="text-3xl font-bold text-primary border-b-2 border-primary pb-3 mb-6">
+          MOMENTO 2 - NIVELATORIO
+        </h1>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -17,7 +23,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
                 <BookOpen className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-lg">Material de Estudio</CardTitle>
+                <CardTitle className="text-lg">1. MATERIAL DE ESTUDIO</CardTitle>
                 <CardDescription>Recursos teóricos y guías</CardDescription>
               </div>
             </div>
@@ -36,7 +42,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
                 <Video className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-lg">Videos Explicativos</CardTitle>
+                <CardTitle className="text-lg">2. VIDEOS EXPLICATIVOS</CardTitle>
                 <CardDescription>Contenido audiovisual</CardDescription>
               </div>
             </div>
@@ -52,65 +58,29 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
-                <FileText className="h-6 w-6 text-primary" />
+                <FileCheck className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-lg">Ejercicios Prácticos</CardTitle>
-                <CardDescription>Practica lo aprendido</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Próximamente encontrarás aquí ejercicios para reforzar tu aprendizaje.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <CheckSquare className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Evaluaciones</CardTitle>
+                <CardTitle className="text-lg">3. EVALUACIÓN - CASO DE ESTUDIO</CardTitle>
                 <CardDescription>Verifica tu progreso</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Próximamente encontrarás aquí evaluaciones para medir tu avance.
+              Próximamente encontrarás aquí la evaluación del caso de estudio.
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="border-primary/20 bg-primary/5">
-        <CardHeader>
-          <CardTitle>Sección en Construcción</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            El contenido del Momento 2 - Nivelatorio está siendo preparado. Pronto tendrás acceso a:
-          </p>
-          <ul className="mt-4 space-y-2 text-sm text-muted-foreground list-disc list-inside">
-            <li>Material teórico sobre cada herramienta de calidad</li>
-            <li>Videos tutoriales paso a paso</li>
-            <li>Ejercicios prácticos interactivos</li>
-            <li>Evaluaciones de progreso</li>
-            <li>Casos prácticos de aplicación</li>
-          </ul>
-          {onComplete && (
-            <div className="mt-6">
-              <Button onClick={onComplete} className="w-full">
-                Marcar como Completado
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {onComplete && (
+        <div className="flex justify-end">
+          <Button onClick={onComplete} size="lg">
+            Marcar como Completado
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
