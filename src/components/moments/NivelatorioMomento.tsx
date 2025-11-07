@@ -54,7 +54,8 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         'Proceso: Recopilar datos, escribir en tarjetas, agrupar por afinidad, crear encabezados, y analizar relaciones.',
         'Beneficios: Identifica patrones, facilita la comprensión, promueve el consenso del equipo.',
         'Aplicaciones: Análisis de problemas complejos, organización de feedback, planificación estratégica.'
-      ]
+      ],
+      pdfUrl: '/documents/Affinity.pdf'
     },
     {
       id: 'ishikawa',
