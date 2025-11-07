@@ -17,7 +17,14 @@ const EstudianteDashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('diagnostico');
-  const [diagnosticoCompleted, setDiagnosticoCompleted] = useState(false);
+  const [momentoProgress, setMomentoProgress] = useState<Record<string, boolean>>({
+    diagnostico: true,
+    nivelatorio: false,
+    encuentro1: false,
+    encuentro2: false,
+    encuentro3: false,
+    encuentro4: false,
+  });
   const [checkingStatus, setCheckingStatus] = useState(true);
 
   useEffect(() => {
@@ -27,27 +34,86 @@ const EstudianteDashboard = () => {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    const checkDiagnosticoStatus = async () => {
+    const checkMomentoProgress = async () => {
       if (!user) return;
 
       try {
-        const { data, error } = await supabase
-          .from('evaluaciones')
-          .select('id')
-          .eq('estudiante_id', user.id)
-          .maybeSingle();
+        // Fetch all momento progress for the student
+        const { data: progressData, error: progressError } = await supabase
+          .from('momento_progreso')
+          .select('momento, completado')
+          .eq('estudiante_id', user.id);
 
-        if (error) throw error;
-        setDiagnosticoCompleted(!!data);
+        if (progressError) throw progressError;
+
+        // Build progress map
+        const progress: Record<string, boolean> = {
+          diagnostico: true, // Always accessible
+          nivelatorio: false,
+          encuentro1: false,
+          encuentro2: false,
+          encuentro3: false,
+          encuentro4: false,
+        };
+
+        if (progressData) {
+          progressData.forEach((item) => {
+            if (item.completado) {
+              progress[item.momento] = true;
+              
+              // Unlock next moment if current is completed
+              const momentOrder = ['diagnostico', 'nivelatorio', 'encuentro1', 'encuentro2', 'encuentro3', 'encuentro4'];
+              const currentIndex = momentOrder.indexOf(item.momento);
+              if (currentIndex < momentOrder.length - 1) {
+                progress[momentOrder[currentIndex + 1]] = true;
+              }
+            }
+          });
+        }
+
+        setMomentoProgress(progress);
       } catch (error) {
-        console.error('Error checking diagnostico status:', error);
+        console.error('Error checking momento progress:', error);
       } finally {
         setCheckingStatus(false);
       }
     };
 
-    checkDiagnosticoStatus();
+    checkMomentoProgress();
   }, [user]);
+
+  const handleMomentoComplete = async (momento: string) => {
+    if (!user) return;
+
+    try {
+      // Insert or update progress
+      const { error } = await supabase
+        .from('momento_progreso')
+        .upsert({
+          estudiante_id: user.id,
+          momento,
+          completado: true,
+          fecha_completado: new Date().toISOString(),
+        });
+
+      if (error) throw error;
+
+      // Update local state to unlock next moment
+      const momentOrder = ['diagnostico', 'nivelatorio', 'encuentro1', 'encuentro2', 'encuentro3', 'encuentro4'];
+      const currentIndex = momentOrder.indexOf(momento);
+      
+      setMomentoProgress((prev) => {
+        const newProgress = { ...prev };
+        newProgress[momento] = true;
+        if (currentIndex < momentOrder.length - 1) {
+          newProgress[momentOrder[currentIndex + 1]] = true;
+        }
+        return newProgress;
+      });
+    } catch (error) {
+      console.error('Error updating momento progress:', error);
+    }
+  };
 
   if (loading || checkingStatus) {
     return (
@@ -75,47 +141,46 @@ const EstudianteDashboard = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
             <TabsTrigger value="diagnostico" className="flex flex-col items-center gap-1 justify-center py-3">
-              {diagnosticoCompleted && <CheckCircle2 className="h-4 w-4 text-green-500" />}
               <span className="font-semibold text-xs text-center">DIAGNÓSTICO</span>
             </TabsTrigger>
             <TabsTrigger 
               value="nivelatorio" 
-              disabled={!diagnosticoCompleted}
+              disabled={!momentoProgress.nivelatorio}
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
-              {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
+              {!momentoProgress.nivelatorio && <Lock className="h-4 w-4" />}
               <span className="font-semibold text-xs text-center">NIVELATORIO</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro1" 
-              disabled={!diagnosticoCompleted}
+              disabled={!momentoProgress.encuentro1}
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
-              {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
+              {!momentoProgress.encuentro1 && <Lock className="h-4 w-4" />}
               <span className="font-semibold text-xs text-center">ENCUENTRO 1</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro2" 
-              disabled={!diagnosticoCompleted}
+              disabled={!momentoProgress.encuentro2}
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
-              {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
+              {!momentoProgress.encuentro2 && <Lock className="h-4 w-4" />}
               <span className="font-semibold text-xs text-center">ENCUENTRO 2</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro3" 
-              disabled={!diagnosticoCompleted}
+              disabled={!momentoProgress.encuentro3}
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
-              {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
+              {!momentoProgress.encuentro3 && <Lock className="h-4 w-4" />}
               <span className="font-semibold text-xs text-center">ENCUENTRO 3</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro4" 
-              disabled={!diagnosticoCompleted}
+              disabled={!momentoProgress.encuentro4}
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
-              {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
+              {!momentoProgress.encuentro4 && <Lock className="h-4 w-4" />}
               <span className="font-semibold text-xs text-center">ENCUENTRO 4</span>
             </TabsTrigger>
           </TabsList>
@@ -130,14 +195,14 @@ const EstudianteDashboard = () => {
               </CardHeader>
               <CardContent>
                 <DiagnosticoMomento 
-                  onComplete={() => setDiagnosticoCompleted(true)} 
+                  onComplete={() => handleMomentoComplete('diagnostico')} 
                 />
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="nivelatorio" className="space-y-6">
-            {!diagnosticoCompleted ? (
+            {!momentoProgress.nivelatorio ? (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -158,14 +223,14 @@ const EstudianteDashboard = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <NivelatorioMomento />
+                  <NivelatorioMomento onComplete={() => handleMomentoComplete('nivelatorio')} />
                 </CardContent>
               </Card>
             )}
           </TabsContent>
 
           <TabsContent value="encuentro1" className="space-y-6">
-            {!diagnosticoCompleted ? (
+            {!momentoProgress.encuentro1 ? (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -173,7 +238,7 @@ const EstudianteDashboard = () => {
                     MOMENTO 3 - ENCUENTRO 1
                   </CardTitle>
                   <CardDescription>
-                    Debes completar el diagnóstico (Momento 1) antes de acceder a este encuentro
+                    Debes completar el momento anterior antes de acceder a este encuentro
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -186,14 +251,14 @@ const EstudianteDashboard = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Encuentro1Momento />
+                  <Encuentro1Momento onComplete={() => handleMomentoComplete('encuentro1')} />
                 </CardContent>
               </Card>
             )}
           </TabsContent>
 
           <TabsContent value="encuentro2" className="space-y-6">
-            {!diagnosticoCompleted ? (
+            {!momentoProgress.encuentro2 ? (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -201,7 +266,7 @@ const EstudianteDashboard = () => {
                     MOMENTO 4 - ENCUENTRO 2
                   </CardTitle>
                   <CardDescription>
-                    Debes completar el diagnóstico (Momento 1) antes de acceder a este encuentro
+                    Debes completar el momento anterior antes de acceder a este encuentro
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -214,14 +279,14 @@ const EstudianteDashboard = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Encuentro2Momento />
+                  <Encuentro2Momento onComplete={() => handleMomentoComplete('encuentro2')} />
                 </CardContent>
               </Card>
             )}
           </TabsContent>
 
           <TabsContent value="encuentro3" className="space-y-6">
-            {!diagnosticoCompleted ? (
+            {!momentoProgress.encuentro3 ? (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -229,7 +294,7 @@ const EstudianteDashboard = () => {
                     MOMENTO 5 - ENCUENTRO 3
                   </CardTitle>
                   <CardDescription>
-                    Debes completar el diagnóstico (Momento 1) antes de acceder a este encuentro
+                    Debes completar el momento anterior antes de acceder a este encuentro
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -242,14 +307,14 @@ const EstudianteDashboard = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Encuentro3Momento />
+                  <Encuentro3Momento onComplete={() => handleMomentoComplete('encuentro3')} />
                 </CardContent>
               </Card>
             )}
           </TabsContent>
 
           <TabsContent value="encuentro4" className="space-y-6">
-            {!diagnosticoCompleted ? (
+            {!momentoProgress.encuentro4 ? (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -257,7 +322,7 @@ const EstudianteDashboard = () => {
                     MOMENTO 6 - ENCUENTRO 4
                   </CardTitle>
                   <CardDescription>
-                    Debes completar el diagnóstico (Momento 1) antes de acceder a este encuentro
+                    Debes completar el momento anterior antes de acceder a este encuentro
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -270,7 +335,7 @@ const EstudianteDashboard = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Encuentro4Momento />
+                  <Encuentro4Momento onComplete={() => handleMomentoComplete('encuentro4')} />
                 </CardContent>
               </Card>
             )}

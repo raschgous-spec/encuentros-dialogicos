@@ -114,6 +114,36 @@ export type Database = {
           },
         ]
       }
+      momento_progreso: {
+        Row: {
+          completado: boolean | null
+          created_at: string | null
+          estudiante_id: string
+          fecha_completado: string | null
+          id: string
+          momento: string
+          updated_at: string | null
+        }
+        Insert: {
+          completado?: boolean | null
+          created_at?: string | null
+          estudiante_id: string
+          fecha_completado?: string | null
+          id?: string
+          momento: string
+          updated_at?: string | null
+        }
+        Update: {
+          completado?: boolean | null
+          created_at?: string | null
+          estudiante_id?: string
+          fecha_completado?: string | null
+          id?: string
+          momento?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -175,6 +205,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_moment: {
+        Args: { _estudiante_id: string; _momento: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -1,7 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Users, Target, Lightbulb } from 'lucide-react';
 
-export const Encuentro3Momento = () => {
+interface Encuentro3MomentoProps {
+  onComplete?: () => void;
+}
+
+export const Encuentro3Momento = ({ onComplete }: Encuentro3MomentoProps) => {
   return (
     <div className="space-y-6">
       <div className="grid gap-6 md:grid-cols-3">
@@ -77,6 +82,13 @@ export const Encuentro3Momento = () => {
             <li>Resolución de problemas complejos</li>
             <li>Evaluación formativa</li>
           </ul>
+          {onComplete && (
+            <div className="mt-6">
+              <Button onClick={onComplete} className="w-full">
+                Marcar como Completado
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
