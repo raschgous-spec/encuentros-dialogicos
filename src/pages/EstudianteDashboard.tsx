@@ -69,18 +69,18 @@ const EstudianteDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="diagnostico" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 gap-2">
+            <TabsTrigger value="diagnostico" className="flex items-center gap-2 justify-center">
               {diagnosticoCompleted && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-              MOMENTO 1
+              <span className="font-semibold">MOMENTO 1 - DIAGNÓSTICO</span>
             </TabsTrigger>
             <TabsTrigger 
               value="nivelatorio" 
               disabled={!diagnosticoCompleted}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 justify-center"
             >
               {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
-              MOMENTO 2
+              <span className="font-semibold">MOMENTO 2 - NIVELATORIO</span>
             </TabsTrigger>
           </TabsList>
 
