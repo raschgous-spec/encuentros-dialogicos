@@ -9,6 +9,7 @@ import brainstormingImage from '@/assets/brainstorming-diagram.png';
 import affinityImage from '@/assets/affinity-diagram.png';
 import ishikawaImage from '@/assets/ishikawa-diagram.jpeg';
 import paretoImage from '@/assets/pareto-diagram.png';
+import { CasoEstudioEvaluacion } from '@/components/evaluation/CasoEstudioEvaluacion';
 
 interface NivelatorioMomentoProps {
   onComplete?: () => void;
@@ -17,6 +18,7 @@ interface NivelatorioMomentoProps {
 export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
   const [showVideos, setShowVideos] = useState(false);
   const [showMaterial, setShowMaterial] = useState(false);
+  const [showEvaluacion, setShowEvaluacion] = useState(false);
 
   const materials = [
     {
@@ -171,7 +173,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setShowEvaluacion(!showEvaluacion)}>
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
@@ -179,13 +181,13 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
               </div>
               <div>
                 <CardTitle className="text-lg">3. EVALUACIÓN - CASO DE ESTUDIO</CardTitle>
-                <CardDescription>Verifica tu progreso</CardDescription>
+                <CardDescription>Aplica las 5 herramientas a un caso real</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Próximamente encontrarás aquí la evaluación del caso de estudio.
+              Haz clic para {showEvaluacion ? 'ocultar' : 'iniciar'} la evaluación del caso de estudio.
             </p>
           </CardContent>
         </Card>
@@ -318,6 +320,16 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
               </Card>
             ))}
           </div>
+        </div>
+      )}
+
+      {showEvaluacion && (
+        <div className="space-y-6">
+          <h2 className="text-2xl font-semibold text-primary">Evaluación del Caso de Estudio</h2>
+          <CasoEstudioEvaluacion onComplete={(data) => {
+            console.log('Evaluación completada:', data);
+            // Aquí se guardará en la base de datos
+          }} />
         </div>
       )}
 
