@@ -68,7 +68,7 @@ export const CursosManager = () => {
       console.error('Error fetching cursos:', error);
       toast({
         title: 'Error',
-        description: 'No se pudieron cargar los cursos',
+        description: 'No se pudieron cargar los CAI - Encuentros dialógicos',
         variant: 'destructive',
       });
     }
@@ -92,8 +92,8 @@ export const CursosManager = () => {
       if (error) throw error;
 
       toast({
-        title: 'Curso creado',
-        description: 'El curso se ha creado exitosamente',
+        title: 'CAI - Encuentros dialógicos creado',
+        description: 'El CAI - Encuentros dialógicos se ha creado exitosamente',
       });
 
       setNewCurso({ codigo: '', nombre: '', descripcion: '' });
@@ -105,9 +105,9 @@ export const CursosManager = () => {
       // Map database errors to user-friendly messages
       const getSafeErrorMessage = () => {
         if (error.code === '23505') {
-          return 'Ya existe un curso con este código. Por favor usa un código diferente.';
+          return 'Ya existe un CAI - Encuentros dialógicos con este código. Por favor usa un código diferente.';
         }
-        return 'No se pudo crear el curso. Por favor intenta nuevamente.';
+        return 'No se pudo crear el CAI - Encuentros dialógicos. Por favor intenta nuevamente.';
       };
       
       toast({
@@ -121,7 +121,7 @@ export const CursosManager = () => {
   };
 
   const handleDeleteCurso = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar este curso? Los estudiantes perderán la asociación.')) {
+    if (!confirm('¿Estás seguro de eliminar este CAI - Encuentros dialógicos? Los estudiantes perderán la asociación.')) {
       return;
     }
 
@@ -131,15 +131,15 @@ export const CursosManager = () => {
       if (error) throw error;
 
       toast({
-        title: 'Curso eliminado',
-        description: 'El curso se ha eliminado exitosamente',
+        title: 'CAI - Encuentros dialógicos eliminado',
+        description: 'El CAI - Encuentros dialógicos se ha eliminado exitosamente',
       });
 
       fetchCursos();
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'No se pudo eliminar el curso',
+        description: 'No se pudo eliminar el CAI - Encuentros dialógicos',
         variant: 'destructive',
       });
     }
@@ -157,29 +157,29 @@ export const CursosManager = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Gestión de Cursos</h2>
+          <h2 className="text-2xl font-bold">Gestión de CAI - Encuentros dialógicos</h2>
           <p className="text-muted-foreground">
-            Crea y administra los códigos de curso para tus estudiantes
+            Crea y administra los códigos de CAI - Encuentros dialógicos para tus estudiantes
           </p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Nuevo Curso
+              Nuevo CAI - Encuentros dialógicos
             </Button>
           </DialogTrigger>
           <DialogContent>
             <form onSubmit={handleCreateCurso}>
               <DialogHeader>
-                <DialogTitle>Crear Nuevo Curso</DialogTitle>
+                <DialogTitle>Crear Nuevo CAI - Encuentros dialógicos</DialogTitle>
                 <DialogDescription>
                   Los estudiantes usarán el código para registrarse
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="codigo">Código del Curso *</Label>
+                  <Label htmlFor="codigo">Código del CAI - Encuentros dialógicos *</Label>
                   <Input
                     id="codigo"
                     placeholder="MAT101-2025"
@@ -194,7 +194,7 @@ export const CursosManager = () => {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="nombre">Nombre del Curso *</Label>
+                  <Label htmlFor="nombre">Nombre del CAI - Encuentros dialógicos *</Label>
                   <Input
                     id="nombre"
                     placeholder="Matemáticas I"
@@ -207,7 +207,7 @@ export const CursosManager = () => {
                   <Label htmlFor="descripcion">Descripción (opcional)</Label>
                   <Textarea
                     id="descripcion"
-                    placeholder="Descripción del curso..."
+                    placeholder="Descripción del CAI - Encuentros dialógicos..."
                     value={newCurso.descripcion}
                     onChange={(e) => setNewCurso({ ...newCurso, descripcion: e.target.value })}
                   />
@@ -215,7 +215,7 @@ export const CursosManager = () => {
               </div>
               <DialogFooter>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? 'Creando...' : 'Crear Curso'}
+                  {isLoading ? 'Creando...' : 'Crear CAI - Encuentros dialógicos'}
                 </Button>
               </DialogFooter>
             </form>
@@ -267,7 +267,7 @@ export const CursosManager = () => {
           <Card className="col-span-full">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <p className="text-muted-foreground">
-                No tienes cursos creados. Crea tu primer curso para comenzar.
+                No tienes CAI - Encuentros dialógicos creados. Crea tu primer CAI - Encuentros dialógicos para comenzar.
               </p>
             </CardContent>
           </Card>

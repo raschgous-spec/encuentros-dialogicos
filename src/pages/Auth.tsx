@@ -120,7 +120,7 @@ const Auth = () => {
       case 'docente':
         return {
           title: 'Acceso Coordinador',
-          description: 'Gestión de cursos y estudiantes',
+          description: 'Gestión de CAI - Encuentros dialógicos y estudiantes',
           icon: BookOpen,
         };
       default:
@@ -263,7 +263,7 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="codigoCurso">Código de Curso</Label>
+                  <Label htmlFor="codigoCurso">Código de CAI - Encuentros dialógicos</Label>
                   <Input
                     id="codigoCurso"
                     type="text"
@@ -273,7 +273,7 @@ const Auth = () => {
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    Ingresa el código proporcionado por tu docente
+                    Ingresa el código proporcionado por tu coordinador
                   </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>

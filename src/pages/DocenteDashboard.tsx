@@ -20,7 +20,7 @@ const DocenteDashboard = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList>
               <TabsTrigger value="overview">Panel General</TabsTrigger>
-              <TabsTrigger value="cursos">Mis Cursos</TabsTrigger>
+              <TabsTrigger value="cursos">Mis CAI - Encuentros dialógicos</TabsTrigger>
               <TabsTrigger value="estudiantes">Estudiantes</TabsTrigger>
               <TabsTrigger value="evaluaciones">Evaluaciones</TabsTrigger>
               <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>

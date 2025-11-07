@@ -201,7 +201,7 @@ export const EstadisticasManager = () => {
       <div>
         <h2 className="text-2xl font-bold">Estadísticas</h2>
         <p className="text-muted-foreground">
-          Progreso general de los estudiantes en tus cursos
+          Progreso general de los estudiantes en tus CAI - Encuentros dialógicos
         </p>
       </div>
 

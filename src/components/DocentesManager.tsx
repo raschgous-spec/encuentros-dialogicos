@@ -281,7 +281,7 @@ export const DocentesManager = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Cursos creados:</span>
+                <span className="text-sm text-muted-foreground">CAI - Encuentros dialógicos creados:</span>
                 <Badge variant="secondary">{docente.cursos_count}</Badge>
               </div>
               <Badge variant="outline" className="text-xs">
@@ -307,7 +307,7 @@ export const DocentesManager = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará el rol de coordinador. El usuario no podrá acceder al panel de gestión pero sus cursos permanecerán.
+              Esta acción eliminará el rol de coordinador. El usuario no podrá acceder al panel de gestión pero sus CAI - Encuentros dialógicos permanecerán.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

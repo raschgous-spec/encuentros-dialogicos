@@ -93,7 +93,7 @@ export const useAuth = () => {
         .maybeSingle();
       
       if (cursoError || !cursoData) {
-        return { error: { message: 'Código de curso inválido' } as any };
+        return { error: { message: 'Código de CAI - Encuentros dialógicos inválido' } as any };
       }
     }
     

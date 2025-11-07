@@ -124,7 +124,7 @@ export const EstudiantesManager = () => {
       <div className="space-y-4">
         <div className="space-y-2">
           <h2 className="text-2xl font-bold">Mis Estudiantes</h2>
-          <p className="text-muted-foreground">Estudiantes registrados en tus cursos</p>
+          <p className="text-muted-foreground">Estudiantes registrados en tus CAI - Encuentros dialógicos</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
@@ -148,7 +148,7 @@ export const EstudiantesManager = () => {
       <div>
         <h2 className="text-2xl font-bold">Mis Estudiantes</h2>
         <p className="text-muted-foreground">
-          {estudiantes.length} estudiante(s) registrado(s) en tus cursos
+          {estudiantes.length} estudiante(s) registrado(s) en tus CAI - Encuentros dialógicos
         </p>
       </div>
 
@@ -264,9 +264,9 @@ export const EstudiantesManager = () => {
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Users className="h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-muted-foreground text-center">
-                No hay estudiantes registrados en tus cursos.
+                No hay estudiantes registrados en tus CAI - Encuentros dialógicos.
                 <br />
-                Comparte los códigos de curso con tus estudiantes.
+                Comparte los códigos de CAI - Encuentros dialógicos con tus estudiantes.
               </p>
             </CardContent>
           </Card>
