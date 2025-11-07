@@ -1,0 +1,84 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Users, Target, Lightbulb } from 'lucide-react';
+
+export const Encuentro4Momento = () => {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Trabajo Colaborativo</CardTitle>
+                <CardDescription>Dinámicas grupales</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Actividades de integración y trabajo en equipo
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Target className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Objetivos</CardTitle>
+                <CardDescription>Metas del encuentro</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Objetivos específicos de aprendizaje
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Lightbulb className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Reflexión</CardTitle>
+                <CardDescription>Aprendizajes clave</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Espacio para reflexionar sobre lo aprendido
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="border-primary/20 bg-primary/5">
+        <CardHeader>
+          <CardTitle>MOMENTO 6 - ENCUENTRO 4</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-4">
+            Contenido del cuarto encuentro dialógico en construcción.
+          </p>
+          <ul className="space-y-2 text-sm text-muted-foreground list-disc list-inside">
+            <li>Cierre y consolidación de conocimientos</li>
+            <li>Presentación de proyectos finales</li>
+            <li>Autoevaluación y coevaluación</li>
+            <li>Planificación de acciones futuras</li>
+          </ul>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};

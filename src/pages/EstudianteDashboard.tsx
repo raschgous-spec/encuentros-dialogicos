@@ -6,6 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DiagnosticoMomento } from '@/components/moments/DiagnosticoMomento';
 import { NivelatorioMomento } from '@/components/moments/NivelatorioMomento';
+import { Encuentro1Momento } from '@/components/moments/Encuentro1Momento';
+import { Encuentro2Momento } from '@/components/moments/Encuentro2Momento';
+import { Encuentro3Momento } from '@/components/moments/Encuentro3Momento';
+import { Encuentro4Momento } from '@/components/moments/Encuentro4Momento';
 import { supabase } from '@/integrations/supabase/client';
 import { CheckCircle2, Lock } from 'lucide-react';
 
@@ -69,10 +73,10 @@ const EstudianteDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 gap-2">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
             <TabsTrigger value="diagnostico" className="flex items-center gap-2 justify-center">
               {diagnosticoCompleted && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-              <span className="font-semibold">MOMENTO 1 - DIAGNÓSTICO</span>
+              <span className="font-semibold text-xs sm:text-sm">MOMENTO 1</span>
             </TabsTrigger>
             <TabsTrigger 
               value="nivelatorio" 
@@ -80,7 +84,39 @@ const EstudianteDashboard = () => {
               className="flex items-center gap-2 justify-center"
             >
               {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
-              <span className="font-semibold">MOMENTO 2 - NIVELATORIO</span>
+              <span className="font-semibold text-xs sm:text-sm">MOMENTO 2</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="encuentro1" 
+              disabled={!diagnosticoCompleted}
+              className="flex items-center gap-2 justify-center"
+            >
+              {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
+              <span className="font-semibold text-xs sm:text-sm">MOMENTO 3</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="encuentro2" 
+              disabled={!diagnosticoCompleted}
+              className="flex items-center gap-2 justify-center"
+            >
+              {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
+              <span className="font-semibold text-xs sm:text-sm">MOMENTO 4</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="encuentro3" 
+              disabled={!diagnosticoCompleted}
+              className="flex items-center gap-2 justify-center"
+            >
+              {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
+              <span className="font-semibold text-xs sm:text-sm">MOMENTO 5</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="encuentro4" 
+              disabled={!diagnosticoCompleted}
+              className="flex items-center gap-2 justify-center"
+            >
+              {!diagnosticoCompleted && <Lock className="h-4 w-4" />}
+              <span className="font-semibold text-xs sm:text-sm">MOMENTO 6</span>
             </TabsTrigger>
           </TabsList>
 
@@ -123,6 +159,118 @@ const EstudianteDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <NivelatorioMomento />
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="encuentro1" className="space-y-6">
+            {!diagnosticoCompleted ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lock className="h-5 w-5" />
+                    MOMENTO 3 - ENCUENTRO 1
+                  </CardTitle>
+                  <CardDescription>
+                    Debes completar el diagnóstico (Momento 1) antes de acceder a este encuentro
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>MOMENTO 3 - ENCUENTRO 1</CardTitle>
+                  <CardDescription>
+                    Primer encuentro dialógico
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Encuentro1Momento />
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="encuentro2" className="space-y-6">
+            {!diagnosticoCompleted ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lock className="h-5 w-5" />
+                    MOMENTO 4 - ENCUENTRO 2
+                  </CardTitle>
+                  <CardDescription>
+                    Debes completar el diagnóstico (Momento 1) antes de acceder a este encuentro
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>MOMENTO 4 - ENCUENTRO 2</CardTitle>
+                  <CardDescription>
+                    Segundo encuentro dialógico
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Encuentro2Momento />
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="encuentro3" className="space-y-6">
+            {!diagnosticoCompleted ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lock className="h-5 w-5" />
+                    MOMENTO 5 - ENCUENTRO 3
+                  </CardTitle>
+                  <CardDescription>
+                    Debes completar el diagnóstico (Momento 1) antes de acceder a este encuentro
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>MOMENTO 5 - ENCUENTRO 3</CardTitle>
+                  <CardDescription>
+                    Tercer encuentro dialógico
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Encuentro3Momento />
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="encuentro4" className="space-y-6">
+            {!diagnosticoCompleted ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lock className="h-5 w-5" />
+                    MOMENTO 6 - ENCUENTRO 4
+                  </CardTitle>
+                  <CardDescription>
+                    Debes completar el diagnóstico (Momento 1) antes de acceder a este encuentro
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>MOMENTO 6 - ENCUENTRO 4</CardTitle>
+                  <CardDescription>
+                    Cuarto encuentro dialógico
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Encuentro4Momento />
                 </CardContent>
               </Card>
             )}
