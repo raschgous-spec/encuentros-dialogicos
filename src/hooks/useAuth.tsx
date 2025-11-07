@@ -6,6 +6,7 @@ interface UserProfile {
   id: string;
   email: string;
   full_name: string | null;
+  curso_id: string | null;
 }
 
 interface UserRole {

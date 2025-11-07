@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import DocenteDashboard from "./pages/DocenteDashboard";
+import EstudianteDashboard from "./pages/EstudianteDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,14 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route 
+            path="/estudiante" 
+            element={
+              <ProtectedRoute allowedRoles={['estudiante']}>
+                <EstudianteDashboard />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path="/admin" 
             element={

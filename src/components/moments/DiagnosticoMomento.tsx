@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { Header } from '@/components/Header';
 import { StudentResults } from '@/types/diagnostic';
 import { calculateOverallResults } from '@/utils/evaluation';
 import { IntroStep } from '@/components/steps/IntroStep';
@@ -17,9 +15,12 @@ import { useTimeTracking } from '@/hooks/useTimeTracking';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-const Index = () => {
-  const { user, loading, profile } = useAuth();
-  const navigate = useNavigate();
+interface DiagnosticoMomentoProps {
+  onComplete?: () => void;
+}
+
+export const DiagnosticoMomento = ({ onComplete }: DiagnosticoMomentoProps) => {
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [studentResults, setStudentResults] = useState<StudentResults>({
@@ -33,18 +34,6 @@ const Index = () => {
   const { stepTimes, startTracking, stopTracking } = useTimeTracking();
   const [isSaving, setIsSaving] = useState(false);
 
-  // Redirect based on authentication and role
-  useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        navigate('/auth');
-      } else {
-        // Redirect to estudiante dashboard if logged in
-        navigate('/estudiante');
-      }
-    }
-  }, [user, loading, navigate]);
-
   // Start tracking time when step changes
   useEffect(() => {
     const stepNames = ['intro', 'brainstorming', 'affinity', 'ishikawa', 'dofa', 'pareto', 'report'];
@@ -52,20 +41,6 @@ const Index = () => {
       startTracking(stepNames[currentStep]);
     }
   }, [currentStep]);
-
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg">Cargando...</p>
-      </div>
-    );
-  }
-
-  // Don't render if not authenticated
-  if (!user) {
-    return null;
-  }
 
   const handleBrainstormingToggle = (optionId: string) => {
     setStudentResults((prev) => {
@@ -109,7 +84,7 @@ const Index = () => {
     }));
   };
 
-  const isStepValid = (): boolean => {
+  const isStepValid = () => {
     switch (currentStep) {
       case 0:
         return true;
@@ -129,31 +104,27 @@ const Index = () => {
   };
 
   const handleNext = async () => {
-    if (currentStep === 5) {
+    if (currentStep < 5) {
+      stopTracking();
+      setCurrentStep((prev) => prev + 1);
+    } else if (currentStep === 5) {
       stopTracking();
       const results = calculateOverallResults(studentResults);
       setReportData(results);
       setCurrentStep(6);
-      
-      // Guardar evaluación en la base de datos
       await saveEvaluacion(results);
-    } else {
-      setCurrentStep((prev) => prev + 1);
     }
   };
 
   const saveEvaluacion = async (results: ReturnType<typeof calculateOverallResults>) => {
-    try {
-      setIsSaving(true);
-      
-      if (!user || !profile) {
-        console.error('No user or profile found');
-        return;
-      }
+    if (!user || !profile) return;
 
+    setIsSaving(true);
+    try {
       const { error } = await supabase.from('evaluaciones').insert({
         estudiante_id: user.id,
-        curso_id: (profile as any).curso_id || null,
+        curso_id: profile.curso_id,
+        fecha: new Date().toISOString(),
         puntaje_brainstorming: results.results[0].score,
         puntaje_affinity: results.results[1].score,
         puntaje_ishikawa: results.results[2].score,
@@ -162,23 +133,24 @@ const Index = () => {
         puntaje_promedio: results.averageScore,
         nivel: results.overallLevel,
         respuestas_completas: studentResults as any,
-        tiempos_respuesta: stepTimes as any
+        tiempos_respuesta: stepTimes,
       });
 
-      if (error) {
-        console.error('Error saving evaluation:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: 'Evaluación guardada',
-        description: 'Tu evaluación ha sido registrada exitosamente',
+        description: 'Tu diagnóstico ha sido registrado exitosamente.',
       });
+
+      if (onComplete) {
+        onComplete();
+      }
     } catch (error) {
-      console.error('Error in saveEvaluacion:', error);
+      console.error('Error saving evaluation:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo guardar la evaluación',
+        description: 'No se pudo guardar la evaluación. Por favor, intenta de nuevo.',
         variant: 'destructive',
       });
     } finally {
@@ -186,60 +158,45 @@ const Index = () => {
     }
   };
 
-  const getButtonText = (): string => {
-    if (currentStep === 0) return 'Empezar';
-    if (currentStep === 5) return 'Ver Reporte Final';
-    return `Siguiente (Sección ${currentStep + 1} de 5)`;
+  const getButtonText = () => {
+    if (currentStep < 5) {
+      return 'Siguiente';
+    } else if (currentStep === 5) {
+      return isSaving ? 'Guardando...' : 'Finalizar y Ver Reporte';
+    } else {
+      return 'Completado';
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-        <div className="bg-card rounded-lg shadow-lg overflow-hidden">
-          <div className="p-8">
-            {currentStep === 0 && <IntroStep />}
-            {currentStep === 1 && (
-              <BrainstormingStep
-                selectedOptions={studentResults.brainstorming}
-                onOptionToggle={handleBrainstormingToggle}
-              />
-            )}
-            {currentStep === 2 && (
-              <AffinityStep answers={studentResults.affinity} onAnswerChange={handleAffinityChange} />
-            )}
-            {currentStep === 3 && (
-              <IshikawaStep answers={studentResults.ishikawa} onAnswerChange={handleIshikawaChange} />
-            )}
-            {currentStep === 4 && (
-              <DOFAStep answers={studentResults.dofa} onAnswerChange={handleDofaChange} />
-            )}
-            {currentStep === 5 && (
-              <ParetoStep answers={studentResults.pareto} onAnswerChange={handleParetoChange} />
-            )}
-            {currentStep === 6 && reportData && (
-              <ReportStep
-                results={reportData.results}
-                averageScore={reportData.averageScore}
-                overallLevel={reportData.overallLevel}
-                suggestion={reportData.suggestion}
-              />
-            )}
-          </div>
+    <div className="space-y-6">
+      {currentStep === 0 && <IntroStep />}
+      {currentStep === 1 && (
+        <BrainstormingStep
+          selectedOptions={studentResults.brainstorming}
+          onOptionToggle={handleBrainstormingToggle}
+        />
+      )}
+      {currentStep === 2 && <AffinityStep answers={studentResults.affinity} onAnswerChange={handleAffinityChange} />}
+      {currentStep === 3 && <IshikawaStep answers={studentResults.ishikawa} onAnswerChange={handleIshikawaChange} />}
+      {currentStep === 4 && <DOFAStep answers={studentResults.dofa} onAnswerChange={handleDofaChange} />}
+      {currentStep === 5 && <ParetoStep answers={studentResults.pareto} onAnswerChange={handleParetoChange} />}
+      {currentStep === 6 && reportData && (
+        <ReportStep
+          results={reportData.results}
+          averageScore={reportData.averageScore}
+          overallLevel={reportData.overallLevel}
+          suggestion={reportData.suggestion}
+        />
+      )}
 
-          {currentStep < 6 && (
-            <div className="bg-muted px-8 py-5 border-t border-border text-right">
-              <Button onClick={handleNext} disabled={!isStepValid()} size="lg">
-                {getButtonText()}
-              </Button>
-            </div>
-          )}
+      {currentStep < 6 && (
+        <div className="flex justify-end pt-6">
+          <Button onClick={handleNext} disabled={!isStepValid() || isSaving} size="lg">
+            {getButtonText()}
+          </Button>
         </div>
-      </div>
-      </div>
+      )}
     </div>
   );
 };
-
-export default Index;
