@@ -23,14 +23,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         'Oportunidades: Factores externos positivos que se pueden aprovechar.',
         'Fortalezas: Factores internos positivos que dan ventaja competitiva.',
         'Amenazas: Factores externos negativos que representan riesgos.'
-      ],
-      reference: {
-        author: 'Talancón, H. P.',
-        year: 2007,
-        title: 'La matriz FODA: alternativa de diagnóstico y determinación de estrategias de intervención en diversas organizaciones',
-        source: 'Redalyc',
-        url: 'https://www.redalyc.org/pdf/292/29212108.pdf'
-      }
+      ]
     },
     {
       id: 'brainstorming',
@@ -41,14 +34,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         'Reglas básicas: No criticar, fomentar ideas locas, buscar cantidad sobre calidad, combinar y mejorar ideas.',
         'Fases: Generación de ideas, clasificación, evaluación y selección.',
         'Útil para: Solución de problemas, innovación, planificación de proyectos.'
-      ],
-      reference: {
-        author: 'Delgado, C.',
-        year: 2022,
-        title: 'Estrategias didácticas para fortalecer el pensamiento creativo en estudiantes de educación básica',
-        source: 'Dialnet',
-        url: 'https://dialnet.unirioja.es'
-      }
+      ]
     },
     {
       id: 'affinity',
@@ -59,14 +45,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         'Proceso: Recopilar datos, escribir en tarjetas, agrupar por afinidad, crear encabezados, y analizar relaciones.',
         'Beneficios: Identifica patrones, facilita la comprensión, promueve el consenso del equipo.',
         'Aplicaciones: Análisis de problemas complejos, organización de feedback, planificación estratégica.'
-      ],
-      reference: {
-        author: 'García, M., & Carrero de Blanco, A.',
-        year: 2008,
-        title: 'Aplicación del diagrama de afinidad para plantear problemas ambientales',
-        source: 'Dialnet',
-        url: 'https://dialnet.unirioja.es'
-      }
+      ]
     },
     {
       id: 'ishikawa',
@@ -77,14 +56,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         'Categorías principales (6M): Métodos, Mano de obra, Materiales, Maquinaria, Medición, Medio ambiente.',
         'Proceso: Definir el problema, identificar categorías principales, encontrar causas potenciales, analizar y verificar.',
         'Ventajas: Visualización clara, enfoque estructurado, identificación de causas raíz.'
-      ],
-      reference: {
-        author: 'Bermúdez, E. R.',
-        year: 2010,
-        title: 'El uso del diagrama causa-efecto en el análisis de casos',
-        source: 'Redalyc',
-        url: 'https://www.redalyc.org'
-      }
+      ]
     },
     {
       id: 'pareto',
@@ -95,14 +67,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         'Componentes: Gráfico de barras ordenado por frecuencia + línea acumulativa de porcentaje.',
         'Pasos: Identificar problemas, medir frecuencia, ordenar de mayor a menor, graficar, analizar.',
         'Utilidad: Priorizar esfuerzos, identificar problemas críticos, optimizar recursos, tomar decisiones basadas en datos.'
-      ],
-      reference: {
-        author: 'Borjas, C. M. B.',
-        year: 2005,
-        title: 'La ley de Pareto aplicada a la fiabilidad',
-        source: 'Redalyc',
-        url: 'https://www.redalyc.org'
-      }
+      ]
     }
   ];
 
@@ -212,28 +177,12 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
                   <CardDescription>{material.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="space-y-3">
-                      {material.content.map((paragraph, index) => (
-                        <p key={index} className="text-sm text-muted-foreground leading-relaxed">
-                          {paragraph}
-                        </p>
-                      ))}
-                    </div>
-                    <div className="pt-4 border-t border-border">
-                      <p className="text-xs font-semibold text-foreground mb-2">Referencia:</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        {material.reference.author} ({material.reference.year}). <em>{material.reference.title}</em>. {material.reference.source}.{' '}
-                        <a 
-                          href={material.reference.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          Ver fuente
-                        </a>
+                  <div className="space-y-3">
+                    {material.content.map((paragraph, index) => (
+                      <p key={index} className="text-sm text-muted-foreground leading-relaxed">
+                        {paragraph}
                       </p>
-                    </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
