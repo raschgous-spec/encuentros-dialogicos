@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { BookOpen, Video, FileCheck, Download } from 'lucide-react';
 import { useState } from 'react';
 import dofaImage from '@/assets/dofa-diagram.webp';
@@ -224,6 +225,63 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
               </Card>
             ))}
           </div>
+
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="text-xl">Tabla Comparativa de Herramientas</CardTitle>
+              <CardDescription>Comparación de las características principales de cada herramienta</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Herramienta</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Enfoque</TableHead>
+                    <TableHead>Naturaleza de datos</TableHead>
+                    <TableHead>Principal aporte</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">Brainstorming</TableCell>
+                    <TableCell>Creativa</TableCell>
+                    <TableCell>Generación de ideas</TableCell>
+                    <TableCell>Cualitativa</TableCell>
+                    <TableCell>Estimula creatividad y participación</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Diagrama de afinidad</TableCell>
+                    <TableCell>Organizativa</TableCell>
+                    <TableCell>Agrupar ideas relacionadas</TableCell>
+                    <TableCell>Cualitativa</TableCell>
+                    <TableCell>Estructura información compleja</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Ishikawa</TableCell>
+                    <TableCell>Analítica</TableCell>
+                    <TableCell>Identificar causas raíz</TableCell>
+                    <TableCell>Cualitativa-cuantitativa</TableCell>
+                    <TableCell>Facilita el análisis sistemático</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">DOFA</TableCell>
+                    <TableCell>Estratégica</TableCell>
+                    <TableCell>Diagnóstico interno/externo</TableCell>
+                    <TableCell>Cualitativa</TableCell>
+                    <TableCell>Soporte a la toma de decisiones</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Pareto</TableCell>
+                    <TableCell>Cuantitativa</TableCell>
+                    <TableCell>Priorización de causas</TableCell>
+                    <TableCell>Cuantitativa</TableCell>
+                    <TableCell>Permite concentrar recursos en lo esencial</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </div>
       )}
 
