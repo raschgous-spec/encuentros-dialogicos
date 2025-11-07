@@ -6,6 +6,7 @@ import { useState } from 'react';
 import dofaImage from '@/assets/dofa-diagram.webp';
 import brainstormingImage from '@/assets/brainstorming-diagram.png';
 import affinityImage from '@/assets/affinity-diagram.png';
+import ishikawaImage from '@/assets/ishikawa-diagram.jpeg';
 
 interface NivelatorioMomentoProps {
   onComplete?: () => void;
@@ -58,6 +59,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
       id: 'ishikawa',
       title: 'Diagrama de Ishikawa (Espina de Pescado)',
       description: 'Análisis causa-efecto para identificar raíces de problemas',
+      image: ishikawaImage,
       content: [
         'También conocido como diagrama causa-efecto, ayuda a identificar, clasificar y visualizar las causas de un problema.',
         'Categorías principales (6M): Métodos, Mano de obra, Materiales, Maquinaria, Medición, Medio ambiente.',
