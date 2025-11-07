@@ -7,6 +7,7 @@ import dofaImage from '@/assets/dofa-diagram.webp';
 import brainstormingImage from '@/assets/brainstorming-diagram.png';
 import affinityImage from '@/assets/affinity-diagram.png';
 import ishikawaImage from '@/assets/ishikawa-diagram.jpeg';
+import paretoImage from '@/assets/pareto-diagram.png';
 
 interface NivelatorioMomentoProps {
   onComplete?: () => void;
@@ -71,6 +72,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
       id: 'pareto',
       title: 'Diagrama de Pareto',
       description: 'Principio 80/20 para priorizar problemas o causas',
+      image: paretoImage,
       content: [
         'Basado en el principio de Pareto (80/20): el 80% de los problemas provienen del 20% de las causas.',
         'Componentes: Gráfico de barras ordenado por frecuencia + línea acumulativa de porcentaje.',
