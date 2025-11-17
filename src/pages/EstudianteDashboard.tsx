@@ -11,11 +11,16 @@ import { Encuentro2Momento } from '@/components/moments/Encuentro2Momento';
 import { Encuentro3Momento } from '@/components/moments/Encuentro3Momento';
 import { Encuentro4Momento } from '@/components/moments/Encuentro4Momento';
 import { supabase } from '@/integrations/supabase/client';
-import { CheckCircle2, Lock } from 'lucide-react';
+import { CheckCircle2, Lock, Key } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const EstudianteDashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('diagnostico');
   const [momentoProgress, setMomentoProgress] = useState<Record<string, boolean>>({
     diagnostico: true,
@@ -26,12 +31,23 @@ const EstudianteDashboard = () => {
     encuentro4: false,
   });
   const [checkingStatus, setCheckingStatus] = useState(true);
+  const [showUnlockDialog, setShowUnlockDialog] = useState(false);
+  const [unlockCode, setUnlockCode] = useState('');
+  const [unlockedWithCode, setUnlockedWithCode] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
+
+  // Check if moment was unlocked with code in previous session
+  useEffect(() => {
+    const savedUnlock = localStorage.getItem('momento3_unlocked');
+    if (savedUnlock === 'true') {
+      setUnlockedWithCode(true);
+    }
+  }, []);
 
   useEffect(() => {
     const checkMomentoProgress = async () => {
@@ -98,6 +114,26 @@ const EstudianteDashboard = () => {
 
     checkMomentoProgress();
   }, [user]);
+
+  const handleUnlockWithCode = () => {
+    if (unlockCode.trim().toUpperCase() === 'MEDIT') {
+      setUnlockedWithCode(true);
+      localStorage.setItem('momento3_unlocked', 'true');
+      setShowUnlockDialog(false);
+      setUnlockCode('');
+      setActiveTab('encuentro1');
+      toast({
+        title: "Momento desbloqueado",
+        description: "Acceso concedido al Momento 3 - Encuentro 1",
+      });
+    } else {
+      toast({
+        title: "Código incorrecto",
+        description: "Por favor, verifica el código e intenta nuevamente",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleMomentoComplete = async (momento: string) => {
     if (!user) return;
@@ -170,9 +206,26 @@ const EstudianteDashboard = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro1" 
-              className="flex flex-col items-center gap-1 justify-center py-3"
+              disabled={!momentoProgress.encuentro1 && !unlockedWithCode}
+              className="flex flex-col items-center gap-1 justify-center py-3 relative"
             >
-              {!momentoProgress.encuentro1 && <Lock className="h-4 w-4" />}
+              {!momentoProgress.encuentro1 && !unlockedWithCode && (
+                <>
+                  <Lock className="h-4 w-4" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute inset-0 opacity-0 hover:opacity-100 flex items-center justify-center gap-2 bg-background/95"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowUnlockDialog(true);
+                    }}
+                  >
+                    <Key className="h-4 w-4" />
+                    <span className="text-xs">Desbloquear</span>
+                  </Button>
+                </>
+              )}
               <span className="font-semibold text-xs text-center">ENCUENTRO 1</span>
             </TabsTrigger>
             <TabsTrigger 
@@ -253,7 +306,7 @@ const EstudianteDashboard = () => {
               <CardContent>
                 <Encuentro1Momento 
                   onComplete={() => handleMomentoComplete('encuentro1')} 
-                  isLocked={!momentoProgress.encuentro1}
+                  isLocked={!momentoProgress.encuentro1 && !unlockedWithCode}
                 />
               </CardContent>
             </Card>
@@ -311,6 +364,52 @@ const EstudianteDashboard = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Unlock Dialog */}
+      <Dialog open={showUnlockDialog} onOpenChange={setShowUnlockDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5" />
+              Desbloquear Momento 3
+            </DialogTitle>
+            <DialogDescription>
+              Ingresa el código de acceso especial para desbloquear el Momento 3 - Encuentro 1
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="unlock-code" className="text-sm font-medium">
+                Código de acceso
+              </label>
+              <Input
+                id="unlock-code"
+                type="text"
+                placeholder="Ingresa el código"
+                value={unlockCode}
+                onChange={(e) => setUnlockCode(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleUnlockWithCode();
+                  }
+                }}
+                className="uppercase"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowUnlockDialog(false);
+              setUnlockCode('');
+            }}>
+              Cancelar
+            </Button>
+            <Button onClick={handleUnlockWithCode}>
+              Desbloquear
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
