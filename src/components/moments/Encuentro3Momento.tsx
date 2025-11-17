@@ -84,6 +84,17 @@ const actaFormSchema = z.object({
     indicadorCumplimiento: z.string().trim().min(1, { message: "El indicador es requerido" }).max(300),
     observaciones: z.string().trim().max(500).optional(),
   })).min(1, { message: "Debe agregar al menos un ítem al plan de mejoramiento" }),
+  // Campos adicionales para el formato del plan
+  tituloProyecto: z.string().trim().max(300).optional(),
+  propositoGeneral: z.string().trim().max(1000).optional(),
+  objetivoGeneral: z.string().trim().max(500).optional(),
+  objetivosEspecificos: z.array(z.object({
+    objetivo: z.string().trim().min(1, { message: "El objetivo es requerido" }).max(500)
+  })).optional(),
+  indicadoresLogro: z.array(z.object({
+    indicador: z.string().trim().min(1, { message: "El indicador es requerido" }).max(500)
+  })).optional(),
+  seguimiento: z.string().trim().max(1000).optional(),
 });
 
 export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3MomentoProps) => {
@@ -130,7 +141,23 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
         indicadorCumplimiento: '', 
         observaciones: '' 
       }],
+      tituloProyecto: '',
+      propositoGeneral: '',
+      objetivoGeneral: '',
+      objetivosEspecificos: [],
+      indicadoresLogro: [],
+      seguimiento: '',
     },
+  });
+
+  const { fields: objetivosFields, append: appendObjetivo, remove: removeObjetivo } = useFieldArray({
+    control: actaForm.control,
+    name: "objetivosEspecificos",
+  });
+
+  const { fields: indicadoresFields, append: appendIndicador, remove: removeIndicador } = useFieldArray({
+    control: actaForm.control,
+    name: "indicadoresLogro",
   });
 
   const generatePDF = (data: z.infer<typeof actaFormSchema>) => {
@@ -1326,6 +1353,174 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                             </Button>
                           </AccordionContent>
                         </AccordionItem>
+
+                        <AccordionItem value="detalle-plan">
+                          <AccordionTrigger className="text-base font-medium">
+                            5. DETALLE DEL PLAN DE MEJORAMIENTO
+                          </AccordionTrigger>
+                          <AccordionContent className="space-y-4 pt-4">
+                            <FormField
+                              control={actaForm.control}
+                              name="tituloProyecto"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Título del proyecto</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      placeholder="Título del proyecto de mejoramiento"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={actaForm.control}
+                              name="propositoGeneral"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Propósito general del momento</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Describa el propósito general"
+                                      className="min-h-[80px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={actaForm.control}
+                              name="objetivoGeneral"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Objetivo general</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Objetivo general del plan"
+                                      className="min-h-[80px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <div className="space-y-3">
+                              <Label>Objetivos específicos</Label>
+                              {objetivosFields.map((item, index) => (
+                                <div key={item.id} className="flex gap-2">
+                                  <FormField
+                                    control={actaForm.control}
+                                    name={`objetivosEspecificos.${index}.objetivo`}
+                                    render={({ field }) => (
+                                      <FormItem className="flex-1">
+                                        <FormControl>
+                                          <Input 
+                                            placeholder={`Objetivo específico ${index + 1}`}
+                                            disabled={isLocked}
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeObjetivo(index)}
+                                    disabled={isLocked}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => appendObjetivo({ objetivo: '' })}
+                                disabled={isLocked}
+                              >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Agregar objetivo específico
+                              </Button>
+                            </div>
+
+                            <div className="space-y-3">
+                              <Label>Indicadores de logro</Label>
+                              {indicadoresFields.map((item, index) => (
+                                <div key={item.id} className="flex gap-2">
+                                  <FormField
+                                    control={actaForm.control}
+                                    name={`indicadoresLogro.${index}.indicador`}
+                                    render={({ field }) => (
+                                      <FormItem className="flex-1">
+                                        <FormControl>
+                                          <Input 
+                                            placeholder={`Indicador de logro ${index + 1}`}
+                                            disabled={isLocked}
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeIndicador(index)}
+                                    disabled={isLocked}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => appendIndicador({ indicador: '' })}
+                                disabled={isLocked}
+                              >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Agregar indicador de logro
+                              </Button>
+                            </div>
+
+                            <FormField
+                              control={actaForm.control}
+                              name="seguimiento"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Seguimiento</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Descripción del seguimiento del plan"
+                                      className="min-h-[80px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </AccordionContent>
+                        </AccordionItem>
                       </Accordion>
                     </div>
 
@@ -1400,7 +1595,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                       <div className="grid grid-cols-1 gap-4">
                         <div className="border-b pb-2">
                           <label className="text-sm font-semibold">Título del proyecto:</label>
-                          <p className="mt-1 text-sm">{actaForm.watch('programaAcademico') || '_____________________'}</p>
+                          <p className="mt-1 text-sm">{actaForm.watch('tituloProyecto') || actaForm.watch('programaAcademico') || '_____________________'}</p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -1426,22 +1621,28 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
 
                         <div className="border-b pb-2">
                           <label className="text-sm font-semibold">Propósito general del momento:</label>
-                          <p className="mt-1 text-sm">{actaForm.watch('objetivos') || '____________'}</p>
+                          <p className="mt-1 text-sm">{actaForm.watch('propositoGeneral') || actaForm.watch('objetivos') || '____________'}</p>
                         </div>
                       </div>
 
                       <div className="space-y-3">
                         <div>
                           <h3 className="text-base font-semibold mb-2">1. Objetivo general</h3>
-                          <p className="text-sm pl-4">{actaForm.watch('objetivos') || '___________________'}</p>
+                          <p className="text-sm pl-4">{actaForm.watch('objetivoGeneral') || actaForm.watch('objetivos') || '___________________'}</p>
                         </div>
 
                         <div>
                           <h3 className="text-base font-semibold mb-2">2. Objetivos específicos</h3>
                           <ol className="list-decimal list-inside pl-4 space-y-1">
-                            {actaForm.watch('planMejoramiento').map((item, index) => (
-                              <li key={index} className="text-sm">{item.accionesMejora || '___________'}</li>
-                            ))}
+                            {actaForm.watch('objetivosEspecificos') && actaForm.watch('objetivosEspecificos')!.length > 0 ? (
+                              actaForm.watch('objetivosEspecificos')!.map((obj, index) => (
+                                <li key={index} className="text-sm">{obj.objetivo || '___________'}</li>
+                              ))
+                            ) : (
+                              actaForm.watch('planMejoramiento').map((item, index) => (
+                                <li key={index} className="text-sm">{item.accionesMejora || '___________'}</li>
+                              ))
+                            )}
                           </ol>
                         </div>
 
@@ -1476,17 +1677,27 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                         <div>
                           <h3 className="text-base font-semibold mb-2">4. Indicadores de logro</h3>
                           <div className="pl-4 space-y-1">
-                            {actaForm.watch('planMejoramiento').map((item, index) => (
-                              <p key={index} className="text-sm">• {item.indicadorCumplimiento || '_______________'}</p>
-                            ))}
+                            {actaForm.watch('indicadoresLogro') && actaForm.watch('indicadoresLogro')!.length > 0 ? (
+                              actaForm.watch('indicadoresLogro')!.map((ind, index) => (
+                                <p key={index} className="text-sm">• {ind.indicador || '_______________'}</p>
+                              ))
+                            ) : (
+                              actaForm.watch('planMejoramiento').map((item, index) => (
+                                <p key={index} className="text-sm">• {item.indicadorCumplimiento || '_______________'}</p>
+                              ))
+                            )}
                           </div>
                         </div>
 
                         <div>
                           <h3 className="text-base font-semibold mb-2">5. Seguimiento</h3>
-                          <p className="text-sm pl-4">
-                            Periodo: {actaForm.watch('planMejoramiento')[0]?.fechaInicial || '__________'} al {actaForm.watch('planMejoramiento')[0]?.fechaFinal || '__________'}
-                          </p>
+                          {actaForm.watch('seguimiento') ? (
+                            <p className="text-sm pl-4">{actaForm.watch('seguimiento')}</p>
+                          ) : (
+                            <p className="text-sm pl-4">
+                              Periodo: {actaForm.watch('planMejoramiento')[0]?.fechaInicial || '__________'} al {actaForm.watch('planMejoramiento')[0]?.fechaFinal || '__________'}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
