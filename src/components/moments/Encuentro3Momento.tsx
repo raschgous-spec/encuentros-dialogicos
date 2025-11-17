@@ -717,7 +717,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
               </TabsTrigger>
               <TabsTrigger value="sintesis" className="flex items-center gap-2" disabled={isLocked}>
                 <ClipboardList className="h-4 w-4" />
-                SÍNTESIS DE APRENDIZAJES
+                PLAN DE MEJORAMIENTO DIGITAL
               </TabsTrigger>
             </TabsList>
 

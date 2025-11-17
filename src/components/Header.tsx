@@ -67,7 +67,7 @@ export const Header = () => {
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center gap-6">
           <div>
-            <h1 className="text-xl font-bold">Sistema UCundinamarca</h1>
+            <h1 className="text-xl font-bold">ENCUENTROS DIALÓGICOS UNIVERSIDAD DE CUNDINAMARCA</h1>
             <p className="text-sm text-muted-foreground">Gestión del Conocimiento</p>
           </div>
           
