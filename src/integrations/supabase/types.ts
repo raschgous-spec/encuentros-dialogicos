@@ -14,6 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
+      actas_encuentro: {
+        Row: {
+          agenda_bienvenida: string
+          agenda_documento_coordinador: string
+          agenda_informe: string
+          agenda_intervencion_estudiantes: string
+          agenda_lectura_orden: string
+          agenda_secretario: string
+          correo_secretario: string
+          created_at: string
+          estudiante_id: string
+          facultad: string
+          facultad_programa_secretario: string
+          fecha: string
+          hora_fin: string
+          hora_inicio: string
+          id: string
+          identificacion_secretario: string
+          lugar: string
+          momento: string
+          nombre_director: string
+          nombre_secretario: string
+          objetivos: string
+          participantes: string
+          plan_mejoramiento: Json
+          programa_academico: string
+          proposiciones_estudiantes: string
+          responsable: string
+          temas_facultad: Json
+          temas_institucionales: Json
+          temas_programa: Json
+          updated_at: string
+        }
+        Insert: {
+          agenda_bienvenida: string
+          agenda_documento_coordinador: string
+          agenda_informe: string
+          agenda_intervencion_estudiantes: string
+          agenda_lectura_orden: string
+          agenda_secretario: string
+          correo_secretario: string
+          created_at?: string
+          estudiante_id: string
+          facultad: string
+          facultad_programa_secretario: string
+          fecha: string
+          hora_fin: string
+          hora_inicio: string
+          id?: string
+          identificacion_secretario: string
+          lugar: string
+          momento: string
+          nombre_director: string
+          nombre_secretario: string
+          objetivos: string
+          participantes: string
+          plan_mejoramiento?: Json
+          programa_academico: string
+          proposiciones_estudiantes: string
+          responsable: string
+          temas_facultad?: Json
+          temas_institucionales?: Json
+          temas_programa?: Json
+          updated_at?: string
+        }
+        Update: {
+          agenda_bienvenida?: string
+          agenda_documento_coordinador?: string
+          agenda_informe?: string
+          agenda_intervencion_estudiantes?: string
+          agenda_lectura_orden?: string
+          agenda_secretario?: string
+          correo_secretario?: string
+          created_at?: string
+          estudiante_id?: string
+          facultad?: string
+          facultad_programa_secretario?: string
+          fecha?: string
+          hora_fin?: string
+          hora_inicio?: string
+          id?: string
+          identificacion_secretario?: string
+          lugar?: string
+          momento?: string
+          nombre_director?: string
+          nombre_secretario?: string
+          objetivos?: string
+          participantes?: string
+          plan_mejoramiento?: Json
+          programa_academico?: string
+          proposiciones_estudiantes?: string
+          responsable?: string
+          temas_facultad?: Json
+          temas_institucionales?: Json
+          temas_programa?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cursos: {
         Row: {
           codigo: string

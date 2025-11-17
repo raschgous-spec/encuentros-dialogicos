@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -13,6 +14,10 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { ParticipacionesTable } from './ParticipacionesTable';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface Encuentro1MomentoProps {
   onComplete?: () => void;
@@ -83,6 +88,9 @@ const actaFormSchema = z.object({
 
 export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1MomentoProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('acta');
+  const [isSaving, setIsSaving] = useState(false);
   
   const actaForm = useForm<z.infer<typeof actaFormSchema>>({
     resolver: zodResolver(actaFormSchema),
@@ -125,12 +133,121 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
     },
   });
 
-  const onSubmitActa = (data: z.infer<typeof actaFormSchema>) => {
-    console.log('Acta guardada:', data);
-    toast({
-      title: "Acta guardada",
-      description: "Los datos del acta han sido guardados correctamente",
-    });
+  const generatePDF = (data: z.infer<typeof actaFormSchema>) => {
+    const doc = new jsPDF();
+    let yPos = 20;
+
+    // Title
+    doc.setFontSize(16);
+    doc.text('ACTA - MOMENTO 3 - ENCUENTRO 1', 105, yPos, { align: 'center' });
+    yPos += 15;
+
+    // Meeting info
+    doc.setFontSize(10);
+    doc.text(`Fecha: ${data.fecha}`, 20, yPos);
+    doc.text(`Lugar: ${data.lugar}`, 120, yPos);
+    yPos += 7;
+    doc.text(`Hora: ${data.horaInicio} - ${data.horaFin}`, 20, yPos);
+    yPos += 10;
+
+    // Improvement plan table
+    if (data.planMejoramiento && data.planMejoramiento.length > 0) {
+      doc.setFontSize(12);
+      doc.text('PLAN DE MEJORAMIENTO', 20, yPos);
+      yPos += 5;
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [['No.', 'Tema', 'Descripción', 'Estrategia', 'Acciones', 'Responsables', 'Fecha Inicial', 'Fecha Final', 'Indicador', 'Observaciones']],
+        body: data.planMejoramiento.map((item, index) => [
+          (index + 1).toString(),
+          item.tema,
+          item.descripcionNecesidad,
+          item.estrategia,
+          item.accionesMejora,
+          item.responsables,
+          item.fechaInicial,
+          item.fechaFinal,
+          item.indicadorCumplimiento,
+          item.observaciones || ''
+        ]),
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [66, 139, 202] },
+      });
+    }
+
+    doc.save(`acta-encuentro1-${data.fecha}.pdf`);
+  };
+
+  const onSubmitActa = async (data: z.infer<typeof actaFormSchema>) => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "Debes estar autenticado para guardar el acta",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      // Save to database
+      const { error } = await supabase
+        .from('actas_encuentro')
+        .upsert({
+          estudiante_id: user.id,
+          momento: 'encuentro1',
+          fecha: data.fecha,
+          lugar: data.lugar,
+          hora_inicio: data.horaInicio,
+          hora_fin: data.horaFin,
+          facultad: data.facultad,
+          programa_academico: data.programaAcademico,
+          nombre_director: data.nombreDirector,
+          responsable: data.responsable,
+          nombre_secretario: data.nombreSecretario,
+          identificacion_secretario: data.identificacionSecretario,
+          facultad_programa_secretario: data.facultadProgramaSecretario,
+          correo_secretario: data.correoSecretario,
+          participantes: data.participantes,
+          objetivos: data.objetivos,
+          agenda_bienvenida: data.agendaBienvenida,
+          agenda_secretario: data.agendaSecretario,
+          agenda_informe: data.agendaInforme,
+          agenda_lectura_orden: data.agendaLecturaOrden,
+          agenda_documento_coordinador: data.agendaDocumentoCoordinador,
+          agenda_intervencion_estudiantes: data.agendaIntervencionEstudiantes,
+          temas_institucionales: data.temasInstitucionales,
+          temas_facultad: data.temasFacultad,
+          temas_programa: data.temasPrograma,
+          proposiciones_estudiantes: data.proposicionesEstudiantes,
+          plan_mejoramiento: data.planMejoramiento,
+        });
+
+      if (error) throw error;
+
+      // Generate PDF
+      generatePDF(data);
+
+      toast({
+        title: "Acta guardada exitosamente",
+        description: "El acta se ha guardado en la base de datos y se ha descargado el PDF",
+      });
+
+      // Switch to plan tab
+      setActiveTab('plan');
+
+    } catch (error) {
+      console.error('Error al guardar acta:', error);
+      toast({
+        title: "Error al guardar",
+        description: "Hubo un problema al guardar el acta",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const { fields: temasInstitucionalesFields, append: appendTemaInstitucional, remove: removeTemaInstitucional } = useFieldArray({
@@ -229,7 +346,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
           <CardDescription>Documentación y planificación del encuentro dialógico</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="acta" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="acta" className="flex items-center gap-2" disabled={isLocked}>
                 <FileText className="h-4 w-4" />
@@ -973,8 +1090,8 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                       </Accordion>
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={isLocked}>
-                      Guardar Acta
+                    <Button type="submit" className="w-full" disabled={isLocked || isSaving}>
+                      {isSaving ? 'Guardando...' : 'Guardar Acta'}
                     </Button>
                   </form>
                 </Form>
@@ -986,53 +1103,52 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Plan de Mejoramiento Digital</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Desarrolla un plan estratégico para implementar mejoras digitales
+                    Visualización del plan de mejoramiento formulado en el acta
                   </p>
                 </div>
                 
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Diagnóstico de la situación actual</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Identifica el estado actual de las competencias y recursos digitales
-                    </p>
+                {actaForm.watch('planMejoramiento').length > 0 && actaForm.watch('planMejoramiento')[0].tema ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-border">
+                      <thead>
+                        <tr className="bg-muted">
+                          <th className="border border-border p-2 text-left text-sm font-medium">No.</th>
+                          <th className="border border-border p-2 text-left text-sm font-medium">Tema</th>
+                          <th className="border border-border p-2 text-left text-sm font-medium">Descripción de la Necesidad</th>
+                          <th className="border border-border p-2 text-left text-sm font-medium">Estrategia</th>
+                          <th className="border border-border p-2 text-left text-sm font-medium">Acciones de Mejora</th>
+                          <th className="border border-border p-2 text-left text-sm font-medium">Responsables</th>
+                          <th className="border border-border p-2 text-left text-sm font-medium">Fecha Inicial</th>
+                          <th className="border border-border p-2 text-left text-sm font-medium">Fecha Final</th>
+                          <th className="border border-border p-2 text-left text-sm font-medium">Indicador de Cumplimiento</th>
+                          <th className="border border-border p-2 text-left text-sm font-medium">Observaciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {actaForm.watch('planMejoramiento').map((item, index) => (
+                          <tr key={index} className="hover:bg-muted/50">
+                            <td className="border border-border p-2 text-sm">{index + 1}</td>
+                            <td className="border border-border p-2 text-sm">{item.tema || '-'}</td>
+                            <td className="border border-border p-2 text-sm">{item.descripcionNecesidad || '-'}</td>
+                            <td className="border border-border p-2 text-sm">{item.estrategia || '-'}</td>
+                            <td className="border border-border p-2 text-sm">{item.accionesMejora || '-'}</td>
+                            <td className="border border-border p-2 text-sm">{item.responsables || '-'}</td>
+                            <td className="border border-border p-2 text-sm">{item.fechaInicial || '-'}</td>
+                            <td className="border border-border p-2 text-sm">{item.fechaFinal || '-'}</td>
+                            <td className="border border-border p-2 text-sm">{item.indicadorCumplimiento || '-'}</td>
+                            <td className="border border-border p-2 text-sm">{item.observaciones || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  
-                  <div>
-                    <h4 className="font-medium mb-2">Objetivos de mejoramiento</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Define objetivos específicos, medibles y alcanzables para la transformación digital
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium mb-2">Estrategias y actividades</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Describe las estrategias y actividades específicas para alcanzar los objetivos
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium mb-2">Recursos necesarios</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Lista los recursos tecnológicos, humanos y financieros requeridos
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium mb-2">Cronograma de implementación</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Establece un cronograma con fechas y responsables para cada actividad
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium mb-2">Indicadores de seguimiento</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Define indicadores para medir el progreso y éxito del plan
-                    </p>
-                  </div>
-                </div>
+                ) : (
+                  <Alert>
+                    <AlertDescription>
+                      El plan de mejoramiento se mostrará aquí una vez que complete y guarde la sección "4. FORMULACIÓN PLAN DE MEJORAMIENTO" en el acta.
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
             </TabsContent>
           </Tabs>
