@@ -170,7 +170,6 @@ const EstudianteDashboard = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro1" 
-              disabled={!momentoProgress.encuentro1}
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
               {!momentoProgress.encuentro1 && <Lock className="h-4 w-4" />}
@@ -178,7 +177,6 @@ const EstudianteDashboard = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro2" 
-              disabled={!momentoProgress.encuentro2}
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
               {!momentoProgress.encuentro2 && <Lock className="h-4 w-4" />}
@@ -186,7 +184,6 @@ const EstudianteDashboard = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro3" 
-              disabled={!momentoProgress.encuentro3}
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
               {!momentoProgress.encuentro3 && <Lock className="h-4 w-4" />}
@@ -194,7 +191,6 @@ const EstudianteDashboard = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro4" 
-              disabled={!momentoProgress.encuentro4}
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
               {!momentoProgress.encuentro4 && <Lock className="h-4 w-4" />}
@@ -247,115 +243,71 @@ const EstudianteDashboard = () => {
           </TabsContent>
 
           <TabsContent value="encuentro1" className="space-y-6">
-            {!momentoProgress.encuentro1 ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lock className="h-5 w-5" />
-                    MOMENTO 3 - ENCUENTRO 1
-                  </CardTitle>
-                  <CardDescription>
-                    Debes completar el momento anterior antes de acceder a este encuentro
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>MOMENTO 3 - ENCUENTRO 1</CardTitle>
-                  <CardDescription>
-                    Primer encuentro dialógico
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Encuentro1Momento onComplete={() => handleMomentoComplete('encuentro1')} />
-                </CardContent>
-              </Card>
-            )}
+            <Card>
+              <CardHeader>
+                <CardTitle>MOMENTO 3 - ENCUENTRO 1</CardTitle>
+                <CardDescription>
+                  Primer encuentro dialógico
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Encuentro1Momento 
+                  onComplete={() => handleMomentoComplete('encuentro1')} 
+                  isLocked={!momentoProgress.encuentro1}
+                />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="encuentro2" className="space-y-6">
-            {!momentoProgress.encuentro2 ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lock className="h-5 w-5" />
-                    MOMENTO 4 - ENCUENTRO 2
-                  </CardTitle>
-                  <CardDescription>
-                    Debes completar el momento anterior antes de acceder a este encuentro
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>MOMENTO 4 - ENCUENTRO 2</CardTitle>
-                  <CardDescription>
-                    Segundo encuentro dialógico
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Encuentro2Momento onComplete={() => handleMomentoComplete('encuentro2')} />
-                </CardContent>
-              </Card>
-            )}
+            <Card>
+              <CardHeader>
+                <CardTitle>MOMENTO 4 - ENCUENTRO 2</CardTitle>
+                <CardDescription>
+                  Segundo encuentro dialógico
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Encuentro2Momento 
+                  onComplete={() => handleMomentoComplete('encuentro2')} 
+                  isLocked={!momentoProgress.encuentro2}
+                />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="encuentro3" className="space-y-6">
-            {!momentoProgress.encuentro3 ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lock className="h-5 w-5" />
-                    MOMENTO 5 - ENCUENTRO 3
-                  </CardTitle>
-                  <CardDescription>
-                    Debes completar el momento anterior antes de acceder a este encuentro
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>MOMENTO 5 - ENCUENTRO 3</CardTitle>
-                  <CardDescription>
-                    Tercer encuentro dialógico
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Encuentro3Momento onComplete={() => handleMomentoComplete('encuentro3')} />
-                </CardContent>
-              </Card>
-            )}
+            <Card>
+              <CardHeader>
+                <CardTitle>MOMENTO 5 - ENCUENTRO 3</CardTitle>
+                <CardDescription>
+                  Tercer encuentro dialógico
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Encuentro3Momento 
+                  onComplete={() => handleMomentoComplete('encuentro3')} 
+                  isLocked={!momentoProgress.encuentro3}
+                />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="encuentro4" className="space-y-6">
-            {!momentoProgress.encuentro4 ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lock className="h-5 w-5" />
-                    MOMENTO 6 - ENCUENTRO 4
-                  </CardTitle>
-                  <CardDescription>
-                    Debes completar el momento anterior antes de acceder a este encuentro
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>MOMENTO 6 - ENCUENTRO 4</CardTitle>
-                  <CardDescription>
-                    Cuarto encuentro dialógico
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Encuentro4Momento onComplete={() => handleMomentoComplete('encuentro4')} />
-                </CardContent>
-              </Card>
-            )}
+            <Card>
+              <CardHeader>
+                <CardTitle>MOMENTO 6 - ENCUENTRO 4</CardTitle>
+                <CardDescription>
+                  Cuarto encuentro dialógico
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Encuentro4Momento 
+                  onComplete={() => handleMomentoComplete('encuentro4')} 
+                  isLocked={!momentoProgress.encuentro4}
+                />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

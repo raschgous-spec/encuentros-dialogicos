@@ -1,14 +1,24 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Target, Lightbulb } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Users, Target, Lightbulb, Lock } from 'lucide-react';
 
 interface Encuentro2MomentoProps {
   onComplete?: () => void;
+  isLocked?: boolean;
 }
 
-export const Encuentro2Momento = ({ onComplete }: Encuentro2MomentoProps) => {
+export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2MomentoProps) => {
   return (
     <div className="space-y-6">
+      {isLocked && (
+        <Alert variant="destructive">
+          <Lock className="h-4 w-4" />
+          <AlertDescription>
+            Este momento está bloqueado. Debes completar el Momento 3 - Encuentro 1 para poder desarrollar este encuentro.
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader>
@@ -84,8 +94,8 @@ export const Encuentro2Momento = ({ onComplete }: Encuentro2MomentoProps) => {
           </ul>
           {onComplete && (
             <div className="mt-6">
-              <Button onClick={onComplete} className="w-full">
-                Marcar como Completado
+              <Button onClick={onComplete} className="w-full" disabled={isLocked}>
+                {isLocked ? 'Momento Bloqueado' : 'Marcar como Completado'}
               </Button>
             </div>
           )}
