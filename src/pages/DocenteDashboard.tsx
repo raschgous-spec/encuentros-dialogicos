@@ -8,6 +8,7 @@ import { CursosManager } from '@/components/CursosManager';
 import { EstudiantesManager } from '@/components/EstudiantesManager';
 import { EvaluacionesManager } from '@/components/EvaluacionesManager';
 import { EstadisticasManager } from '@/components/EstadisticasManager';
+import { SeguimientoTiempoReal } from '@/components/SeguimientoTiempoReal';
 
 const DocenteDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -20,6 +21,7 @@ const DocenteDashboard = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList>
               <TabsTrigger value="overview">Panel General</TabsTrigger>
+              <TabsTrigger value="seguimiento">Seguimiento en Tiempo Real</TabsTrigger>
               <TabsTrigger value="cursos">Mis CAI - Encuentros dialógicos</TabsTrigger>
               <TabsTrigger value="estudiantes">Estudiantes</TabsTrigger>
               <TabsTrigger value="evaluaciones">Evaluaciones</TabsTrigger>
@@ -159,6 +161,10 @@ const DocenteDashboard = () => {
                   <EvaluacionesManager showRecent={true} />
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="seguimiento">
+              <SeguimientoTiempoReal />
             </TabsContent>
 
             <TabsContent value="cursos">
