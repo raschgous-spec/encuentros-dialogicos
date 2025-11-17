@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { ParticipacionesTable } from './ParticipacionesTable';
 
 interface Encuentro3MomentoProps {
   onComplete?: () => void;
@@ -42,13 +43,28 @@ const actaFormSchema = z.object({
   agendaIntervencionEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
   // Contenido
   temasInstitucionales: z.array(z.object({
-    tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200)
+    tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200),
+    participaciones: z.array(z.object({
+      nombreEstudiante: z.string().trim().min(1, { message: "El nombre es requerido" }).max(200),
+      preguntaAporte: z.string().trim().min(1, { message: "La pregunta o aporte es requerido" }).max(500),
+      respuesta: z.string().trim().min(1, { message: "La respuesta es requerida" }).max(500)
+    })).optional()
   })).min(1, { message: "Debe agregar al menos un tema institucional" }),
   temasFacultad: z.array(z.object({
-    tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200)
+    tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200),
+    participaciones: z.array(z.object({
+      nombreEstudiante: z.string().trim().min(1, { message: "El nombre es requerido" }).max(200),
+      preguntaAporte: z.string().trim().min(1, { message: "La pregunta o aporte es requerido" }).max(500),
+      respuesta: z.string().trim().min(1, { message: "La respuesta es requerida" }).max(500)
+    })).optional()
   })).min(1, { message: "Debe agregar al menos un tema de facultad" }),
   temasPrograma: z.array(z.object({
-    tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200)
+    tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200),
+    participaciones: z.array(z.object({
+      nombreEstudiante: z.string().trim().min(1, { message: "El nombre es requerido" }).max(200),
+      preguntaAporte: z.string().trim().min(1, { message: "La pregunta o aporte es requerido" }).max(500),
+      respuesta: z.string().trim().min(1, { message: "La respuesta es requerida" }).max(500)
+    })).optional()
   })).min(1, { message: "Debe agregar al menos un tema del programa" }),
   // Proposiciones y plan
   proposicionesEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }).max(2000),
@@ -87,9 +103,9 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
       agendaLecturaOrden: '',
       agendaDocumentoCoordinador: '',
       agendaIntervencionEstudiantes: '',
-      temasInstitucionales: [{ tema: '' }],
-      temasFacultad: [{ tema: '' }],
-      temasPrograma: [{ tema: '' }],
+      temasInstitucionales: [{ tema: '', participaciones: [] }],
+      temasFacultad: [{ tema: '', participaciones: [] }],
+      temasPrograma: [{ tema: '', participaciones: [] }],
       proposicionesEstudiantes: '',
       planMejoramiento: '',
       temasTratados: '',
@@ -569,7 +585,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                   type="button"
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => appendTemaInstitucional({ tema: '' })}
+                                  onClick={() => appendTemaInstitucional({ tema: '', participaciones: [] })}
                                   disabled={isLocked}
                                 >
                                   <Plus className="h-4 w-4 mr-1" />
@@ -577,34 +593,42 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                 </Button>
                               </div>
                               {temasInstitucionalesFields.map((field, index) => (
-                                <div key={field.id} className="flex gap-2">
-                                  <FormField
-                                    control={actaForm.control}
-                                    name={`temasInstitucionales.${index}.tema`}
-                                    render={({ field }) => (
-                                      <FormItem className="flex-1">
-                                        <FormControl>
-                                          <Input
-                                            placeholder={`Tema institucional ${index + 1}`}
-                                            disabled={isLocked}
-                                            {...field}
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
+                                <div key={field.id} className="space-y-3 p-4 border rounded-lg">
+                                  <div className="flex gap-2">
+                                    <FormField
+                                      control={actaForm.control}
+                                      name={`temasInstitucionales.${index}.tema`}
+                                      render={({ field }) => (
+                                        <FormItem className="flex-1">
+                                          <FormControl>
+                                            <Input
+                                              placeholder={`Tema institucional ${index + 1}`}
+                                              disabled={isLocked}
+                                              {...field}
+                                            />
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                    {temasInstitucionalesFields.length > 1 && (
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() => removeTemaInstitucional(index)}
+                                        disabled={isLocked}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
                                     )}
+                                  </div>
+                                  
+                                  <ParticipacionesTable
+                                    control={actaForm.control}
+                                    baseName={`temasInstitucionales.${index}.participaciones`}
+                                    isLocked={isLocked}
                                   />
-                                  {temasInstitucionalesFields.length > 1 && (
-                                    <Button
-                                      type="button"
-                                      variant="destructive"
-                                      size="icon"
-                                      onClick={() => removeTemaInstitucional(index)}
-                                      disabled={isLocked}
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  )}
                                 </div>
                               ))}
                             </div>
@@ -616,7 +640,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                   type="button"
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => appendTemaFacultad({ tema: '' })}
+                                  onClick={() => appendTemaFacultad({ tema: '', participaciones: [] })}
                                   disabled={isLocked}
                                 >
                                   <Plus className="h-4 w-4 mr-1" />
@@ -624,34 +648,42 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                 </Button>
                               </div>
                               {temasFacultadFields.map((field, index) => (
-                                <div key={field.id} className="flex gap-2">
-                                  <FormField
-                                    control={actaForm.control}
-                                    name={`temasFacultad.${index}.tema`}
-                                    render={({ field }) => (
-                                      <FormItem className="flex-1">
-                                        <FormControl>
-                                          <Input
-                                            placeholder={`Tema de facultad ${index + 1}`}
-                                            disabled={isLocked}
-                                            {...field}
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
+                                <div key={field.id} className="space-y-3 p-4 border rounded-lg">
+                                  <div className="flex gap-2">
+                                    <FormField
+                                      control={actaForm.control}
+                                      name={`temasFacultad.${index}.tema`}
+                                      render={({ field }) => (
+                                        <FormItem className="flex-1">
+                                          <FormControl>
+                                            <Input
+                                              placeholder={`Tema de facultad ${index + 1}`}
+                                              disabled={isLocked}
+                                              {...field}
+                                            />
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                    {temasFacultadFields.length > 1 && (
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() => removeTemaFacultad(index)}
+                                        disabled={isLocked}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
                                     )}
+                                  </div>
+                                  
+                                  <ParticipacionesTable
+                                    control={actaForm.control}
+                                    baseName={`temasFacultad.${index}.participaciones`}
+                                    isLocked={isLocked}
                                   />
-                                  {temasFacultadFields.length > 1 && (
-                                    <Button
-                                      type="button"
-                                      variant="destructive"
-                                      size="icon"
-                                      onClick={() => removeTemaFacultad(index)}
-                                      disabled={isLocked}
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  )}
                                 </div>
                               ))}
                             </div>
@@ -663,7 +695,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                   type="button"
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => appendTemaPrograma({ tema: '' })}
+                                  onClick={() => appendTemaPrograma({ tema: '', participaciones: [] })}
                                   disabled={isLocked}
                                 >
                                   <Plus className="h-4 w-4 mr-1" />
@@ -671,34 +703,42 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                 </Button>
                               </div>
                               {temasProgramaFields.map((field, index) => (
-                                <div key={field.id} className="flex gap-2">
-                                  <FormField
-                                    control={actaForm.control}
-                                    name={`temasPrograma.${index}.tema`}
-                                    render={({ field }) => (
-                                      <FormItem className="flex-1">
-                                        <FormControl>
-                                          <Input
-                                            placeholder={`Tema del programa ${index + 1}`}
-                                            disabled={isLocked}
-                                            {...field}
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
+                                <div key={field.id} className="space-y-3 p-4 border rounded-lg">
+                                  <div className="flex gap-2">
+                                    <FormField
+                                      control={actaForm.control}
+                                      name={`temasPrograma.${index}.tema`}
+                                      render={({ field }) => (
+                                        <FormItem className="flex-1">
+                                          <FormControl>
+                                            <Input
+                                              placeholder={`Tema del programa ${index + 1}`}
+                                              disabled={isLocked}
+                                              {...field}
+                                            />
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                    {temasProgramaFields.length > 1 && (
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() => removeTemaPrograma(index)}
+                                        disabled={isLocked}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
                                     )}
+                                  </div>
+                                  
+                                  <ParticipacionesTable
+                                    control={actaForm.control}
+                                    baseName={`temasPrograma.${index}.participaciones`}
+                                    isLocked={isLocked}
                                   />
-                                  {temasProgramaFields.length > 1 && (
-                                    <Button
-                                      type="button"
-                                      variant="destructive"
-                                      size="icon"
-                                      onClick={() => removeTemaPrograma(index)}
-                                      disabled={isLocked}
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  )}
                                 </div>
                               ))}
                             </div>
