@@ -68,7 +68,17 @@ const actaFormSchema = z.object({
   })).min(1, { message: "Debe agregar al menos un tema del programa" }),
   // Proposiciones y plan
   proposicionesEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }).max(2000),
-  planMejoramiento: z.string().trim().min(1, { message: "Este campo es requerido" }).max(2000),
+  planMejoramiento: z.array(z.object({
+    tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200),
+    descripcionNecesidad: z.string().trim().min(1, { message: "La descripción es requerida" }).max(500),
+    estrategia: z.string().trim().min(1, { message: "La estrategia es requerida" }).max(300),
+    accionesMejora: z.string().trim().min(1, { message: "Las acciones son requeridas" }).max(500),
+    responsables: z.string().trim().min(1, { message: "Los responsables son requeridos" }).max(200),
+    fechaInicial: z.string().min(1, { message: "La fecha inicial es requerida" }),
+    fechaFinal: z.string().min(1, { message: "La fecha final es requerida" }),
+    indicadorCumplimiento: z.string().trim().min(1, { message: "El indicador es requerido" }).max(300),
+    observaciones: z.string().trim().max(500).optional(),
+  })).min(1, { message: "Debe agregar al menos un ítem al plan de mejoramiento" }),
 });
 
 export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1MomentoProps) => {
@@ -101,7 +111,17 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
       temasFacultad: [{ tema: '', participaciones: [] }],
       temasPrograma: [{ tema: '', participaciones: [] }],
       proposicionesEstudiantes: '',
-      planMejoramiento: '',
+      planMejoramiento: [{ 
+        tema: '', 
+        descripcionNecesidad: '', 
+        estrategia: '', 
+        accionesMejora: '', 
+        responsables: '', 
+        fechaInicial: '', 
+        fechaFinal: '', 
+        indicadorCumplimiento: '', 
+        observaciones: '' 
+      }],
     },
   });
 
@@ -126,6 +146,11 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
   const { fields: temasProgramaFields, append: appendTemaPrograma, remove: removeTemaPrograma } = useFieldArray({
     control: actaForm.control,
     name: "temasPrograma"
+  });
+
+  const { fields: planMejoramientoFields, append: appendPlanMejoramiento, remove: removePlanMejoramiento } = useFieldArray({
+    control: actaForm.control,
+    name: "planMejoramiento"
   });
 
   return (
@@ -759,24 +784,190 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                             4. FORMULACIÓN PLAN DE MEJORAMIENTO
                           </AccordionTrigger>
                           <AccordionContent className="space-y-4 pt-4">
-                            <FormField
-                              control={actaForm.control}
-                              name="planMejoramiento"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Plan de mejoramiento formulado</FormLabel>
-                                  <FormControl>
-                                    <Textarea 
-                                      placeholder="Describa el plan de mejoramiento formulado durante el encuentro"
-                                      className="min-h-[150px]"
-                                      disabled={isLocked}
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                            {planMejoramientoFields.map((item, index) => (
+                              <div key={item.id} className="border rounded-lg p-4 space-y-4 bg-card">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="font-medium">Ítem {index + 1}</h4>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removePlanMejoramiento(index)}
+                                    disabled={planMejoramientoFields.length === 1}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <FormField
+                                    control={actaForm.control}
+                                    name={`planMejoramiento.${index}.tema`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Tema</FormLabel>
+                                        <FormControl>
+                                          <Input placeholder="Ingrese el tema" disabled={isLocked} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+
+                                  <FormField
+                                    control={actaForm.control}
+                                    name={`planMejoramiento.${index}.estrategia`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Estrategia</FormLabel>
+                                        <FormControl>
+                                          <Input placeholder="Ingrese la estrategia" disabled={isLocked} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+
+                                <FormField
+                                  control={actaForm.control}
+                                  name={`planMejoramiento.${index}.descripcionNecesidad`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Descripción de la Necesidad</FormLabel>
+                                      <FormControl>
+                                        <Textarea 
+                                          placeholder="Describa la necesidad identificada"
+                                          className="min-h-[80px]"
+                                          disabled={isLocked}
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                <FormField
+                                  control={actaForm.control}
+                                  name={`planMejoramiento.${index}.accionesMejora`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Acciones de Mejora</FormLabel>
+                                      <FormControl>
+                                        <Textarea 
+                                          placeholder="Describa las acciones de mejora"
+                                          className="min-h-[80px]"
+                                          disabled={isLocked}
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <FormField
+                                    control={actaForm.control}
+                                    name={`planMejoramiento.${index}.responsables`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Responsables</FormLabel>
+                                        <FormControl>
+                                          <Input placeholder="Ingrese los responsables" disabled={isLocked} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+
+                                  <FormField
+                                    control={actaForm.control}
+                                    name={`planMejoramiento.${index}.indicadorCumplimiento`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Indicador de Cumplimiento</FormLabel>
+                                        <FormControl>
+                                          <Input placeholder="Ingrese el indicador" disabled={isLocked} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <FormField
+                                    control={actaForm.control}
+                                    name={`planMejoramiento.${index}.fechaInicial`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Fecha Inicial</FormLabel>
+                                        <FormControl>
+                                          <Input type="date" disabled={isLocked} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+
+                                  <FormField
+                                    control={actaForm.control}
+                                    name={`planMejoramiento.${index}.fechaFinal`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Fecha Final</FormLabel>
+                                        <FormControl>
+                                          <Input type="date" disabled={isLocked} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+
+                                <FormField
+                                  control={actaForm.control}
+                                  name={`planMejoramiento.${index}.observaciones`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Observaciones (Opcional)</FormLabel>
+                                      <FormControl>
+                                        <Textarea 
+                                          placeholder="Observaciones adicionales"
+                                          className="min-h-[60px]"
+                                          disabled={isLocked}
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                            ))}
+
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => appendPlanMejoramiento({ 
+                                tema: '', 
+                                descripcionNecesidad: '', 
+                                estrategia: '', 
+                                accionesMejora: '', 
+                                responsables: '', 
+                                fechaInicial: '', 
+                                fechaFinal: '', 
+                                indicadorCumplimiento: '', 
+                                observaciones: '' 
+                              })}
+                              className="w-full"
+                            >
+                              <Plus className="h-4 w-4 mr-2" />
+                              Agregar ítem al plan
+                            </Button>
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
