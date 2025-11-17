@@ -1,14 +1,24 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Target, Lightbulb } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Users, Target, Lightbulb, Lock } from 'lucide-react';
 
 interface Encuentro1MomentoProps {
   onComplete?: () => void;
+  isLocked?: boolean;
 }
 
-export const Encuentro1Momento = ({ onComplete }: Encuentro1MomentoProps) => {
+export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1MomentoProps) => {
   return (
     <div className="space-y-6">
+      {isLocked && (
+        <Alert variant="destructive">
+          <Lock className="h-4 w-4" />
+          <AlertDescription>
+            Este momento está bloqueado. Debes completar el Momento 2 - Nivelatorio con una calificación aprobatoria (≥60) para poder desarrollar este encuentro.
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader>
@@ -84,8 +94,8 @@ export const Encuentro1Momento = ({ onComplete }: Encuentro1MomentoProps) => {
           </ul>
           {onComplete && (
             <div className="mt-6">
-              <Button onClick={onComplete} className="w-full">
-                Marcar como Completado
+              <Button onClick={onComplete} className="w-full" disabled={isLocked}>
+                {isLocked ? 'Momento Bloqueado' : 'Marcar como Completado'}
               </Button>
             </div>
           )}
