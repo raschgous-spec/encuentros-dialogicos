@@ -135,30 +135,267 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
 
   const generatePDF = (data: z.infer<typeof actaFormSchema>) => {
     const doc = new jsPDF();
-    let yPos = 20;
+    let yPos = 15;
 
-    // Title
+    // Header - Title
     doc.setFontSize(16);
-    doc.text('ACTA - MOMENTO 5 - ENCUENTRO 3', 105, yPos, { align: 'center' });
-    yPos += 15;
+    doc.setFont('helvetica', 'bold');
+    doc.text('ACTA DE REUNIÓN', 105, yPos, { align: 'center' });
+    yPos += 8;
+    doc.setFontSize(14);
+    doc.text('MOMENTO 5 - ENCUENTRO 3', 105, yPos, { align: 'center' });
+    yPos += 12;
 
-    // Meeting info
-    doc.setFontSize(10);
+    // Meeting Information Section
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('INFORMACIÓN GENERAL', 20, yPos);
+    yPos += 7;
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
     doc.text(`Fecha: ${data.fecha}`, 20, yPos);
     doc.text(`Lugar: ${data.lugar}`, 120, yPos);
-    yPos += 7;
-    doc.text(`Hora: ${data.horaInicio} - ${data.horaFin}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Hora de inicio: ${data.horaInicio}`, 20, yPos);
+    doc.text(`Hora de finalización: ${data.horaFin}`, 120, yPos);
+    yPos += 5;
+    doc.text(`Facultad: ${data.facultad}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Programa Académico: ${data.programaAcademico}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Director: ${data.nombreDirector}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Responsable: ${data.responsable}`, 20, yPos);
     yPos += 10;
 
-    // Improvement plan table
+    // Secretary Information
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SECRETARIO', 20, yPos);
+    yPos += 7;
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Nombre: ${data.nombreSecretario}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Identificación: ${data.identificacionSecretario}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Facultad/Programa: ${data.facultadProgramaSecretario}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Correo: ${data.correoSecretario}`, 20, yPos);
+    yPos += 10;
+
+    // Participants
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PARTICIPANTES', 20, yPos);
+    yPos += 7;
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    const participantesLines = doc.splitTextToSize(data.participantes, 170);
+    doc.text(participantesLines, 20, yPos);
+    yPos += (participantesLines.length * 5) + 5;
+
+    // Objectives
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('OBJETIVOS', 20, yPos);
+    yPos += 7;
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    const objetivosLines = doc.splitTextToSize(data.objetivos, 170);
+    doc.text(objetivosLines, 20, yPos);
+    yPos += (objetivosLines.length * 5) + 10;
+
+    // Check if we need a new page
+    if (yPos > 250) {
+      doc.addPage();
+      yPos = 20;
+    }
+
+    // Agenda
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('AGENDA DEL DÍA', 20, yPos);
+    yPos += 5;
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Punto', 'Descripción']],
+      body: [
+        ['1. Bienvenida', data.agendaBienvenida],
+        ['2. Verificación de quórum y nombramiento de secretario', data.agendaSecretario],
+        ['3. Informe de gestión', data.agendaInforme],
+        ['4. Lectura del orden del día', data.agendaLecturaOrden],
+        ['5. Documento del coordinador', data.agendaDocumentoCoordinador],
+        ['6. Intervención de estudiantes', data.agendaIntervencionEstudiantes],
+      ],
+      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [66, 139, 202], fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 50 },
+        1: { cellWidth: 130 }
+      }
+    });
+
+    // Get final Y position after table
+    yPos = (doc as any).lastAutoTable.finalY + 10;
+
+    // Topics - Institucionales
+    if (data.temasInstitucionales && data.temasInstitucionales.length > 0) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TEMAS INSTITUCIONALES', 20, yPos);
+      yPos += 5;
+
+      data.temasInstitucionales.forEach((temaObj, index) => {
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${index + 1}. ${temaObj.tema}`, 20, yPos);
+        yPos += 5;
+
+        if (temaObj.participaciones && temaObj.participaciones.length > 0) {
+          autoTable(doc, {
+            startY: yPos,
+            head: [['Estudiante', 'Pregunta/Aporte', 'Respuesta']],
+            body: temaObj.participaciones.map(p => [
+              p.nombreEstudiante,
+              p.preguntaAporte,
+              p.respuesta
+            ]),
+            styles: { fontSize: 8, cellPadding: 2 },
+            headStyles: { fillColor: [66, 139, 202] },
+          });
+          yPos = (doc as any).lastAutoTable.finalY + 7;
+        }
+
+        if (yPos > 250) {
+          doc.addPage();
+          yPos = 20;
+        }
+      });
+    }
+
+    // Topics - Facultad
+    if (data.temasFacultad && data.temasFacultad.length > 0) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TEMAS DE FACULTAD', 20, yPos);
+      yPos += 5;
+
+      data.temasFacultad.forEach((temaObj, index) => {
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${index + 1}. ${temaObj.tema}`, 20, yPos);
+        yPos += 5;
+
+        if (temaObj.participaciones && temaObj.participaciones.length > 0) {
+          autoTable(doc, {
+            startY: yPos,
+            head: [['Estudiante', 'Pregunta/Aporte', 'Respuesta']],
+            body: temaObj.participaciones.map(p => [
+              p.nombreEstudiante,
+              p.preguntaAporte,
+              p.respuesta
+            ]),
+            styles: { fontSize: 8, cellPadding: 2 },
+            headStyles: { fillColor: [66, 139, 202] },
+          });
+          yPos = (doc as any).lastAutoTable.finalY + 7;
+        }
+
+        if (yPos > 250) {
+          doc.addPage();
+          yPos = 20;
+        }
+      });
+    }
+
+    // Topics - Programa
+    if (data.temasPrograma && data.temasPrograma.length > 0) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TEMAS DEL PROGRAMA', 20, yPos);
+      yPos += 5;
+
+      data.temasPrograma.forEach((temaObj, index) => {
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${index + 1}. ${temaObj.tema}`, 20, yPos);
+        yPos += 5;
+
+        if (temaObj.participaciones && temaObj.participaciones.length > 0) {
+          autoTable(doc, {
+            startY: yPos,
+            head: [['Estudiante', 'Pregunta/Aporte', 'Respuesta']],
+            body: temaObj.participaciones.map(p => [
+              p.nombreEstudiante,
+              p.preguntaAporte,
+              p.respuesta
+            ]),
+            styles: { fontSize: 8, cellPadding: 2 },
+            headStyles: { fillColor: [66, 139, 202] },
+          });
+          yPos = (doc as any).lastAutoTable.finalY + 7;
+        }
+
+        if (yPos > 250) {
+          doc.addPage();
+          yPos = 20;
+        }
+      });
+    }
+
+    // Proposiciones
+    if (yPos > 240) {
+      doc.addPage();
+      yPos = 20;
+    }
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PROPOSICIONES DE LOS ESTUDIANTES', 20, yPos);
+    yPos += 7;
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    const proposicionesLines = doc.splitTextToSize(data.proposicionesEstudiantes, 170);
+    doc.text(proposicionesLines, 20, yPos);
+    yPos += (proposicionesLines.length * 5) + 10;
+
+    // Improvement Plan
     if (data.planMejoramiento && data.planMejoramiento.length > 0) {
-      doc.setFontSize(12);
+      if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
       doc.text('PLAN DE MEJORAMIENTO', 20, yPos);
       yPos += 5;
 
       autoTable(doc, {
         startY: yPos,
-        head: [['No.', 'Tema', 'Descripción', 'Estrategia', 'Acciones', 'Responsables', 'Fecha Inicial', 'Fecha Final', 'Indicador', 'Observaciones']],
+        head: [['No.', 'Tema', 'Descripción', 'Estrategia', 'Acciones', 'Responsables', 'F. Inicial', 'F. Final', 'Indicador', 'Observaciones']],
         body: data.planMejoramiento.map((item, index) => [
           (index + 1).toString(),
           item.tema,
@@ -169,10 +406,13 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
           item.fechaInicial,
           item.fechaFinal,
           item.indicadorCumplimiento,
-          item.observaciones || ''
+          item.observaciones || '-'
         ]),
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [66, 139, 202] },
+        styles: { fontSize: 7, cellPadding: 2 },
+        headStyles: { fillColor: [66, 139, 202], fontStyle: 'bold' },
+        columnStyles: {
+          0: { cellWidth: 10 },
+        }
       });
     }
 
