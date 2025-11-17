@@ -26,6 +26,10 @@ const actaFormSchema = z.object({
   programaAcademico: z.string().trim().min(1, { message: "El programa académico es requerido" }).max(200),
   nombreDirector: z.string().trim().min(1, { message: "El nombre del director es requerido" }).max(200),
   responsable: z.string().trim().min(1, { message: "El responsable es requerido" }).max(200),
+  nombreSecretario: z.string().trim().min(1, { message: "El nombre del secretario es requerido" }).max(200),
+  identificacionSecretario: z.string().trim().min(1, { message: "El número de identificación es requerido" }).max(50),
+  facultadProgramaSecretario: z.string().trim().min(1, { message: "La facultad y programa son requeridos" }).max(300),
+  correoSecretario: z.string().trim().min(1, { message: "El correo institucional es requerido" }).email({ message: "Ingrese un correo válido" }).max(200),
   participantes: z.string().trim().min(1, { message: "Los participantes son requeridos" }).max(2000),
   objetivos: z.string().trim().min(1, { message: "Los objetivos son requeridos" }).max(1000),
   temasTratados: z.string().trim().min(1, { message: "Los temas tratados son requeridos" }).max(2000),
@@ -50,6 +54,10 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
       programaAcademico: '',
       nombreDirector: '',
       responsable: '',
+      nombreSecretario: '',
+      identificacionSecretario: '',
+      facultadProgramaSecretario: '',
+      correoSecretario: '',
       participantes: '',
       objetivos: '',
       temasTratados: '',
@@ -277,6 +285,62 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                           <FormLabel>Responsable del encuentro</FormLabel>
                           <FormControl>
                             <Input placeholder="Nombre del responsable" disabled={isLocked} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={actaForm.control}
+                      name="nombreSecretario"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nombre del estudiante designado como secretario</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nombre completo del secretario" disabled={isLocked} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={actaForm.control}
+                      name="identificacionSecretario"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>N° de identificación</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Número de identificación" disabled={isLocked} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={actaForm.control}
+                      name="facultadProgramaSecretario"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Facultad y programa al que pertenece</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Facultad y programa académico" disabled={isLocked} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={actaForm.control}
+                      name="correoSecretario"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Correo institucional</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="correo@institucion.edu.co" disabled={isLocked} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
