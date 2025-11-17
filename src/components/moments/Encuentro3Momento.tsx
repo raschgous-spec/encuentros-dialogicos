@@ -586,7 +586,6 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                   variant="outline"
                                   size="sm"
                                   onClick={() => appendTemaInstitucional({ tema: '', participaciones: [] })}
-                                  disabled={isLocked}
                                 >
                                   <Plus className="h-4 w-4 mr-1" />
                                   Agregar tema
@@ -617,7 +616,6 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                         variant="destructive"
                                         size="icon"
                                         onClick={() => removeTemaInstitucional(index)}
-                                        disabled={isLocked}
                                       >
                                         <Trash2 className="h-4 w-4" />
                                       </Button>
@@ -641,7 +639,6 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                   variant="outline"
                                   size="sm"
                                   onClick={() => appendTemaFacultad({ tema: '', participaciones: [] })}
-                                  disabled={isLocked}
                                 >
                                   <Plus className="h-4 w-4 mr-1" />
                                   Agregar tema
@@ -672,7 +669,6 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                         variant="destructive"
                                         size="icon"
                                         onClick={() => removeTemaFacultad(index)}
-                                        disabled={isLocked}
                                       >
                                         <Trash2 className="h-4 w-4" />
                                       </Button>
@@ -696,7 +692,6 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                   variant="outline"
                                   size="sm"
                                   onClick={() => appendTemaPrograma({ tema: '', participaciones: [] })}
-                                  disabled={isLocked}
                                 >
                                   <Plus className="h-4 w-4 mr-1" />
                                   Agregar tema
@@ -727,7 +722,6 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                         variant="destructive"
                                         size="icon"
                                         onClick={() => removeTemaPrograma(index)}
-                                        disabled={isLocked}
                                       >
                                         <Trash2 className="h-4 w-4" />
                                       </Button>
