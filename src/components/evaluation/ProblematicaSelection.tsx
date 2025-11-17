@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { problematicas, Problematica } from '@/data/problematicas';
 import { ChevronRight, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import modeloEducativo from '@/assets/modelo-educativo.jpg';
 
 interface ProblematicaSelectionProps {
   onSelect: (problematica: Problematica, item: string) => void;
@@ -40,6 +41,13 @@ export const ProblematicaSelection = ({ onSelect }: ProblematicaSelectionProps) 
           <CardDescription>Elige el área problemática de tu interés</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-6 flex justify-center">
+            <img 
+              src={modeloEducativo} 
+              alt="Modelo Educativo Digital Transmoderno - Universidad de Cundinamarca"
+              className="w-full max-w-3xl rounded-lg shadow-md"
+            />
+          </div>
           <RadioGroup value={selectedDimension} onValueChange={(value) => {
             setSelectedDimension(value);
             setSelectedItem('');
