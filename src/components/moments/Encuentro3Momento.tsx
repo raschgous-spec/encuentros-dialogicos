@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -102,6 +102,8 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('acta');
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [previousPlan, setPreviousPlan] = useState<any>(null);
   
   const actaForm = useForm<z.infer<typeof actaFormSchema>>({
     resolver: zodResolver(actaFormSchema),
@@ -149,6 +151,91 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
       seguimiento: '',
     },
   });
+
+  // Load existing acta data and previous plan from Encuentro1
+  useEffect(() => {
+    const loadActa = async () => {
+      if (!user) return;
+
+      try {
+        // Load previous plan from Encuentro1
+        const { data: prevData, error: prevError } = await supabase
+          .from('actas_encuentro')
+          .select('plan_mejoramiento')
+          .eq('estudiante_id', user.id)
+          .eq('momento', 'encuentro1')
+          .maybeSingle();
+
+        if (!prevError && prevData) {
+          setPreviousPlan(prevData.plan_mejoramiento);
+        }
+
+        // Load current acta data
+        const { data, error } = await supabase
+          .from('actas_encuentro')
+          .select('*')
+          .eq('estudiante_id', user.id)
+          .eq('momento', 'encuentro3')
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          actaForm.reset({
+            fecha: data.fecha || '',
+            lugar: data.lugar || '',
+            horaInicio: data.hora_inicio || '',
+            horaFin: data.hora_fin || '',
+            facultad: data.facultad || '',
+            programaAcademico: data.programa_academico || '',
+            nombreDirector: data.nombre_director || '',
+            responsable: data.responsable || '',
+            nombreSecretario: data.nombre_secretario || '',
+            identificacionSecretario: data.identificacion_secretario || '',
+            facultadProgramaSecretario: data.facultad_programa_secretario || '',
+            correoSecretario: data.correo_secretario || '',
+            participantes: data.participantes || '',
+            objetivos: data.objetivos || '',
+            agendaBienvenida: data.agenda_bienvenida || '',
+            agendaSecretario: data.agenda_secretario || '',
+            agendaInforme: data.agenda_informe || '',
+            agendaLecturaOrden: data.agenda_lectura_orden || '',
+            agendaDocumentoCoordinador: data.agenda_documento_coordinador || '',
+            agendaIntervencionEstudiantes: data.agenda_intervencion_estudiantes || '',
+            temasInstitucionales: (data.temas_institucionales as any) || [{ tema: '', participaciones: [] }],
+            temasFacultad: (data.temas_facultad as any) || [{ tema: '', participaciones: [] }],
+            temasPrograma: (data.temas_programa as any) || [{ tema: '', participaciones: [] }],
+            proposicionesEstudiantes: data.proposiciones_estudiantes || '',
+            planMejoramiento: (Array.isArray(data.plan_mejoramiento) ? data.plan_mejoramiento : prevData?.plan_mejoramiento || [{ tema: '', descripcionNecesidad: '', estrategia: '', accionesMejora: '', responsables: '', fechaInicial: '', fechaFinal: '', indicadorCumplimiento: '', observaciones: '' }]) as any,
+            tituloProyecto: (data.plan_mejoramiento as any)?.tituloProyecto || (prevData?.plan_mejoramiento as any)?.tituloProyecto || '',
+            propositoGeneral: (data.plan_mejoramiento as any)?.propositoGeneral || (prevData?.plan_mejoramiento as any)?.propositoGeneral || '',
+            objetivoGeneral: (data.plan_mejoramiento as any)?.objetivoGeneral || (prevData?.plan_mejoramiento as any)?.objetivoGeneral || '',
+            objetivosEspecificos: (data.plan_mejoramiento as any)?.objetivosEspecificos || (prevData?.plan_mejoramiento as any)?.objetivosEspecificos || [],
+            indicadoresLogro: (data.plan_mejoramiento as any)?.indicadoresLogro || (prevData?.plan_mejoramiento as any)?.indicadoresLogro || [],
+            seguimiento: (data.plan_mejoramiento as any)?.seguimiento || (prevData?.plan_mejoramiento as any)?.seguimiento || '',
+          });
+        } else if (prevData) {
+          // If no current data, load from previous plan
+          actaForm.reset({
+            ...actaForm.getValues(),
+            planMejoramiento: (Array.isArray(prevData.plan_mejoramiento) ? prevData.plan_mejoramiento : [{ tema: '', descripcionNecesidad: '', estrategia: '', accionesMejora: '', responsables: '', fechaInicial: '', fechaFinal: '', indicadorCumplimiento: '', observaciones: '' }]) as any,
+            tituloProyecto: (prevData.plan_mejoramiento as any)?.tituloProyecto || '',
+            propositoGeneral: (prevData.plan_mejoramiento as any)?.propositoGeneral || '',
+            objetivoGeneral: (prevData.plan_mejoramiento as any)?.objetivoGeneral || '',
+            objetivosEspecificos: (prevData.plan_mejoramiento as any)?.objetivosEspecificos || [],
+            indicadoresLogro: (prevData.plan_mejoramiento as any)?.indicadoresLogro || [],
+            seguimiento: (prevData.plan_mejoramiento as any)?.seguimiento || '',
+          });
+        }
+      } catch (error) {
+        console.error('Error loading acta:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadActa();
+  }, [user, actaForm]);
 
   const { fields: objetivosFields, append: appendObjetivo, remove: removeObjetivo } = useFieldArray({
     control: actaForm.control,
@@ -489,7 +576,17 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
           temas_facultad: data.temasFacultad,
           temas_programa: data.temasPrograma,
           proposiciones_estudiantes: data.proposicionesEstudiantes,
-          plan_mejoramiento: data.planMejoramiento,
+          plan_mejoramiento: {
+            ...data.planMejoramiento,
+            tituloProyecto: data.tituloProyecto,
+            propositoGeneral: data.propositoGeneral,
+            objetivoGeneral: data.objetivoGeneral,
+            objetivosEspecificos: data.objetivosEspecificos,
+            indicadoresLogro: data.indicadoresLogro,
+            seguimiento: data.seguimiento,
+          } as any,
+        }, {
+          onConflict: 'estudiante_id,momento'
         });
 
       if (error) throw error;
