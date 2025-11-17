@@ -1388,6 +1388,110 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                     </AlertDescription>
                   </Alert>
                 )}
+
+                {/* Formato detallado del Plan de Mejoramiento */}
+                {actaForm.watch('planMejoramiento').length > 0 && actaForm.watch('planMejoramiento')[0].tema && (
+                  <div className="mt-8 space-y-6 rounded-lg border bg-card p-6">
+                    <div className="text-center border-b pb-4">
+                      <h2 className="text-xl font-bold">MODELO DE PLAN DE MEJORAMIENTO – MOMENTO 3</h2>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="border-b pb-2">
+                          <label className="text-sm font-semibold">Título del proyecto:</label>
+                          <p className="mt-1 text-sm">{actaForm.watch('programaAcademico') || '_____________________'}</p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="border-b pb-2">
+                            <label className="text-sm font-semibold">Duración:</label>
+                            <p className="mt-1 text-sm">
+                              {actaForm.watch('fecha') && actaForm.watch('horaInicio') && actaForm.watch('horaFin')
+                                ? `${actaForm.watch('fecha')} - ${actaForm.watch('horaInicio')} a ${actaForm.watch('horaFin')}`
+                                : '__________________'}
+                            </p>
+                          </div>
+
+                          <div className="border-b pb-2">
+                            <label className="text-sm font-semibold">Responsables:</label>
+                            <p className="mt-1 text-sm">{actaForm.watch('responsable') || '____________'}</p>
+                          </div>
+                        </div>
+
+                        <div className="border-b pb-2">
+                          <label className="text-sm font-semibold">Participantes:</label>
+                          <p className="mt-1 text-sm whitespace-pre-wrap">{actaForm.watch('participantes') || '_______________'}</p>
+                        </div>
+
+                        <div className="border-b pb-2">
+                          <label className="text-sm font-semibold">Propósito general del momento:</label>
+                          <p className="mt-1 text-sm">{actaForm.watch('objetivos') || '____________'}</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div>
+                          <h3 className="text-base font-semibold mb-2">1. Objetivo general</h3>
+                          <p className="text-sm pl-4">{actaForm.watch('objetivos') || '___________________'}</p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-base font-semibold mb-2">2. Objetivos específicos</h3>
+                          <ol className="list-decimal list-inside pl-4 space-y-1">
+                            {actaForm.watch('planMejoramiento').map((item, index) => (
+                              <li key={index} className="text-sm">{item.accionesMejora || '___________'}</li>
+                            ))}
+                          </ol>
+                        </div>
+
+                        <div>
+                          <h3 className="text-base font-semibold mb-2">3. Actividades sugeridas</h3>
+                          <div className="overflow-x-auto">
+                            <table className="w-full border-collapse border border-border text-sm">
+                              <thead>
+                                <tr className="bg-muted">
+                                  <th className="border border-border p-2 text-left font-medium">Actividad</th>
+                                  <th className="border border-border p-2 text-left font-medium">Descripción</th>
+                                  <th className="border border-border p-2 text-left font-medium">Responsables</th>
+                                  <th className="border border-border p-2 text-left font-medium">Producto esperado</th>
+                                  <th className="border border-border p-2 text-left font-medium">Evidencia digital</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {actaForm.watch('planMejoramiento').map((item, index) => (
+                                  <tr key={index} className="hover:bg-muted/50">
+                                    <td className="border border-border p-2">{item.tema || '_______'}</td>
+                                    <td className="border border-border p-2">{item.descripcionNecesidad || '______________'}</td>
+                                    <td className="border border-border p-2">{item.responsables || '______________'}</td>
+                                    <td className="border border-border p-2">{item.estrategia || '______________'}</td>
+                                    <td className="border border-border p-2">{item.observaciones || '__________________'}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-base font-semibold mb-2">4. Indicadores de logro</h3>
+                          <div className="pl-4 space-y-1">
+                            {actaForm.watch('planMejoramiento').map((item, index) => (
+                              <p key={index} className="text-sm">• {item.indicadorCumplimiento || '_______________'}</p>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-base font-semibold mb-2">5. Seguimiento</h3>
+                          <p className="text-sm pl-4">
+                            Periodo: {actaForm.watch('planMejoramiento')[0]?.fechaInicial || '__________'} al {actaForm.watch('planMejoramiento')[0]?.fechaFinal || '__________'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
