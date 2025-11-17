@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Users, Target, Lightbulb, Lock, FileText, ClipboardList } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,6 +33,20 @@ const actaFormSchema = z.object({
   correoSecretario: z.string().trim().min(1, { message: "El correo institucional es requerido" }).email({ message: "Ingrese un correo válido" }).max(200),
   participantes: z.string().trim().min(1, { message: "Los participantes son requeridos" }).max(2000),
   objetivos: z.string().trim().min(1, { message: "Los objetivos son requeridos" }).max(1000),
+  // Agenda del día
+  agendaBienvenida: z.string().trim().min(1, { message: "Este campo es requerido" }).max(500),
+  agendaSecretario: z.string().trim().min(1, { message: "Este campo es requerido" }).max(500),
+  agendaInforme: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
+  agendaLecturaOrden: z.string().trim().min(1, { message: "Este campo es requerido" }).max(500),
+  agendaDocumentoCoordinador: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
+  agendaIntervencionEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
+  // Contenido
+  temasInstitucionales: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
+  temasFacultad: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
+  temasPrograma: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
+  // Proposiciones y plan
+  proposicionesEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }).max(2000),
+  planMejoramiento: z.string().trim().min(1, { message: "Este campo es requerido" }).max(2000),
   temasTratados: z.string().trim().min(1, { message: "Los temas tratados son requeridos" }).max(2000),
   acuerdos: z.string().trim().min(1, { message: "Los acuerdos son requeridos" }).max(2000),
   compromisos: z.string().trim().min(1, { message: "Los compromisos son requeridos" }).max(2000),
@@ -60,6 +75,17 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
       correoSecretario: '',
       participantes: '',
       objetivos: '',
+      agendaBienvenida: '',
+      agendaSecretario: '',
+      agendaInforme: '',
+      agendaLecturaOrden: '',
+      agendaDocumentoCoordinador: '',
+      agendaIntervencionEstudiantes: '',
+      temasInstitucionales: '',
+      temasFacultad: '',
+      temasPrograma: '',
+      proposicionesEstudiantes: '',
+      planMejoramiento: '',
       temasTratados: '',
       acuerdos: '',
       compromisos: '',
@@ -384,6 +410,249 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                         </FormItem>
                       )}
                     />
+
+                    <div className="space-y-4">
+                      <h4 className="font-semibold text-lg">Desarrollo del Encuentro</h4>
+                      
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="agenda">
+                          <AccordionTrigger className="text-base font-medium">
+                            1. AGENDA DEL DÍA
+                          </AccordionTrigger>
+                          <AccordionContent className="space-y-4 pt-4">
+                            <FormField
+                              control={actaForm.control}
+                              name="agendaBienvenida"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>1.1. Bienvenida y saludo a los asistentes</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Describa la bienvenida y saludo inicial"
+                                      className="min-h-[80px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={actaForm.control}
+                              name="agendaSecretario"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>1.2. Designación del secretario</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Describa el proceso de designación del secretario"
+                                      className="min-h-[80px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={actaForm.control}
+                              name="agendaInforme"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>1.3. Informe de resultados</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Mencione las fortalezas, mejoras y cumplimientos que ha hecho la Institución"
+                                      className="min-h-[100px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={actaForm.control}
+                              name="agendaLecturaOrden"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>1.4. Lectura y aprobación del orden del día</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Describa la lectura y aprobación del orden del día"
+                                      className="min-h-[80px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={actaForm.control}
+                              name="agendaDocumentoCoordinador"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>1.5. Lectura del documento expuesto por el coordinador</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Describa el contenido del documento expuesto"
+                                      className="min-h-[100px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={actaForm.control}
+                              name="agendaIntervencionEstudiantes"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>1.6. Intervención de los estudiantes</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Registre las intervenciones de los estudiantes"
+                                      className="min-h-[100px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="contenido">
+                          <AccordionTrigger className="text-base font-medium">
+                            2. CONTENIDO
+                          </AccordionTrigger>
+                          <AccordionContent className="space-y-4 pt-4">
+                            <FormField
+                              control={actaForm.control}
+                              name="temasInstitucionales"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>2.1. Temas institucionales</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Listar temas institucionales tratados"
+                                      className="min-h-[100px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={actaForm.control}
+                              name="temasFacultad"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>2.2. Temas de facultad</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Listar temas de facultad tratados"
+                                      className="min-h-[100px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={actaForm.control}
+                              name="temasPrograma"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>2.3. Temas específicos del programa académico</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Listar temas específicos del programa académico"
+                                      className="min-h-[100px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="proposiciones">
+                          <AccordionTrigger className="text-base font-medium">
+                            3. PROPOSICIONES DE LOS ESTUDIANTES
+                          </AccordionTrigger>
+                          <AccordionContent className="space-y-4 pt-4">
+                            <FormField
+                              control={actaForm.control}
+                              name="proposicionesEstudiantes"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Proposiciones presentadas</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Registre todas las proposiciones presentadas por los estudiantes"
+                                      className="min-h-[150px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="plan-mejoramiento">
+                          <AccordionTrigger className="text-base font-medium">
+                            4. FORMULACIÓN PLAN DE MEJORAMIENTO
+                          </AccordionTrigger>
+                          <AccordionContent className="space-y-4 pt-4">
+                            <FormField
+                              control={actaForm.control}
+                              name="planMejoramiento"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Plan de mejoramiento formulado</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="Describa el plan de mejoramiento formulado durante el encuentro"
+                                      className="min-h-[150px]"
+                                      disabled={isLocked}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
 
                     <FormField
                       control={actaForm.control}
