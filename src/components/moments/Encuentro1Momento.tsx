@@ -69,12 +69,6 @@ const actaFormSchema = z.object({
   // Proposiciones y plan
   proposicionesEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }).max(2000),
   planMejoramiento: z.string().trim().min(1, { message: "Este campo es requerido" }).max(2000),
-  temasTratados: z.string().trim().min(1, { message: "Los temas tratados son requeridos" }).max(2000),
-  acuerdos: z.string().trim().min(1, { message: "Los acuerdos son requeridos" }).max(2000),
-  compromisos: z.string().trim().min(1, { message: "Los compromisos son requeridos" }).max(2000),
-  responsablesCompromisos: z.string().trim().min(1, { message: "Los responsables de compromisos son requeridos" }).max(1000),
-  observaciones: z.string().trim().max(2000).optional(),
-  proximaReunion: z.string().trim().max(500).optional(),
 });
 
 export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1MomentoProps) => {
@@ -108,12 +102,6 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
       temasPrograma: [{ tema: '', participaciones: [] }],
       proposicionesEstudiantes: '',
       planMejoramiento: '',
-      temasTratados: '',
-      acuerdos: '',
-      compromisos: '',
-      responsablesCompromisos: '',
-      observaciones: '',
-      proximaReunion: '',
     },
   });
 
@@ -793,120 +781,6 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                         </AccordionItem>
                       </Accordion>
                     </div>
-
-                    <FormField
-                      control={actaForm.control}
-                      name="temasTratados"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Temas tratados</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Lista los principales temas y conceptos discutidos durante el encuentro"
-                              className="min-h-[120px]"
-                              disabled={isLocked}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={actaForm.control}
-                      name="acuerdos"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Acuerdos</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Detalla los acuerdos alcanzados durante el encuentro"
-                              className="min-h-[120px]"
-                              disabled={isLocked}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={actaForm.control}
-                      name="compromisos"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Compromisos</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Lista los compromisos asumidos por los participantes"
-                              className="min-h-[120px]"
-                              disabled={isLocked}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={actaForm.control}
-                      name="responsablesCompromisos"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Responsables de cada compromiso</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Asigne responsables para cada compromiso"
-                              className="min-h-[100px]"
-                              disabled={isLocked}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={actaForm.control}
-                      name="observaciones"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Observaciones adicionales (opcional)</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Espacio para registrar observaciones adicionales relevantes"
-                              className="min-h-[100px]"
-                              disabled={isLocked}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={actaForm.control}
-                      name="proximaReunion"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Próxima reunión (opcional)</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Fecha, hora y temas para la próxima reunión"
-                              className="min-h-[80px]"
-                              disabled={isLocked}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
 
                     <Button type="submit" className="w-full" disabled={isLocked}>
                       Guardar Acta
