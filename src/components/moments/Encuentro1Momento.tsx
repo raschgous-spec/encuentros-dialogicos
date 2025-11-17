@@ -1601,7 +1601,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                 {actaForm.watch('planMejoramiento').length > 0 && actaForm.watch('planMejoramiento')[0].tema && (
                   <div className="mt-8 space-y-6 rounded-lg border bg-card p-6">
                     <div className="text-center border-b pb-4">
-                      <h2 className="text-xl font-bold">PLAN DE MEJORAMIENTO – MOMENTO 1</h2>
+                      <h2 className="text-xl font-bold">PLAN DE MEJORAMIENTO – MOMENTO 3</h2>
                     </div>
 
                     <div className="space-y-4">
