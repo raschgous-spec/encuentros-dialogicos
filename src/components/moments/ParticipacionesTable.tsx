@@ -29,15 +29,14 @@ export const ParticipacionesTable = ({ control, baseName, isLocked }: Participac
           type="button"
           variant="outline"
           size="sm"
-          className="w-full flex items-center justify-between"
-          disabled={isLocked}
+          className="w-full flex items-center justify-between hover:bg-accent"
         >
           <span>Participaciones y aportes</span>
           <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-3">
-        <div className="space-y-3">
+        <div className="space-y-3 p-4 border rounded-lg bg-card">
           <div className="flex justify-end">
             <Button
               type="button"
@@ -52,14 +51,14 @@ export const ParticipacionesTable = ({ control, baseName, isLocked }: Participac
           </div>
           
           {fields.length > 0 && (
-            <div className="border rounded-lg overflow-hidden">
+            <div className="border rounded-lg overflow-hidden bg-background">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[30%]">Nombre y Apellido del Estudiante</TableHead>
-                    <TableHead className="w-[30%]">Pregunta o Aporte</TableHead>
-                    <TableHead className="w-[30%]">Respuesta</TableHead>
-                    <TableHead className="w-[10%]">Acciones</TableHead>
+                    <TableHead className="w-[30%] bg-muted">Nombre y Apellido del Estudiante</TableHead>
+                    <TableHead className="w-[30%] bg-muted">Pregunta o Aporte</TableHead>
+                    <TableHead className="w-[30%] bg-muted">Respuesta</TableHead>
+                    <TableHead className="w-[10%] bg-muted">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
