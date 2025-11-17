@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Users, Target, Lightbulb, Lock, FileText, ClipboardList } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2 } from 'lucide-react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -41,9 +41,15 @@ const actaFormSchema = z.object({
   agendaDocumentoCoordinador: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
   agendaIntervencionEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
   // Contenido
-  temasInstitucionales: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
-  temasFacultad: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
-  temasPrograma: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
+  temasInstitucionales: z.array(z.object({
+    tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200)
+  })).min(1, { message: "Debe agregar al menos un tema institucional" }),
+  temasFacultad: z.array(z.object({
+    tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200)
+  })).min(1, { message: "Debe agregar al menos un tema de facultad" }),
+  temasPrograma: z.array(z.object({
+    tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200)
+  })).min(1, { message: "Debe agregar al menos un tema del programa" }),
   // Proposiciones y plan
   proposicionesEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }).max(2000),
   planMejoramiento: z.string().trim().min(1, { message: "Este campo es requerido" }).max(2000),
@@ -81,9 +87,9 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
       agendaLecturaOrden: '',
       agendaDocumentoCoordinador: '',
       agendaIntervencionEstudiantes: '',
-      temasInstitucionales: '',
-      temasFacultad: '',
-      temasPrograma: '',
+      temasInstitucionales: [{ tema: '' }],
+      temasFacultad: [{ tema: '' }],
+      temasPrograma: [{ tema: '' }],
       proposicionesEstudiantes: '',
       planMejoramiento: '',
       temasTratados: '',
@@ -102,6 +108,21 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
       description: "Los datos del acta han sido guardados correctamente",
     });
   };
+
+  const { fields: temasInstitucionalesFields, append: appendTemaInstitucional, remove: removeTemaInstitucional } = useFieldArray({
+    control: actaForm.control,
+    name: "temasInstitucionales"
+  });
+
+  const { fields: temasFacultadFields, append: appendTemaFacultad, remove: removeTemaFacultad } = useFieldArray({
+    control: actaForm.control,
+    name: "temasFacultad"
+  });
+
+  const { fields: temasProgramaFields, append: appendTemaPrograma, remove: removeTemaPrograma } = useFieldArray({
+    control: actaForm.control,
+    name: "temasPrograma"
+  });
 
   return (
     <div className="space-y-6">
@@ -540,63 +561,147 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                           <AccordionTrigger className="text-base font-medium">
                             2. CONTENIDO
                           </AccordionTrigger>
-                          <AccordionContent className="space-y-4 pt-4">
-                            <FormField
-                              control={actaForm.control}
-                              name="temasInstitucionales"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>2.1. Temas institucionales</FormLabel>
-                                  <FormControl>
-                                    <Textarea 
-                                      placeholder="Listar temas institucionales tratados"
-                                      className="min-h-[100px]"
+                          <AccordionContent className="space-y-6 pt-4">
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <FormLabel>2.1. Temas institucionales</FormLabel>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => appendTemaInstitucional({ tema: '' })}
+                                  disabled={isLocked}
+                                >
+                                  <Plus className="h-4 w-4 mr-1" />
+                                  Agregar tema
+                                </Button>
+                              </div>
+                              {temasInstitucionalesFields.map((field, index) => (
+                                <div key={field.id} className="flex gap-2">
+                                  <FormField
+                                    control={actaForm.control}
+                                    name={`temasInstitucionales.${index}.tema`}
+                                    render={({ field }) => (
+                                      <FormItem className="flex-1">
+                                        <FormControl>
+                                          <Input
+                                            placeholder={`Tema institucional ${index + 1}`}
+                                            disabled={isLocked}
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  {temasInstitucionalesFields.length > 1 && (
+                                    <Button
+                                      type="button"
+                                      variant="destructive"
+                                      size="icon"
+                                      onClick={() => removeTemaInstitucional(index)}
                                       disabled={isLocked}
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
 
-                            <FormField
-                              control={actaForm.control}
-                              name="temasFacultad"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>2.2. Temas de facultad</FormLabel>
-                                  <FormControl>
-                                    <Textarea 
-                                      placeholder="Listar temas de facultad tratados"
-                                      className="min-h-[100px]"
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <FormLabel>2.2. Temas de facultad</FormLabel>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => appendTemaFacultad({ tema: '' })}
+                                  disabled={isLocked}
+                                >
+                                  <Plus className="h-4 w-4 mr-1" />
+                                  Agregar tema
+                                </Button>
+                              </div>
+                              {temasFacultadFields.map((field, index) => (
+                                <div key={field.id} className="flex gap-2">
+                                  <FormField
+                                    control={actaForm.control}
+                                    name={`temasFacultad.${index}.tema`}
+                                    render={({ field }) => (
+                                      <FormItem className="flex-1">
+                                        <FormControl>
+                                          <Input
+                                            placeholder={`Tema de facultad ${index + 1}`}
+                                            disabled={isLocked}
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  {temasFacultadFields.length > 1 && (
+                                    <Button
+                                      type="button"
+                                      variant="destructive"
+                                      size="icon"
+                                      onClick={() => removeTemaFacultad(index)}
                                       disabled={isLocked}
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
 
-                            <FormField
-                              control={actaForm.control}
-                              name="temasPrograma"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>2.3. Temas específicos del programa académico</FormLabel>
-                                  <FormControl>
-                                    <Textarea 
-                                      placeholder="Listar temas específicos del programa académico"
-                                      className="min-h-[100px]"
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <FormLabel>2.3. Temas específicos del programa académico</FormLabel>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => appendTemaPrograma({ tema: '' })}
+                                  disabled={isLocked}
+                                >
+                                  <Plus className="h-4 w-4 mr-1" />
+                                  Agregar tema
+                                </Button>
+                              </div>
+                              {temasProgramaFields.map((field, index) => (
+                                <div key={field.id} className="flex gap-2">
+                                  <FormField
+                                    control={actaForm.control}
+                                    name={`temasPrograma.${index}.tema`}
+                                    render={({ field }) => (
+                                      <FormItem className="flex-1">
+                                        <FormControl>
+                                          <Input
+                                            placeholder={`Tema del programa ${index + 1}`}
+                                            disabled={isLocked}
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  {temasProgramaFields.length > 1 && (
+                                    <Button
+                                      type="button"
+                                      variant="destructive"
+                                      size="icon"
+                                      onClick={() => removeTemaPrograma(index)}
                                       disabled={isLocked}
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           </AccordionContent>
                         </AccordionItem>
 
