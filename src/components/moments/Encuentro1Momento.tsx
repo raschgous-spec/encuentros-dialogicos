@@ -1667,40 +1667,73 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                       <div className="grid grid-cols-1 gap-4">
                         <div className="border-b pb-2">
                           <label className="text-sm font-semibold">Título del proyecto:</label>
-                          <p className="mt-1 text-sm">{actaForm.watch('tituloProyecto') || actaForm.watch('programaAcademico') || '_____________________'}</p>
+                          <Input
+                            value={actaForm.watch('tituloProyecto') || ''}
+                            onChange={(e) => actaForm.setValue('tituloProyecto', e.target.value)}
+                            placeholder="Escriba el título del proyecto"
+                            className="mt-1"
+                            disabled={isLocked}
+                          />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="border-b pb-2">
                             <label className="text-sm font-semibold">Duración:</label>
-                            <p className="mt-1 text-sm">
-                              {actaForm.watch('fecha') && actaForm.watch('horaInicio') && actaForm.watch('horaFin')
+                            <Input
+                              value={actaForm.watch('fecha') && actaForm.watch('horaInicio') && actaForm.watch('horaFin')
                                 ? `${actaForm.watch('fecha')} - ${actaForm.watch('horaInicio')} a ${actaForm.watch('horaFin')}`
-                                : '__________________'}
-                            </p>
+                                : ''}
+                              placeholder="Ej: 2024-01-15 - 08:00 a 10:00"
+                              className="mt-1"
+                              disabled
+                            />
                           </div>
 
                           <div className="border-b pb-2">
                             <label className="text-sm font-semibold">Responsables:</label>
-                            <p className="mt-1 text-sm">{actaForm.watch('responsable') || '____________'}</p>
+                            <Input
+                              value={actaForm.watch('responsable') || ''}
+                              onChange={(e) => actaForm.setValue('responsable', e.target.value)}
+                              placeholder="Escriba los responsables"
+                              className="mt-1"
+                              disabled={isLocked}
+                            />
                           </div>
                         </div>
 
                         <div className="border-b pb-2">
                           <label className="text-sm font-semibold">Participantes:</label>
-                          <p className="mt-1 text-sm whitespace-pre-wrap">{actaForm.watch('participantes') || '_______________'}</p>
+                          <Textarea
+                            value={actaForm.watch('participantes') || ''}
+                            onChange={(e) => actaForm.setValue('participantes', e.target.value)}
+                            placeholder="Escriba los participantes"
+                            className="mt-1 min-h-[80px]"
+                            disabled={isLocked}
+                          />
                         </div>
 
                         <div className="border-b pb-2">
                           <label className="text-sm font-semibold">Propósito general del momento:</label>
-                          <p className="mt-1 text-sm">{actaForm.watch('propositoGeneral') || actaForm.watch('objetivos') || '____________'}</p>
+                          <Textarea
+                            value={actaForm.watch('propositoGeneral') || ''}
+                            onChange={(e) => actaForm.setValue('propositoGeneral', e.target.value)}
+                            placeholder="Escriba el propósito general"
+                            className="mt-1 min-h-[80px]"
+                            disabled={isLocked}
+                          />
                         </div>
                       </div>
 
                       <div className="space-y-3">
                         <div>
                           <h3 className="text-base font-semibold mb-2">1. Objetivo general</h3>
-                          <p className="text-sm pl-4">{actaForm.watch('objetivoGeneral') || actaForm.watch('objetivos') || '___________________'}</p>
+                          <Textarea
+                            value={actaForm.watch('objetivoGeneral') || ''}
+                            onChange={(e) => actaForm.setValue('objetivoGeneral', e.target.value)}
+                            placeholder="Escriba el objetivo general"
+                            className="min-h-[80px]"
+                            disabled={isLocked}
+                          />
                         </div>
 
                         <div>
