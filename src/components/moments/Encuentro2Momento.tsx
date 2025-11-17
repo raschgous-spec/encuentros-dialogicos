@@ -1,14 +1,202 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Users, Target, Lightbulb, Lock } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Users, Target, Lightbulb, Lock, ClipboardList, Plus, Trash2 } from 'lucide-react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Encuentro2MomentoProps {
   onComplete?: () => void;
   isLocked?: boolean;
 }
 
+const planFormSchema = z.object({
+  tituloProyecto: z.string().trim().max(300).optional(),
+  propositoGeneral: z.string().trim().max(1000).optional(),
+  objetivoGeneral: z.string().trim().max(500).optional(),
+  objetivosEspecificos: z.array(z.object({
+    objetivo: z.string().trim().min(1, { message: "El objetivo es requerido" }).max(500)
+  })).optional(),
+  planMejoramiento: z.array(z.object({
+    tema: z.string().trim().max(200).optional(),
+    descripcionNecesidad: z.string().trim().max(500).optional(),
+    estrategia: z.string().trim().max(300).optional(),
+    accionesMejora: z.string().trim().max(500).optional(),
+    responsables: z.string().trim().max(200).optional(),
+    fechaInicial: z.string().optional(),
+    fechaFinal: z.string().optional(),
+    indicadorCumplimiento: z.string().trim().max(300).optional(),
+    observaciones: z.string().trim().max(500).optional(),
+  })).optional(),
+  indicadoresLogro: z.array(z.object({
+    indicador: z.string().trim().min(1, { message: "El indicador es requerido" }).max(500)
+  })).optional(),
+  seguimiento: z.string().trim().max(1000).optional(),
+});
+
 export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2MomentoProps) => {
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('info');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const planForm = useForm<z.infer<typeof planFormSchema>>({
+    resolver: zodResolver(planFormSchema),
+    defaultValues: {
+      tituloProyecto: '',
+      propositoGeneral: '',
+      objetivoGeneral: '',
+      objetivosEspecificos: [],
+      planMejoramiento: [],
+      indicadoresLogro: [],
+      seguimiento: '',
+    },
+  });
+
+  // Load data from previous encuentros
+  useEffect(() => {
+    const loadPlanData = async () => {
+      if (!user) return;
+
+      try {
+        // Try to load from encuentro2 first, then fallback to encuentro1
+        const { data: currentData } = await supabase
+          .from('actas_encuentro')
+          .select('plan_mejoramiento')
+          .eq('estudiante_id', user.id)
+          .eq('momento', 'encuentro2')
+          .maybeSingle();
+
+        if (currentData?.plan_mejoramiento) {
+          const plan = currentData.plan_mejoramiento as any;
+          planForm.reset({
+            tituloProyecto: plan.tituloProyecto || '',
+            propositoGeneral: plan.propositoGeneral || '',
+            objetivoGeneral: plan.objetivoGeneral || '',
+            objetivosEspecificos: plan.objetivosEspecificos || [],
+            planMejoramiento: Array.isArray(plan) ? plan : (plan.planMejoramiento || []),
+            indicadoresLogro: plan.indicadoresLogro || [],
+            seguimiento: plan.seguimiento || '',
+          });
+        } else {
+          // Load from previous encuentro
+          const { data: prevData } = await supabase
+            .from('actas_encuentro')
+            .select('plan_mejoramiento')
+            .eq('estudiante_id', user.id)
+            .eq('momento', 'encuentro1')
+            .maybeSingle();
+
+          if (prevData?.plan_mejoramiento) {
+            const plan = prevData.plan_mejoramiento as any;
+            planForm.reset({
+              tituloProyecto: plan.tituloProyecto || '',
+              propositoGeneral: plan.propositoGeneral || '',
+              objetivoGeneral: plan.objetivoGeneral || '',
+              objetivosEspecificos: plan.objetivosEspecificos || [],
+              planMejoramiento: Array.isArray(plan) ? plan : (plan.planMejoramiento || []),
+              indicadoresLogro: plan.indicadoresLogro || [],
+              seguimiento: plan.seguimiento || '',
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading plan data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadPlanData();
+  }, [user, planForm]);
+
+  const { fields: objetivosFields, append: appendObjetivo, remove: removeObjetivo } = useFieldArray({
+    control: planForm.control,
+    name: "objetivosEspecificos",
+  });
+
+  const { fields: indicadoresFields, append: appendIndicador, remove: removeIndicador } = useFieldArray({
+    control: planForm.control,
+    name: "indicadoresLogro",
+  });
+
+  const onSubmitPlan = async (data: z.infer<typeof planFormSchema>) => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "Debes estar autenticado para guardar",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const { error } = await supabase
+        .from('actas_encuentro')
+        .upsert({
+          estudiante_id: user.id,
+          momento: 'encuentro2',
+          fecha: new Date().toISOString().split('T')[0],
+          lugar: '',
+          hora_inicio: '',
+          hora_fin: '',
+          facultad: '',
+          programa_academico: '',
+          nombre_director: '',
+          responsable: '',
+          nombre_secretario: '',
+          identificacion_secretario: '',
+          facultad_programa_secretario: '',
+          correo_secretario: '',
+          participantes: '',
+          objetivos: '',
+          agenda_bienvenida: '',
+          agenda_secretario: '',
+          agenda_informe: '',
+          agenda_lectura_orden: '',
+          agenda_documento_coordinador: '',
+          agenda_intervencion_estudiantes: '',
+          temas_institucionales: [],
+          temas_facultad: [],
+          temas_programa: [],
+          proposiciones_estudiantes: '',
+          plan_mejoramiento: data as any,
+        }, {
+          onConflict: 'estudiante_id,momento'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Plan guardado exitosamente",
+        description: "Los cambios se han guardado correctamente",
+      });
+
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      toast({
+        title: "Error al guardar",
+        description: "Hubo un problema al guardar el plan",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {isLocked && (
@@ -19,6 +207,7 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
           </AlertDescription>
         </Alert>
       )}
+
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader>
@@ -28,7 +217,6 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
               </div>
               <div>
                 <CardTitle className="text-lg">Trabajo Colaborativo</CardTitle>
-                <CardDescription>Dinámicas grupales</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -47,7 +235,6 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
               </div>
               <div>
                 <CardTitle className="text-lg">Objetivos</CardTitle>
-                <CardDescription>Metas del encuentro</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -66,7 +253,6 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
               </div>
               <div>
                 <CardTitle className="text-lg">Reflexión</CardTitle>
-                <CardDescription>Aprendizajes clave</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -78,20 +264,278 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
         </Card>
       </div>
 
-      <Card className="border-primary/20 bg-primary/5">
+      <Card className="border-primary/20">
         <CardHeader>
           <CardTitle>MOMENTO 4 - ENCUENTRO 2</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground mb-4">
-            Contenido del segundo encuentro dialógico en construcción.
-          </p>
-          <ul className="space-y-2 text-sm text-muted-foreground list-disc list-inside">
-            <li>Profundización de conceptos</li>
-            <li>Casos de estudio avanzados</li>
-            <li>Debates y análisis crítico</li>
-            <li>Proyectos colaborativos</li>
-          </ul>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="info" disabled={isLocked}>
+                Información
+              </TabsTrigger>
+              <TabsTrigger value="plan" className="flex items-center gap-2" disabled={isLocked}>
+                <ClipboardList className="h-4 w-4" />
+                PLAN DE MEJORAMIENTO DIGITAL
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="info" className="space-y-4">
+              <div className="rounded-lg border bg-card p-6">
+                <p className="text-muted-foreground mb-4">
+                  Contenido del segundo encuentro dialógico.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground list-disc list-inside">
+                  <li>Profundización de conceptos</li>
+                  <li>Casos de estudio avanzados</li>
+                  <li>Debates y análisis crítico</li>
+                  <li>Proyectos colaborativos</li>
+                </ul>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="plan" className="space-y-4">
+              <div className="rounded-lg border bg-card p-6 space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Plan de Mejoramiento Digital</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Actualiza y complementa el plan de mejoramiento del proyecto
+                  </p>
+                </div>
+
+                <Form {...planForm}>
+                  <form onSubmit={planForm.handleSubmit(onSubmitPlan)} className="space-y-6">
+                    <FormField
+                      control={planForm.control}
+                      name="tituloProyecto"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Título del proyecto</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Título del proyecto de mejoramiento"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={planForm.control}
+                      name="propositoGeneral"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Propósito general del momento</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describa el propósito general"
+                              className="min-h-[80px]"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={planForm.control}
+                      name="objetivoGeneral"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Objetivo general</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Objetivo general del plan"
+                              className="min-h-[80px]"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="space-y-3">
+                      <Label>Objetivos específicos</Label>
+                      {objetivosFields.map((item, index) => (
+                        <div key={item.id} className="flex gap-2">
+                          <FormField
+                            control={planForm.control}
+                            name={`objetivosEspecificos.${index}.objetivo`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Input 
+                                    placeholder={`Objetivo específico ${index + 1}`}
+                                    disabled={isLocked}
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeObjetivo(index)}
+                            disabled={isLocked}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => appendObjetivo({ objetivo: '' })}
+                        disabled={isLocked}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar objetivo específico
+                      </Button>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label>Indicadores de logro</Label>
+                      {indicadoresFields.map((item, index) => (
+                        <div key={item.id} className="flex gap-2">
+                          <FormField
+                            control={planForm.control}
+                            name={`indicadoresLogro.${index}.indicador`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Input 
+                                    placeholder={`Indicador de logro ${index + 1}`}
+                                    disabled={isLocked}
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeIndicador(index)}
+                            disabled={isLocked}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => appendIndicador({ indicador: '' })}
+                        disabled={isLocked}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar indicador de logro
+                      </Button>
+                    </div>
+
+                    <FormField
+                      control={planForm.control}
+                      name="seguimiento"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Seguimiento</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Descripción del seguimiento del plan"
+                              className="min-h-[80px]"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button type="submit" className="w-full" disabled={isLocked || isSaving}>
+                      {isSaving ? 'Guardando...' : 'Guardar Plan de Mejoramiento'}
+                    </Button>
+                  </form>
+                </Form>
+              </div>
+
+              {/* Visualización del plan */}
+              {(planForm.watch('tituloProyecto') || planForm.watch('objetivosEspecificos')?.length > 0) && (
+                <div className="mt-8 space-y-6 rounded-lg border bg-card p-6">
+                  <div className="text-center border-b pb-4">
+                    <h2 className="text-xl font-bold">MODELO DE PLAN DE MEJORAMIENTO – MOMENTO 4</h2>
+                  </div>
+
+                  <div className="space-y-4">
+                    {planForm.watch('tituloProyecto') && (
+                      <div className="border-b pb-2">
+                        <label className="text-sm font-semibold">Título del proyecto:</label>
+                        <p className="mt-1 text-sm">{planForm.watch('tituloProyecto')}</p>
+                      </div>
+                    )}
+
+                    {planForm.watch('propositoGeneral') && (
+                      <div className="border-b pb-2">
+                        <label className="text-sm font-semibold">Propósito general del momento:</label>
+                        <p className="mt-1 text-sm">{planForm.watch('propositoGeneral')}</p>
+                      </div>
+                    )}
+
+                    {planForm.watch('objetivoGeneral') && (
+                      <div>
+                        <h3 className="text-base font-semibold mb-2">1. Objetivo general</h3>
+                        <p className="text-sm pl-4">{planForm.watch('objetivoGeneral')}</p>
+                      </div>
+                    )}
+
+                    {planForm.watch('objetivosEspecificos') && planForm.watch('objetivosEspecificos')!.length > 0 && (
+                      <div>
+                        <h3 className="text-base font-semibold mb-2">2. Objetivos específicos</h3>
+                        <ol className="list-decimal list-inside pl-4 space-y-1">
+                          {planForm.watch('objetivosEspecificos')!.map((obj, index) => (
+                            <li key={index} className="text-sm">{obj.objetivo}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+
+                    {planForm.watch('indicadoresLogro') && planForm.watch('indicadoresLogro')!.length > 0 && (
+                      <div>
+                        <h3 className="text-base font-semibold mb-2">3. Indicadores de logro</h3>
+                        <div className="pl-4 space-y-1">
+                          {planForm.watch('indicadoresLogro')!.map((ind, index) => (
+                            <p key={index} className="text-sm">• {ind.indicador}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {planForm.watch('seguimiento') && (
+                      <div>
+                        <h3 className="text-base font-semibold mb-2">4. Seguimiento</h3>
+                        <p className="text-sm pl-4">{planForm.watch('seguimiento')}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+
           {onComplete && (
             <div className="mt-6">
               <Button onClick={onComplete} className="w-full" disabled={isLocked}>
