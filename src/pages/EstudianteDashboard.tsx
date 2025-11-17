@@ -33,7 +33,13 @@ const EstudianteDashboard = () => {
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [showUnlockDialog, setShowUnlockDialog] = useState(false);
   const [unlockCode, setUnlockCode] = useState('');
-  const [unlockedWithCode, setUnlockedWithCode] = useState(false);
+  const [momentoToUnlock, setMomentoToUnlock] = useState<string>('');
+  const [unlockedWithCode, setUnlockedWithCode] = useState<Record<string, boolean>>({
+    encuentro1: false,
+    encuentro2: false,
+    encuentro3: false,
+    encuentro4: false,
+  });
 
   useEffect(() => {
     if (!loading && !user) {
@@ -41,11 +47,16 @@ const EstudianteDashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Check if moment was unlocked with code in previous session
+  // Check if moments were unlocked with code in previous session
   useEffect(() => {
-    const savedUnlock = localStorage.getItem('momento3_unlocked');
-    if (savedUnlock === 'true') {
-      setUnlockedWithCode(true);
+    const savedUnlocks = localStorage.getItem('momentos_unlocked');
+    if (savedUnlocks) {
+      try {
+        const unlocks = JSON.parse(savedUnlocks);
+        setUnlockedWithCode(unlocks);
+      } catch (error) {
+        console.error('Error parsing unlocked moments:', error);
+      }
     }
   }, []);
 
@@ -117,14 +128,23 @@ const EstudianteDashboard = () => {
 
   const handleUnlockWithCode = () => {
     if (unlockCode.trim().toUpperCase() === 'MEDIT') {
-      setUnlockedWithCode(true);
-      localStorage.setItem('momento3_unlocked', 'true');
+      const newUnlocks = { ...unlockedWithCode, [momentoToUnlock]: true };
+      setUnlockedWithCode(newUnlocks);
+      localStorage.setItem('momentos_unlocked', JSON.stringify(newUnlocks));
       setShowUnlockDialog(false);
       setUnlockCode('');
-      setActiveTab('encuentro1');
+      setActiveTab(momentoToUnlock);
+      
+      const momentoNames: Record<string, string> = {
+        encuentro1: 'Momento 3 - Encuentro 1',
+        encuentro2: 'Momento 4 - Encuentro 2',
+        encuentro3: 'Momento 5 - Encuentro 3',
+        encuentro4: 'Momento 6 - Encuentro 4',
+      };
+      
       toast({
         title: "Momento desbloqueado",
-        description: "Acceso concedido al Momento 3 - Encuentro 1",
+        description: `Acceso concedido al ${momentoNames[momentoToUnlock]}`,
       });
     } else {
       toast({
@@ -133,6 +153,11 @@ const EstudianteDashboard = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const openUnlockDialog = (momento: string) => {
+    setMomentoToUnlock(momento);
+    setShowUnlockDialog(true);
   };
 
   const handleMomentoComplete = async (momento: string) => {
@@ -206,10 +231,10 @@ const EstudianteDashboard = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro1" 
-              disabled={!momentoProgress.encuentro1 && !unlockedWithCode}
+              disabled={!momentoProgress.encuentro1 && !unlockedWithCode.encuentro1}
               className="flex flex-col items-center gap-1 justify-center py-3 relative"
             >
-              {!momentoProgress.encuentro1 && !unlockedWithCode && (
+              {!momentoProgress.encuentro1 && !unlockedWithCode.encuentro1 && (
                 <>
                   <Lock className="h-4 w-4" />
                   <Button
@@ -218,7 +243,7 @@ const EstudianteDashboard = () => {
                     className="absolute inset-0 opacity-0 hover:opacity-100 flex items-center justify-center gap-2 bg-background/95"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setShowUnlockDialog(true);
+                      openUnlockDialog('encuentro1');
                     }}
                   >
                     <Key className="h-4 w-4" />
@@ -230,23 +255,74 @@ const EstudianteDashboard = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro2" 
-              className="flex flex-col items-center gap-1 justify-center py-3"
+              disabled={!momentoProgress.encuentro2 && !unlockedWithCode.encuentro2}
+              className="flex flex-col items-center gap-1 justify-center py-3 relative"
             >
-              {!momentoProgress.encuentro2 && <Lock className="h-4 w-4" />}
+              {!momentoProgress.encuentro2 && !unlockedWithCode.encuentro2 && (
+                <>
+                  <Lock className="h-4 w-4" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute inset-0 opacity-0 hover:opacity-100 flex items-center justify-center gap-2 bg-background/95"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openUnlockDialog('encuentro2');
+                    }}
+                  >
+                    <Key className="h-4 w-4" />
+                    <span className="text-xs">Desbloquear</span>
+                  </Button>
+                </>
+              )}
               <span className="font-semibold text-xs text-center">ENCUENTRO 2</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro3" 
-              className="flex flex-col items-center gap-1 justify-center py-3"
+              disabled={!momentoProgress.encuentro3 && !unlockedWithCode.encuentro3}
+              className="flex flex-col items-center gap-1 justify-center py-3 relative"
             >
-              {!momentoProgress.encuentro3 && <Lock className="h-4 w-4" />}
+              {!momentoProgress.encuentro3 && !unlockedWithCode.encuentro3 && (
+                <>
+                  <Lock className="h-4 w-4" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute inset-0 opacity-0 hover:opacity-100 flex items-center justify-center gap-2 bg-background/95"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openUnlockDialog('encuentro3');
+                    }}
+                  >
+                    <Key className="h-4 w-4" />
+                    <span className="text-xs">Desbloquear</span>
+                  </Button>
+                </>
+              )}
               <span className="font-semibold text-xs text-center">ENCUENTRO 3</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro4" 
-              className="flex flex-col items-center gap-1 justify-center py-3"
+              disabled={!momentoProgress.encuentro4 && !unlockedWithCode.encuentro4}
+              className="flex flex-col items-center gap-1 justify-center py-3 relative"
             >
-              {!momentoProgress.encuentro4 && <Lock className="h-4 w-4" />}
+              {!momentoProgress.encuentro4 && !unlockedWithCode.encuentro4 && (
+                <>
+                  <Lock className="h-4 w-4" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute inset-0 opacity-0 hover:opacity-100 flex items-center justify-center gap-2 bg-background/95"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openUnlockDialog('encuentro4');
+                    }}
+                  >
+                    <Key className="h-4 w-4" />
+                    <span className="text-xs">Desbloquear</span>
+                  </Button>
+                </>
+              )}
               <span className="font-semibold text-xs text-center">ENCUENTRO 4</span>
             </TabsTrigger>
           </TabsList>
@@ -306,7 +382,7 @@ const EstudianteDashboard = () => {
               <CardContent>
                 <Encuentro1Momento 
                   onComplete={() => handleMomentoComplete('encuentro1')} 
-                  isLocked={!momentoProgress.encuentro1 && !unlockedWithCode}
+                  isLocked={!momentoProgress.encuentro1 && !unlockedWithCode.encuentro1}
                 />
               </CardContent>
             </Card>
@@ -323,7 +399,7 @@ const EstudianteDashboard = () => {
               <CardContent>
                 <Encuentro2Momento 
                   onComplete={() => handleMomentoComplete('encuentro2')} 
-                  isLocked={!momentoProgress.encuentro2}
+                  isLocked={!momentoProgress.encuentro2 && !unlockedWithCode.encuentro2}
                 />
               </CardContent>
             </Card>
@@ -340,7 +416,7 @@ const EstudianteDashboard = () => {
               <CardContent>
                 <Encuentro3Momento 
                   onComplete={() => handleMomentoComplete('encuentro3')} 
-                  isLocked={!momentoProgress.encuentro3}
+                  isLocked={!momentoProgress.encuentro3 && !unlockedWithCode.encuentro3}
                 />
               </CardContent>
             </Card>
@@ -357,7 +433,7 @@ const EstudianteDashboard = () => {
               <CardContent>
                 <Encuentro4Momento 
                   onComplete={() => handleMomentoComplete('encuentro4')} 
-                  isLocked={!momentoProgress.encuentro4}
+                  isLocked={!momentoProgress.encuentro4 && !unlockedWithCode.encuentro4}
                 />
               </CardContent>
             </Card>
@@ -371,10 +447,10 @@ const EstudianteDashboard = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
-              Desbloquear Momento 3
+              Desbloquear Momento
             </DialogTitle>
             <DialogDescription>
-              Ingresa el código de acceso especial para desbloquear el Momento 3 - Encuentro 1
+              Ingresa el código de acceso especial para desbloquear este momento
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
