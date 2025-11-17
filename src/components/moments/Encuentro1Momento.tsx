@@ -2,14 +2,67 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Users, Target, Lightbulb, Lock, FileText, ClipboardList } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
 
 interface Encuentro1MomentoProps {
   onComplete?: () => void;
   isLocked?: boolean;
 }
 
+const actaFormSchema = z.object({
+  fecha: z.string().min(1, { message: "La fecha es requerida" }),
+  lugar: z.string().trim().min(1, { message: "El lugar es requerido" }).max(200),
+  horaInicio: z.string().min(1, { message: "La hora de inicio es requerida" }),
+  horaFin: z.string().min(1, { message: "La hora de finalización es requerida" }),
+  responsable: z.string().trim().min(1, { message: "El responsable es requerido" }).max(200),
+  participantes: z.string().trim().min(1, { message: "Los participantes son requeridos" }).max(2000),
+  objetivos: z.string().trim().min(1, { message: "Los objetivos son requeridos" }).max(1000),
+  temasTratados: z.string().trim().min(1, { message: "Los temas tratados son requeridos" }).max(2000),
+  acuerdos: z.string().trim().min(1, { message: "Los acuerdos son requeridos" }).max(2000),
+  compromisos: z.string().trim().min(1, { message: "Los compromisos son requeridos" }).max(2000),
+  responsablesCompromisos: z.string().trim().min(1, { message: "Los responsables de compromisos son requeridos" }).max(1000),
+  observaciones: z.string().trim().max(2000).optional(),
+  proximaReunion: z.string().trim().max(500).optional(),
+});
+
 export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1MomentoProps) => {
+  const { toast } = useToast();
+  
+  const actaForm = useForm<z.infer<typeof actaFormSchema>>({
+    resolver: zodResolver(actaFormSchema),
+    defaultValues: {
+      fecha: '',
+      lugar: '',
+      horaInicio: '',
+      horaFin: '',
+      responsable: '',
+      participantes: '',
+      objetivos: '',
+      temasTratados: '',
+      acuerdos: '',
+      compromisos: '',
+      responsablesCompromisos: '',
+      observaciones: '',
+      proximaReunion: '',
+    },
+  });
+
+  const onSubmitActa = (data: z.infer<typeof actaFormSchema>) => {
+    console.log('Acta guardada:', data);
+    toast({
+      title: "Acta guardada",
+      description: "Los datos del acta han sido guardados correctamente",
+    });
+  };
+
   return (
     <div className="space-y-6">
       {isLocked && (
@@ -107,70 +160,239 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                   </p>
                 </div>
                 
-                <form className="space-y-6">
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">Fecha del encuentro</label>
-                    <input 
-                      type="date" 
-                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground"
-                      disabled={isLocked}
-                    />
-                  </div>
+                <Form {...actaForm}>
+                  <form onSubmit={actaForm.handleSubmit(onSubmitActa)} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={actaForm.control}
+                        name="fecha"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Fecha del encuentro</FormLabel>
+                            <FormControl>
+                              <Input type="date" disabled={isLocked} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">Hora de inicio</label>
-                    <input 
-                      type="time" 
-                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground"
-                      disabled={isLocked}
-                    />
-                  </div>
+                      <FormField
+                        control={actaForm.control}
+                        name="lugar"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Lugar</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Ingrese el lugar del encuentro" disabled={isLocked} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">Hora de finalización</label>
-                    <input 
-                      type="time" 
-                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground"
-                      disabled={isLocked}
-                    />
-                  </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={actaForm.control}
+                        name="horaInicio"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Hora de inicio</FormLabel>
+                            <FormControl>
+                              <Input type="time" disabled={isLocked} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">Participantes (nombres completos, uno por línea)</label>
-                    <textarea 
-                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground min-h-[100px]"
-                      placeholder="Nombre del participante 1&#10;Nombre del participante 2&#10;Nombre del participante 3"
-                      disabled={isLocked}
-                    />
-                  </div>
+                      <FormField
+                        control={actaForm.control}
+                        name="horaFin"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Hora de finalización</FormLabel>
+                            <FormControl>
+                              <Input type="time" disabled={isLocked} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">Temas tratados</label>
-                    <textarea 
-                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground min-h-[120px]"
-                      placeholder="Lista los principales temas y conceptos discutidos durante el encuentro"
-                      disabled={isLocked}
+                    <FormField
+                      control={actaForm.control}
+                      name="responsable"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Responsable del encuentro</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nombre del responsable" disabled={isLocked} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
 
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">Acuerdos y compromisos</label>
-                    <textarea 
-                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground min-h-[120px]"
-                      placeholder="Detalla los acuerdos alcanzados y los compromisos asumidos por los participantes"
-                      disabled={isLocked}
+                    <FormField
+                      control={actaForm.control}
+                      name="participantes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Participantes (nombres completos, uno por línea)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Nombre del participante 1&#10;Nombre del participante 2&#10;Nombre del participante 3"
+                              className="min-h-[100px]"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
 
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">Observaciones adicionales</label>
-                    <textarea 
-                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground min-h-[100px]"
-                      placeholder="Espacio para registrar observaciones adicionales relevantes"
-                      disabled={isLocked}
+                    <FormField
+                      control={actaForm.control}
+                      name="objetivos"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Objetivos del encuentro</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describa los objetivos planteados para el encuentro"
+                              className="min-h-[100px]"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                </form>
+
+                    <FormField
+                      control={actaForm.control}
+                      name="temasTratados"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Temas tratados</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Lista los principales temas y conceptos discutidos durante el encuentro"
+                              className="min-h-[120px]"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={actaForm.control}
+                      name="acuerdos"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Acuerdos</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Detalla los acuerdos alcanzados durante el encuentro"
+                              className="min-h-[120px]"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={actaForm.control}
+                      name="compromisos"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Compromisos</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Lista los compromisos asumidos por los participantes"
+                              className="min-h-[120px]"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={actaForm.control}
+                      name="responsablesCompromisos"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Responsables de cada compromiso</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Asigne responsables para cada compromiso"
+                              className="min-h-[100px]"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={actaForm.control}
+                      name="observaciones"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Observaciones adicionales (opcional)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Espacio para registrar observaciones adicionales relevantes"
+                              className="min-h-[100px]"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={actaForm.control}
+                      name="proximaReunion"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Próxima reunión (opcional)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Fecha, hora y temas para la próxima reunión"
+                              className="min-h-[80px]"
+                              disabled={isLocked}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button type="submit" className="w-full" disabled={isLocked}>
+                      Guardar Acta
+                    </Button>
+                  </form>
+                </Form>
               </div>
             </TabsContent>
 
