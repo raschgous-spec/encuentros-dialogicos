@@ -126,6 +126,16 @@ const EstudianteDashboard = () => {
     checkMomentoProgress();
   }, [user]);
 
+  const handleTabChange = (value: string) => {
+    const isUnlocked = momentoProgress[value] || unlockedWithCode[value as keyof typeof unlockedWithCode];
+    
+    if (!isUnlocked && (value === 'encuentro1' || value === 'encuentro2' || value === 'encuentro3' || value === 'encuentro4')) {
+      openUnlockDialog(value);
+    } else {
+      setActiveTab(value);
+    }
+  };
+
   const handleUnlockWithCode = () => {
     if (unlockCode.trim().toUpperCase() === 'MEDIT') {
       const newUnlocks = { ...unlockedWithCode, [momentoToUnlock]: true };
@@ -172,6 +182,8 @@ const EstudianteDashboard = () => {
           momento,
           completado: true,
           fecha_completado: new Date().toISOString(),
+        }, {
+          onConflict: 'estudiante_id,momento'
         });
 
       if (error) throw error;
@@ -216,7 +228,7 @@ const EstudianteDashboard = () => {
           </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
             <TabsTrigger value="diagnostico" className="flex flex-col items-center gap-1 justify-center py-3">
               <span className="font-semibold text-xs text-center">DIAGNÓSTICO</span>
@@ -231,98 +243,30 @@ const EstudianteDashboard = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro1" 
-              disabled={!momentoProgress.encuentro1 && !unlockedWithCode.encuentro1}
               className="flex flex-col items-center gap-1 justify-center py-3 relative"
             >
-              {!momentoProgress.encuentro1 && !unlockedWithCode.encuentro1 && (
-                <>
-                  <Lock className="h-4 w-4" />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute inset-0 opacity-0 hover:opacity-100 flex items-center justify-center gap-2 bg-background/95"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openUnlockDialog('encuentro1');
-                    }}
-                  >
-                    <Key className="h-4 w-4" />
-                    <span className="text-xs">Desbloquear</span>
-                  </Button>
-                </>
-              )}
+              {!momentoProgress.encuentro1 && !unlockedWithCode.encuentro1 && <Lock className="h-4 w-4" />}
               <span className="font-semibold text-xs text-center">ENCUENTRO 1</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro2" 
-              disabled={!momentoProgress.encuentro2 && !unlockedWithCode.encuentro2}
               className="flex flex-col items-center gap-1 justify-center py-3 relative"
             >
-              {!momentoProgress.encuentro2 && !unlockedWithCode.encuentro2 && (
-                <>
-                  <Lock className="h-4 w-4" />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute inset-0 opacity-0 hover:opacity-100 flex items-center justify-center gap-2 bg-background/95"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openUnlockDialog('encuentro2');
-                    }}
-                  >
-                    <Key className="h-4 w-4" />
-                    <span className="text-xs">Desbloquear</span>
-                  </Button>
-                </>
-              )}
+              {!momentoProgress.encuentro2 && !unlockedWithCode.encuentro2 && <Lock className="h-4 w-4" />}
               <span className="font-semibold text-xs text-center">ENCUENTRO 2</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro3" 
-              disabled={!momentoProgress.encuentro3 && !unlockedWithCode.encuentro3}
               className="flex flex-col items-center gap-1 justify-center py-3 relative"
             >
-              {!momentoProgress.encuentro3 && !unlockedWithCode.encuentro3 && (
-                <>
-                  <Lock className="h-4 w-4" />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute inset-0 opacity-0 hover:opacity-100 flex items-center justify-center gap-2 bg-background/95"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openUnlockDialog('encuentro3');
-                    }}
-                  >
-                    <Key className="h-4 w-4" />
-                    <span className="text-xs">Desbloquear</span>
-                  </Button>
-                </>
-              )}
+              {!momentoProgress.encuentro3 && !unlockedWithCode.encuentro3 && <Lock className="h-4 w-4" />}
               <span className="font-semibold text-xs text-center">ENCUENTRO 3</span>
             </TabsTrigger>
             <TabsTrigger 
               value="encuentro4" 
-              disabled={!momentoProgress.encuentro4 && !unlockedWithCode.encuentro4}
               className="flex flex-col items-center gap-1 justify-center py-3 relative"
             >
-              {!momentoProgress.encuentro4 && !unlockedWithCode.encuentro4 && (
-                <>
-                  <Lock className="h-4 w-4" />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute inset-0 opacity-0 hover:opacity-100 flex items-center justify-center gap-2 bg-background/95"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openUnlockDialog('encuentro4');
-                    }}
-                  >
-                    <Key className="h-4 w-4" />
-                    <span className="text-xs">Desbloquear</span>
-                  </Button>
-                </>
-              )}
+              {!momentoProgress.encuentro4 && !unlockedWithCode.encuentro4 && <Lock className="h-4 w-4" />}
               <span className="font-semibold text-xs text-center">ENCUENTRO 4</span>
             </TabsTrigger>
           </TabsList>
@@ -450,7 +394,11 @@ const EstudianteDashboard = () => {
               Desbloquear Momento
             </DialogTitle>
             <DialogDescription>
-              Ingresa el código de acceso especial para desbloquear este momento
+              Para acceder a este momento, puedes:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Completar el momento anterior, o</li>
+                <li>Ingresar el código de acceso especial</li>
+              </ul>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
