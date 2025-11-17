@@ -1730,17 +1730,48 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
 
                         <div>
                           <h3 className="text-base font-semibold mb-2">2. Objetivos específicos</h3>
-                          <ol className="list-decimal list-inside pl-4 space-y-1">
+                          <div className="space-y-2">
                             {actaForm.watch('objetivosEspecificos') && actaForm.watch('objetivosEspecificos')!.length > 0 ? (
                               actaForm.watch('objetivosEspecificos')!.map((obj, index) => (
-                                <li key={index} className="text-sm">{obj.objetivo || '___________'}</li>
+                                <div key={index} className="flex gap-2 items-start">
+                                  <span className="text-sm font-medium min-w-[24px]">{index + 1}.</span>
+                                  <Input
+                                    value={obj.objetivo || ''}
+                                    onChange={(e) => {
+                                      const current = actaForm.getValues('objetivosEspecificos') || [];
+                                      current[index] = { objetivo: e.target.value };
+                                      actaForm.setValue('objetivosEspecificos', current);
+                                    }}
+                                    placeholder="Escriba el objetivo específico"
+                                    className="flex-1"
+                                    disabled={isLocked}
+                                  />
+                                </div>
                               ))
                             ) : (
                               actaForm.watch('planMejoramiento').map((item, index) => (
-                                <li key={index} className="text-sm">{item.accionesMejora || '___________'}</li>
+                                <div key={index} className="flex gap-2 items-start">
+                                  <span className="text-sm font-medium min-w-[24px]">{index + 1}.</span>
+                                  <p className="text-sm flex-1">{item.accionesMejora || '___________'}</p>
+                                </div>
                               ))
                             )}
-                          </ol>
+                            {!isLocked && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const current = actaForm.getValues('objetivosEspecificos') || [];
+                                  actaForm.setValue('objetivosEspecificos', [...current, { objetivo: '' }]);
+                                }}
+                                className="mt-2"
+                              >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Agregar objetivo específico
+                              </Button>
+                            )}
+                          </div>
                         </div>
 
                         <div>
@@ -1773,28 +1804,59 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
 
                         <div>
                           <h3 className="text-base font-semibold mb-2">4. Indicadores de logro</h3>
-                          <div className="pl-4 space-y-1">
+                          <div className="space-y-2">
                             {actaForm.watch('indicadoresLogro') && actaForm.watch('indicadoresLogro')!.length > 0 ? (
                               actaForm.watch('indicadoresLogro')!.map((ind, index) => (
-                                <p key={index} className="text-sm">• {ind.indicador || '_______________'}</p>
+                                <div key={index} className="flex gap-2 items-start">
+                                  <span className="text-sm font-medium min-w-[24px]">•</span>
+                                  <Input
+                                    value={ind.indicador || ''}
+                                    onChange={(e) => {
+                                      const current = actaForm.getValues('indicadoresLogro') || [];
+                                      current[index] = { indicador: e.target.value };
+                                      actaForm.setValue('indicadoresLogro', current);
+                                    }}
+                                    placeholder="Escriba el indicador de logro"
+                                    className="flex-1"
+                                    disabled={isLocked}
+                                  />
+                                </div>
                               ))
                             ) : (
                               actaForm.watch('planMejoramiento').map((item, index) => (
-                                <p key={index} className="text-sm">• {item.indicadorCumplimiento || '_______________'}</p>
+                                <div key={index} className="flex gap-2 items-start">
+                                  <span className="text-sm font-medium min-w-[24px]">•</span>
+                                  <p className="text-sm flex-1">{item.indicadorCumplimiento || '_______________'}</p>
+                                </div>
                               ))
+                            )}
+                            {!isLocked && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const current = actaForm.getValues('indicadoresLogro') || [];
+                                  actaForm.setValue('indicadoresLogro', [...current, { indicador: '' }]);
+                                }}
+                                className="mt-2"
+                              >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Agregar indicador de logro
+                              </Button>
                             )}
                           </div>
                         </div>
 
                         <div>
                           <h3 className="text-base font-semibold mb-2">5. Seguimiento</h3>
-                          {actaForm.watch('seguimiento') ? (
-                            <p className="text-sm pl-4">{actaForm.watch('seguimiento')}</p>
-                          ) : (
-                            <p className="text-sm pl-4">
-                              Periodo: {actaForm.watch('planMejoramiento')[0]?.fechaInicial || '__________'} al {actaForm.watch('planMejoramiento')[0]?.fechaFinal || '__________'}
-                            </p>
-                          )}
+                          <Textarea
+                            value={actaForm.watch('seguimiento') || ''}
+                            onChange={(e) => actaForm.setValue('seguimiento', e.target.value)}
+                            placeholder="Describa el seguimiento y periodo de evaluación"
+                            className="min-h-[80px]"
+                            disabled={isLocked}
+                          />
                         </div>
                       </div>
                     </div>
