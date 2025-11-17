@@ -99,7 +99,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
             </TabsList>
 
             <TabsContent value="acta" className="space-y-4">
-              <div className="rounded-lg border bg-card p-6 space-y-4">
+              <div className="rounded-lg border bg-card p-6 space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Acta del Encuentro</h3>
                   <p className="text-sm text-muted-foreground mb-4">
@@ -107,35 +107,70 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                   </p>
                 </div>
                 
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Fecha y participantes</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Registra la fecha, hora y lista de participantes del encuentro
-                    </p>
+                <form className="space-y-6">
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium">Fecha del encuentro</label>
+                    <input 
+                      type="date" 
+                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground"
+                      disabled={isLocked}
+                    />
                   </div>
-                  
-                  <div>
-                    <h4 className="font-medium mb-2">Temas tratados</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Lista los principales temas y conceptos discutidos durante el encuentro
-                    </p>
+
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium">Hora de inicio</label>
+                    <input 
+                      type="time" 
+                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground"
+                      disabled={isLocked}
+                    />
                   </div>
-                  
-                  <div>
-                    <h4 className="font-medium mb-2">Acuerdos y compromisos</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Detalla los acuerdos alcanzados y los compromisos asumidos por los participantes
-                    </p>
+
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium">Hora de finalización</label>
+                    <input 
+                      type="time" 
+                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground"
+                      disabled={isLocked}
+                    />
                   </div>
-                  
-                  <div>
-                    <h4 className="font-medium mb-2">Observaciones</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Espacio para registrar observaciones adicionales relevantes
-                    </p>
+
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium">Participantes (nombres completos, uno por línea)</label>
+                    <textarea 
+                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground min-h-[100px]"
+                      placeholder="Nombre del participante 1&#10;Nombre del participante 2&#10;Nombre del participante 3"
+                      disabled={isLocked}
+                    />
                   </div>
-                </div>
+
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium">Temas tratados</label>
+                    <textarea 
+                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground min-h-[120px]"
+                      placeholder="Lista los principales temas y conceptos discutidos durante el encuentro"
+                      disabled={isLocked}
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium">Acuerdos y compromisos</label>
+                    <textarea 
+                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground min-h-[120px]"
+                      placeholder="Detalla los acuerdos alcanzados y los compromisos asumidos por los participantes"
+                      disabled={isLocked}
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium">Observaciones adicionales</label>
+                    <textarea 
+                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground min-h-[100px]"
+                      placeholder="Espacio para registrar observaciones adicionales relevantes"
+                      disabled={isLocked}
+                    />
+                  </div>
+                </form>
               </div>
             </TabsContent>
 
