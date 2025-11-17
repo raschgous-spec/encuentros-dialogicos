@@ -22,6 +22,9 @@ const actaFormSchema = z.object({
   lugar: z.string().trim().min(1, { message: "El lugar es requerido" }).max(200),
   horaInicio: z.string().min(1, { message: "La hora de inicio es requerida" }),
   horaFin: z.string().min(1, { message: "La hora de finalización es requerida" }),
+  facultad: z.string().trim().min(1, { message: "La facultad es requerida" }).max(200),
+  programaAcademico: z.string().trim().min(1, { message: "El programa académico es requerido" }).max(200),
+  nombreDirector: z.string().trim().min(1, { message: "El nombre del director es requerido" }).max(200),
   responsable: z.string().trim().min(1, { message: "El responsable es requerido" }).max(200),
   participantes: z.string().trim().min(1, { message: "Los participantes son requeridos" }).max(2000),
   objetivos: z.string().trim().min(1, { message: "Los objetivos son requeridos" }).max(1000),
@@ -43,6 +46,9 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
       lugar: '',
       horaInicio: '',
       horaFin: '',
+      facultad: '',
+      programaAcademico: '',
+      nombreDirector: '',
       responsable: '',
       participantes: '',
       objetivos: '',
@@ -220,6 +226,48 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                         )}
                       />
                     </div>
+
+                    <FormField
+                      control={actaForm.control}
+                      name="facultad"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Facultad</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nombre de la facultad" disabled={isLocked} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={actaForm.control}
+                      name="programaAcademico"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Programa Académico</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nombre del programa académico" disabled={isLocked} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={actaForm.control}
+                      name="nombreDirector"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nombre del Director del Programa Académico</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nombre completo del director" disabled={isLocked} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     <FormField
                       control={actaForm.control}
