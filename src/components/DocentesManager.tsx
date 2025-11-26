@@ -26,6 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { docenteSchema } from '@/lib/validations';
 
 interface Docente {
   id: string;
@@ -106,15 +107,25 @@ export const DocentesManager = () => {
     setIsLoading(true);
 
     try {
+      // Validate input data with Zod
+      const validationResult = docenteSchema.safeParse(newDocente);
+      
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast({
+          title: 'Error de validación',
+          description: firstError.message,
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('No autenticado');
 
       const response = await supabase.functions.invoke('create-docente', {
-        body: {
-          email: newDocente.email,
-          password: newDocente.password,
-          fullName: newDocente.fullName,
-        },
+        body: validationResult.data,
       });
 
       if (response.error) {
@@ -229,13 +240,13 @@ export const DocentesManager = () => {
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder="Mín. 8 caracteres, 1 mayúscula, 1 número"
                     value={newDocente.password}
                     onChange={(e) =>
                       setNewDocente({ ...newDocente, password: e.target.value })
                     }
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                   <p className="text-xs text-muted-foreground">
                     El coordinador podrá cambiar su contraseña después

@@ -11,6 +11,31 @@ interface CreateDocenteRequest {
   fullName: string;
 }
 
+// Server-side validation function
+function validateDocenteRequest(data: CreateDocenteRequest): { valid: boolean; error?: string } {
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!data.email || !emailRegex.test(data.email) || data.email.length > 255) {
+    return { valid: false, error: 'Email inválido o muy largo (máx. 255 caracteres)' };
+  }
+
+  // Password validation
+  if (!data.password || data.password.length < 8 || data.password.length > 128) {
+    return { valid: false, error: 'La contraseña debe tener entre 8 y 128 caracteres' };
+  }
+  if (!/(?=.*[A-Z])(?=.*[0-9])/.test(data.password)) {
+    return { valid: false, error: 'La contraseña debe incluir al menos una mayúscula y un número' };
+  }
+
+  // Full name validation
+  const trimmedName = data.fullName?.trim();
+  if (!trimmedName || trimmedName.length < 2 || trimmedName.length > 100) {
+    return { valid: false, error: 'El nombre debe tener entre 2 y 100 caracteres' };
+  }
+
+  return { valid: true };
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -63,18 +88,21 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Obtener datos del nuevo docente
-    const { email, password, fullName }: CreateDocenteRequest = await req.json();
+    // Parse and validate request data
+    const requestData = await req.json() as CreateDocenteRequest;
 
-    if (!email || !password || !fullName) {
+    const validation = validateDocenteRequest(requestData);
+    if (!validation.valid) {
       return new Response(
-        JSON.stringify({ error: 'Email, contraseña y nombre completo son requeridos' }),
+        JSON.stringify({ error: validation.error }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
     }
+
+    const { email, password, fullName } = requestData;
 
     // Crear cliente con service role para crear usuario
     const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
