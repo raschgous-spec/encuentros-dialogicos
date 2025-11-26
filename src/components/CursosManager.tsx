@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { cursoSchema } from '@/lib/validations';
 
 interface Curso {
   id: string;
@@ -82,10 +83,30 @@ export const CursosManager = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No autenticado');
 
-      const { error } = await supabase.from('cursos').insert({
-        codigo: newCurso.codigo.toUpperCase(),
+      const upperCaseCodigo = newCurso.codigo.toUpperCase();
+
+      // Validate input data with Zod
+      const validationResult = cursoSchema.safeParse({
+        codigo: upperCaseCodigo,
         nombre: newCurso.nombre,
-        descripcion: newCurso.descripcion || null,
+        descripcion: newCurso.descripcion
+      });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast({
+          title: 'Error de validación',
+          description: firstError.message,
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.from('cursos').insert({
+        codigo: validationResult.data.codigo,
+        nombre: validationResult.data.nombre,
+        descripcion: validationResult.data.descripcion || null,
         docente_id: user.id,
       });
 
@@ -182,12 +203,13 @@ export const CursosManager = () => {
                   <Label htmlFor="codigo">Código del CAI - Encuentros dialógicos *</Label>
                   <Input
                     id="codigo"
-                    placeholder="MAT101-2025"
+                    placeholder="MAT101-2025 (solo mayúsculas, números y guiones)"
                     value={newCurso.codigo}
                     onChange={(e) =>
                       setNewCurso({ ...newCurso, codigo: e.target.value.toUpperCase() })
                     }
                     required
+                    maxLength={20}
                   />
                   <p className="text-xs text-muted-foreground">
                     Debe ser único. Ejemplo: MAT101-2025

@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import { Shield, BookOpen, GraduationCap } from 'lucide-react';
+import { authSchema } from '@/lib/validations';
 
 type UserType = 'estudiante' | 'docente' | 'admin';
 
@@ -63,20 +64,19 @@ const Auth = () => {
           return;
         }
 
-        if (!fullName.trim()) {
-          toast({
-            title: 'Error',
-            description: 'Por favor ingresa tu nombre completo',
-            variant: 'destructive',
-          });
-          setIsLoading(false);
-          return;
-        }
+        // Validate signup data with Zod
+        const validationResult = authSchema.safeParse({
+          email,
+          password,
+          fullName,
+          codigoCurso
+        });
 
-        if (!codigoCurso.trim()) {
+        if (!validationResult.success) {
+          const firstError = validationResult.error.errors[0];
           toast({
-            title: 'Error',
-            description: 'Por favor ingresa el código de tu curso',
+            title: 'Error de validación',
+            description: firstError.message,
             variant: 'destructive',
           });
           setIsLoading(false);
@@ -255,11 +255,11 @@ const Auth = () => {
                   <Input
                     id="signup-password"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder="Mín. 8 caracteres, 1 mayúscula, 1 número"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                 </div>
                 <div className="space-y-2">
