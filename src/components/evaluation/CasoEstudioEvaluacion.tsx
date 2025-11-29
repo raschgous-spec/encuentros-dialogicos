@@ -5,6 +5,7 @@ import { TipoSeleccion } from './TipoSeleccion';
 import { ProblematicaSelection } from './ProblematicaSelection';
 import { ProblemaTranslocalSelection } from './ProblemaTranslocalSelection';
 import { ProblemaContextCard } from './ProblemaContextCard';
+import { ArbolProblemasEval } from './ArbolProblemasEval';
 import { BrainstormingEval } from './BrainstormingEval';
 import { AffinityEval } from './AffinityEval';
 import { IshikawaEval } from './IshikawaEval';
@@ -23,6 +24,7 @@ interface EvaluacionData {
   problematica?: string;
   dimension?: string;
   caracteristicas?: string;
+  arbolProblemas?: any;
   brainstorming?: any;
   affinity?: any;
   ishikawa?: any;
@@ -44,9 +46,10 @@ const shuffleArray = <T,>(array: T[]): T[] => {
   return shuffled;
 };
 
-type ToolComponent = 'brainstorming' | 'affinity' | 'ishikawa' | 'dofa' | 'pareto';
+type ToolComponent = 'arbolProblemas' | 'brainstorming' | 'affinity' | 'ishikawa' | 'dofa' | 'pareto';
 
 const toolsConfig: Record<ToolComponent, { name: string; icon: string }> = {
+  arbolProblemas: { name: 'Árbol de Problemas', icon: '🌳' },
   brainstorming: { name: 'Brainstorming', icon: '🧠' },
   affinity: { name: 'Diagrama de Afinidad', icon: '🧩' },
   ishikawa: { name: 'Diagrama de Ishikawa', icon: '🪶' },
@@ -73,9 +76,9 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    // Randomize tools order when component mounts
+    // Randomize tools order when component mounts (arbolProblemas always first)
     const tools: ToolComponent[] = ['brainstorming', 'affinity', 'ishikawa', 'dofa', 'pareto'];
-    setToolsOrder(shuffleArray(tools));
+    setToolsOrder(['arbolProblemas', ...shuffleArray(tools)]);
   }, []);
 
   const handleTipoSelect = (tipo: 'dimension' | 'translocal') => {
@@ -140,6 +143,7 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
           momento: 'nivelatorio',
           dimension: finalData.dimension || '',
           problematica: finalData.problematica || '',
+          arbol_problemas_data: finalData.arbolProblemas,
           brainstorming_data: finalData.brainstorming,
           affinity_data: finalData.affinity,
           ishikawa_data: finalData.ishikawa,
@@ -265,6 +269,13 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
           </div>
         </CardContent>
       </Card>
+
+      {currentTool === 'arbolProblemas' && (
+        <ArbolProblemasEval
+          problematica={selectedItem}
+          onComplete={(data) => handleToolComplete('arbolProblemas', data)}
+        />
+      )}
 
       {currentTool === 'brainstorming' && (
         <BrainstormingEval
