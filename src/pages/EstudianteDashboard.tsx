@@ -222,7 +222,7 @@ const EstudianteDashboard = () => {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Mi Espacio de Aprendizaje</h1>
+          <h1 className="text-3xl font-bold mb-2">MI CAMPO DE APRENDIZAJE</h1>
           <p className="text-muted-foreground">
             Avanza a través de los momentos de aprendizaje
           </p>
