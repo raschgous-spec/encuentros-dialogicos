@@ -263,6 +263,26 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
     doc.text('MOMENTO 5 - ENCUENTRO 3', 105, yPos, { align: 'center' });
     yPos += 12;
 
+    // Problemática Context
+    if (problematica) {
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('PROBLEMÁTICA SELECCIONADA', 20, yPos);
+      yPos += 7;
+      
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const dimensionText = `Dimensión: ${problematica.dimension}`;
+      const splitDimension = doc.splitTextToSize(dimensionText, 170);
+      doc.text(splitDimension, 20, yPos);
+      yPos += splitDimension.length * 5;
+      
+      const problemaText = `Problema: ${problematica.problematica}`;
+      const splitProblema = doc.splitTextToSize(problemaText, 170);
+      doc.text(splitProblema, 20, yPos);
+      yPos += splitProblema.length * 5 + 5;
+    }
+
     // Meeting Information Section
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
