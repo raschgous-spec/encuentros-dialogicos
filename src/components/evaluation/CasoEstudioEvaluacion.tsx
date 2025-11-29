@@ -24,6 +24,9 @@ interface EvaluacionData {
   problematica?: string;
   dimension?: string;
   caracteristicas?: string;
+  unidad_regional?: string;
+  facultad?: string;
+  programa_academico?: string;
   arbolProblemas?: any;
   brainstorming?: any;
   affinity?: any;
@@ -105,7 +108,10 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
     setEvaluacionData({
       problematica: problema.problematica,
       dimension: `${problema.unidad_regional} - ${problema.programa_academico}`,
-      caracteristicas: problema.caracteristicas
+      caracteristicas: problema.caracteristicas,
+      unidad_regional: problema.unidad_regional,
+      facultad: problema.facultad,
+      programa_academico: problema.programa_academico
     });
     setStep('evaluation');
   };
@@ -237,6 +243,9 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
         dimension={evaluacionData.dimension || ''}
         problematica={evaluacionData.problematica || ''}
         caracteristicas={evaluacionData.caracteristicas}
+        unidad_regional={evaluacionData.unidad_regional}
+        facultad={evaluacionData.facultad}
+        programa_academico={evaluacionData.programa_academico}
       />
 
       <Card>

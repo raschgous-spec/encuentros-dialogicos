@@ -7,6 +7,9 @@ export interface ProblematicaNivelatorio {
   dimension: string;
   problematica: string;
   caracteristicas?: string;
+  unidad_regional?: string;
+  facultad?: string;
+  programa_academico?: string;
 }
 
 export const useNivelatorioProblematica = () => {
