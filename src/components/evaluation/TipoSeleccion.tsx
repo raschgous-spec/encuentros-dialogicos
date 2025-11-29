@@ -70,7 +70,6 @@ export const TipoSeleccion = ({ onSelect }: TipoSeleccionProps) => {
             <Button 
               onClick={() => onSelect('translocal')} 
               className="w-full"
-              variant="secondary"
             >
               Ver Banco Translocal
             </Button>
