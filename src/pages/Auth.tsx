@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import { Shield, BookOpen, GraduationCap } from 'lucide-react';
 import { authSchema } from '@/lib/validations';
-import udecLogo from '@/assets/udec-logo.jpeg';
+import udecLogo from '@/assets/udec-logo.png';
 
 type UserType = 'estudiante' | 'docente' | 'admin';
 
