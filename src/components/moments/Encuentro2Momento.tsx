@@ -137,6 +137,7 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
   });
 
   const generatePDF = (data: z.infer<typeof planFormSchema>) => {
+    console.log('📄 Iniciando generación de PDF del plan - Encuentro 2...');
     const doc = new jsPDF();
     let yPos = 15;
 
@@ -313,7 +314,9 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
   };
 
   const handleComplete = () => {
+    console.log('🎯 Marcar como completado - Encuentro 2');
     const formData = planForm.getValues();
+    console.log('📊 Datos del formulario:', formData);
     generatePDF(formData);
     if (onComplete) {
       onComplete();
