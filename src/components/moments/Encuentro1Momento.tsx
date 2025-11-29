@@ -225,6 +225,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
   });
 
   const generatePDF = (data: z.infer<typeof actaFormSchema>) => {
+    console.log('📄 Iniciando generación de PDF del acta...');
     const doc = new jsPDF();
     let yPos = 15;
 
@@ -531,6 +532,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
   };
 
   const onSubmitActa = async (data: z.infer<typeof actaFormSchema>) => {
+    console.log('🚀 onSubmitActa iniciado');
     if (!user) {
       toast({
         title: "Error",
@@ -588,8 +590,10 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
 
       if (error) throw error;
 
+      console.log('✅ Datos guardados en BD, generando PDF...');
       // Generate PDF
       generatePDF(data);
+      console.log('✅ PDF generado exitosamente');
 
       toast({
         title: "Acta guardada exitosamente",
