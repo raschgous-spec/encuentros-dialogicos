@@ -281,6 +281,7 @@ export type Database = {
       student_evaluations: {
         Row: {
           affinity_data: Json | null
+          arbol_problemas_data: Json | null
           automatic_score: number
           brainstorming_data: Json | null
           completed_at: string
@@ -303,6 +304,7 @@ export type Database = {
         }
         Insert: {
           affinity_data?: Json | null
+          arbol_problemas_data?: Json | null
           automatic_score?: number
           brainstorming_data?: Json | null
           completed_at?: string
@@ -325,6 +327,7 @@ export type Database = {
         }
         Update: {
           affinity_data?: Json | null
+          arbol_problemas_data?: Json | null
           automatic_score?: number
           brainstorming_data?: Json | null
           completed_at?: string

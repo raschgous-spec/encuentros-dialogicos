@@ -5,6 +5,7 @@ interface EvaluacionData {
   problematica?: string;
   dimension?: string;
   caracteristicas?: string;
+  arbolProblemas?: any;
   brainstorming?: any;
   affinity?: any;
   ishikawa?: any;
@@ -94,6 +95,7 @@ export const generateCaseStudyPDF = (
   yPosition += 10;
 
   const toolNames: Record<string, string> = {
+    arbolProblemas: 'Árbol de Problemas',
     brainstorming: 'Brainstorming',
     affinity: 'Diagrama de Afinidad',
     ishikawa: 'Diagrama de Ishikawa',
@@ -126,7 +128,7 @@ export const generateCaseStudyPDF = (
 
   // Detalles de cada herramienta
   Object.entries(evaluacionData).forEach(([key, data]) => {
-    if (['brainstorming', 'affinity', 'ishikawa', 'dofa', 'pareto'].includes(key) && data) {
+    if (['arbolProblemas', 'brainstorming', 'affinity', 'ishikawa', 'dofa', 'pareto'].includes(key) && data) {
       if (yPosition > 250) {
         doc.addPage();
         yPosition = 20;
@@ -140,7 +142,37 @@ export const generateCaseStudyPDF = (
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
 
-      if (key === 'brainstorming') {
+      if (key === 'arbolProblemas') {
+        doc.text(`Problema Central: ${data.problemaCentral || 'N/A'}`, 20, yPosition);
+        yPosition += 5;
+        doc.text(`Causas identificadas: ${data.causas?.length || 0}`, 20, yPosition);
+        yPosition += 4;
+        if (data.causas && data.causas.length > 0) {
+          data.causas.slice(0, 3).forEach((causa: string, idx: number) => {
+            const causaLines = doc.splitTextToSize(`  • ${causa}`, pageWidth - 35);
+            doc.text(causaLines, 20, yPosition);
+            yPosition += causaLines.length * 4.5;
+          });
+          if (data.causas.length > 3) {
+            doc.text(`  ... y ${data.causas.length - 3} causas más`, 20, yPosition);
+            yPosition += 5;
+          }
+        }
+        yPosition += 3;
+        doc.text(`Efectos identificados: ${data.efectos?.length || 0}`, 20, yPosition);
+        yPosition += 4;
+        if (data.efectos && data.efectos.length > 0) {
+          data.efectos.slice(0, 3).forEach((efecto: string, idx: number) => {
+            const efectoLines = doc.splitTextToSize(`  • ${efecto}`, pageWidth - 35);
+            doc.text(efectoLines, 20, yPosition);
+            yPosition += efectoLines.length * 4.5;
+          });
+          if (data.efectos.length > 3) {
+            doc.text(`  ... y ${data.efectos.length - 3} efectos más`, 20, yPosition);
+            yPosition += 5;
+          }
+        }
+      } else if (key === 'brainstorming') {
         doc.text(`Ideas generadas: ${data.ideas?.length || 0}`, 20, yPosition);
         yPosition += 5;
         if (data.ideas && data.ideas.length > 0) {

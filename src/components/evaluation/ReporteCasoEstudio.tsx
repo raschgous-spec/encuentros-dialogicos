@@ -9,6 +9,7 @@ interface EvaluacionData {
   problematica?: string;
   dimension?: string;
   caracteristicas?: string;
+  arbolProblemas?: any;
   brainstorming?: any;
   affinity?: any;
   ishikawa?: any;
@@ -30,6 +31,7 @@ interface ReporteCasoEstudioProps {
 }
 
 const toolNames: Record<string, string> = {
+  arbolProblemas: 'Árbol de Problemas',
   brainstorming: 'Brainstorming',
   affinity: 'Diagrama de Afinidad',
   ishikawa: 'Diagrama de Ishikawa',
@@ -38,6 +40,7 @@ const toolNames: Record<string, string> = {
 };
 
 const toolIcons: Record<string, string> = {
+  arbolProblemas: '🌳',
   brainstorming: '🧠',
   affinity: '🧩',
   ishikawa: '🪶',
@@ -47,6 +50,22 @@ const toolIcons: Record<string, string> = {
 
 const getFeedbackForTool = (tool: string, score: number, data: any): string => {
   const percentage = (score / 20) * 100;
+  
+  if (tool === 'arbolProblemas') {
+    const causas = data?.causas?.length || 0;
+    const efectos = data?.efectos?.length || 0;
+    const problemaCentral = data?.problemaCentral || '';
+    
+    if (percentage >= 90) {
+      return `Excelente análisis del árbol de problemas. Identificaste ${causas} causas y ${efectos} efectos con un problema central bien definido. Tu análisis muestra comprensión profunda de la estructura causal del problema.`;
+    } else if (percentage >= 70) {
+      return `Buen trabajo con ${causas} causas y ${efectos} efectos identificados. Para mejorar, asegúrate de que cada causa y efecto estén claramente relacionados con el problema central.`;
+    } else if (percentage >= 50) {
+      return `Análisis básico con ${causas} causas y ${efectos} efectos. Necesitas profundizar más en las causas raíz y considerar más efectos o consecuencias del problema.`;
+    } else {
+      return `Análisis insuficiente del árbol de problemas. Solo identificaste ${causas} causas y ${efectos} efectos. El árbol requiere al menos 3-4 causas y 3 efectos bien definidos para una comprensión integral del problema.`;
+    }
+  }
   
   if (tool === 'brainstorming') {
     const ideas = data?.ideas?.length || 0;
@@ -207,7 +226,7 @@ export const ReporteCasoEstudio = ({ evaluacionData, result, onClose }: ReporteC
         <CardHeader>
           <CardTitle>Retroalimentación Detallada por Herramienta</CardTitle>
           <CardDescription>
-            Análisis crítico de tu desempeño en cada una de las 5 herramientas de calidad
+            Análisis crítico de tu desempeño en cada una de las 6 herramientas de calidad
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -250,9 +269,9 @@ export const ReporteCasoEstudio = ({ evaluacionData, result, onClose }: ReporteC
         <CardContent className="space-y-3">
           {result.passed ? (
             <>
-              <p className="text-sm leading-relaxed">
-                ✅ <strong>Has completado exitosamente el momento nivelatorio.</strong> Tu análisis demuestra comprensión de las herramientas de calidad aplicadas al estudio de caso.
-              </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              ✅ <strong>Has completado exitosamente el momento nivelatorio.</strong> Tu análisis demuestra comprensión de las 6 herramientas de calidad aplicadas al estudio de caso.
+            </p>
               <p className="text-sm leading-relaxed">
                 📋 Este prototipo será revisado por el coordinador para asignación de la calificación final. Los comentarios detallados te ayudarán a refinar tu análisis.
               </p>
@@ -265,15 +284,15 @@ export const ReporteCasoEstudio = ({ evaluacionData, result, onClose }: ReporteC
             </>
           ) : (
             <>
-              <p className="text-sm leading-relaxed">
-                ⚠️ <strong>Tu evaluación está completa pero no alcanza el puntaje mínimo requerido (60 puntos).</strong> Revisa la retroalimentación detallada de cada herramienta.
-              </p>
+            <p className="text-sm leading-relaxed">
+              ⚠️ <strong>Tu evaluación está completa pero no alcanza el puntaje mínimo requerido (72 puntos).</strong> Revisa la retroalimentación detallada de cada herramienta.
+            </p>
               <p className="text-sm leading-relaxed">
                 📚 Te recomendamos revisar el material de estudio y los videos explicativos antes de realizar un nuevo intento.
               </p>
-              <p className="text-sm leading-relaxed">
-                🔄 Puedes realizar la evaluación nuevamente para mejorar tu calificación y desbloquear el Momento 3.
-              </p>
+            <p className="text-sm leading-relaxed">
+              🔄 Puedes realizar la evaluación nuevamente para mejorar tu calificación y desbloquear el Momento 3. Necesitas obtener al menos 72 puntos.
+            </p>
             </>
           )}
         </CardContent>
