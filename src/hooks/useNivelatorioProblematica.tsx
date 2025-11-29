@@ -28,7 +28,7 @@ export const useNivelatorioProblematica = () => {
         // Load from student_evaluations table (nivelatorio evaluation)
         const { data, error } = await supabase
           .from('student_evaluations')
-          .select('dimension, problematica')
+          .select('dimension, problematica, unidad_regional, facultad, programa_academico')
           .eq('user_id', user.id)
           .eq('momento', 'nivelatorio')
           .order('created_at', { ascending: false })
@@ -45,7 +45,10 @@ export const useNivelatorioProblematica = () => {
             tipo,
             dimension: data.dimension,
             problematica: data.problematica,
-            caracteristicas: undefined // We don't store this in student_evaluations currently
+            caracteristicas: undefined, // We don't store this in student_evaluations currently
+            unidad_regional: data.unidad_regional,
+            facultad: data.facultad,
+            programa_academico: data.programa_academico
           });
         }
       } catch (error) {
