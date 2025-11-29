@@ -291,6 +291,7 @@ export type Database = {
           created_at: string
           dimension: string
           dofa_data: Json | null
+          facultad: string | null
           id: string
           ishikawa_data: Json | null
           max_score: number
@@ -298,7 +299,9 @@ export type Database = {
           pareto_data: Json | null
           passed: boolean
           problematica: string
+          programa_academico: string | null
           reviewed_at: string | null
+          unidad_regional: string | null
           updated_at: string
           user_id: string
         }
@@ -314,6 +317,7 @@ export type Database = {
           created_at?: string
           dimension: string
           dofa_data?: Json | null
+          facultad?: string | null
           id?: string
           ishikawa_data?: Json | null
           max_score?: number
@@ -321,7 +325,9 @@ export type Database = {
           pareto_data?: Json | null
           passed?: boolean
           problematica: string
+          programa_academico?: string | null
           reviewed_at?: string | null
+          unidad_regional?: string | null
           updated_at?: string
           user_id: string
         }
@@ -337,6 +343,7 @@ export type Database = {
           created_at?: string
           dimension?: string
           dofa_data?: Json | null
+          facultad?: string | null
           id?: string
           ishikawa_data?: Json | null
           max_score?: number
@@ -344,7 +351,9 @@ export type Database = {
           pareto_data?: Json | null
           passed?: boolean
           problematica?: string
+          programa_academico?: string | null
           reviewed_at?: string | null
+          unidad_regional?: string | null
           updated_at?: string
           user_id?: string
         }

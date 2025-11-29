@@ -272,6 +272,28 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
       
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
+      
+      // Show filters for translocal problems
+      if (problematica.tipo === 'translocal') {
+        if (problematica.unidad_regional) {
+          doc.text(`Unidad Regional: ${problematica.unidad_regional}`, 20, yPos);
+          yPos += 5;
+        }
+        if (problematica.facultad) {
+          const facultadText = `Facultad: ${problematica.facultad}`;
+          const splitFacultad = doc.splitTextToSize(facultadText, 170);
+          doc.text(splitFacultad, 20, yPos);
+          yPos += splitFacultad.length * 5;
+        }
+        if (problematica.programa_academico) {
+          const programaText = `Programa Académico: ${problematica.programa_academico}`;
+          const splitPrograma = doc.splitTextToSize(programaText, 170);
+          doc.text(splitPrograma, 20, yPos);
+          yPos += splitPrograma.length * 5;
+        }
+        yPos += 3;
+      }
+      
       const dimensionText = `Dimensión: ${problematica.dimension}`;
       const splitDimension = doc.splitTextToSize(dimensionText, 170);
       doc.text(splitDimension, 20, yPos);
@@ -675,6 +697,9 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
           dimension={problematica.dimension}
           problematica={problematica.problematica}
           caracteristicas={problematica.caracteristicas}
+          unidad_regional={problematica.unidad_regional}
+          facultad={problematica.facultad}
+          programa_academico={problematica.programa_academico}
         />
       )}
 
