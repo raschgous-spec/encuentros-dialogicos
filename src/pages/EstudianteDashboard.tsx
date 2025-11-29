@@ -11,7 +11,7 @@ import { Encuentro2Momento } from '@/components/moments/Encuentro2Momento';
 import { Encuentro3Momento } from '@/components/moments/Encuentro3Momento';
 import { Encuentro4Momento } from '@/components/moments/Encuentro4Momento';
 import { supabase } from '@/integrations/supabase/client';
-import { CheckCircle2, Lock, Key } from 'lucide-react';
+import { CheckCircle2, Lock, Key, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -221,6 +221,16 @@ const EstudianteDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <Header />
       <main className="container mx-auto px-4 py-8">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="mb-4"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Volver
+        </Button>
+        
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">MI CAMPO DE APRENDIZAJE</h1>
           <p className="text-muted-foreground">

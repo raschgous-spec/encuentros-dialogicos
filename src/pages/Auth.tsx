@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
-import { Shield, BookOpen, GraduationCap } from 'lucide-react';
+import { Shield, BookOpen, GraduationCap, ArrowLeft } from 'lucide-react';
 import { authSchema } from '@/lib/validations';
 import udecLogo from '@/assets/udec-logo.png';
 
@@ -138,8 +138,19 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader className="space-y-4">
+      <div className="w-full max-w-2xl">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="mb-4"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Volver
+        </Button>
+        
+        <Card className="w-full">
+          <CardHeader className="space-y-4">
           <div className="flex justify-center">
             <img 
               src={udecLogo} 
@@ -303,6 +314,7 @@ const Auth = () => {
           )}
         </CardFooter>
       </Card>
+      </div>
     </div>
   );
 };
