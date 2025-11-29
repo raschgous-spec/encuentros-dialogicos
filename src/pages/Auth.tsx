@@ -126,7 +126,7 @@ const Auth = () => {
       default:
         return {
           title: 'Acceso Estudiante',
-          description: 'Realiza diagnósticos y consulta tu progreso',
+          description: 'Participa en los encuentros dialógicos',
           icon: GraduationCap,
         };
     }
