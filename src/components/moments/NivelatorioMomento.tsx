@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { calculateCaseStudyScore } from '@/utils/evaluation';
 import { ReporteCasoEstudio } from '@/components/evaluation/ReporteCasoEstudio';
+import arbolProblemasImage from '@/assets/arbol-problemas-diagram.jpeg';
 import dofaImage from '@/assets/dofa-diagram.webp';
 import brainstormingImage from '@/assets/brainstorming-diagram.png';
 import affinityImage from '@/assets/affinity-diagram.png';
@@ -61,7 +62,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
       id: 'arbolProblemas',
       title: '🌳 Árbol de Problemas',
       description: 'Herramienta gráfica para análisis de causas y efectos',
-      image: null,
+      image: arbolProblemasImage,
       content: [
         '💡 Concepto: El árbol de problemas es una herramienta de análisis que organiza la información de un problema central, desglosando sus causas (raíces) y sus efectos o consecuencias (ramas).',
         '🔧 Uso y desarrollo: Esta herramienta visual permite identificar las relaciones causa-efecto de una situación problemática. El problema central se coloca en el tronco, las causas que lo originan forman las raíces, y los efectos o consecuencias constituyen las ramas.',
@@ -69,7 +70,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         '⚠️ Limitaciones: Requiere tiempo para un análisis completo. Puede simplificar problemas muy complejos. La calidad depende de la participación del grupo.',
         '📌 Ejemplo: Análisis de bajo rendimiento académico identificando causas (falta de hábitos de estudio, problemas familiares) y efectos (deserción, baja autoestima).'
       ],
-      pdfUrl: null
+      pdfUrl: '/documents/ArbolProblemas.pdf'
     },
     {
       id: 'dofa',
