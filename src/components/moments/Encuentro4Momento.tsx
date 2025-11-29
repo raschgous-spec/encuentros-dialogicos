@@ -11,6 +11,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { ProblemaContextCard } from '@/components/evaluation/ProblemaContextCard';
+import { useNivelatorioProblematica } from '@/hooks/useNivelatorioProblematica';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Textarea } from '@/components/ui/textarea';
@@ -47,6 +49,7 @@ const planFormSchema = z.object({
 export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4MomentoProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { problematica, loading: loadingProblematica } = useNivelatorioProblematica();
   const [activeTab, setActiveTab] = useState('info');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -208,6 +211,16 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
             Este momento está bloqueado. Debes completar el Momento 5 - Encuentro 3 para poder desarrollar este encuentro.
           </AlertDescription>
         </Alert>
+      )}
+
+      {/* Problemática del Nivelatorio */}
+      {!loadingProblematica && problematica && (
+        <ProblemaContextCard
+          tipo={problematica.tipo}
+          dimension={problematica.dimension}
+          problematica={problematica.problematica}
+          caracteristicas={problematica.caracteristicas}
+        />
       )}
 
       <Card className="border-primary/20">
