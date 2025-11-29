@@ -286,7 +286,7 @@ const Auth = () => {
         <CardFooter className="flex flex-col space-y-4 text-sm text-muted-foreground">
           {userType === 'estudiante' ? (
             <p className="text-center">
-              Al registrarte como estudiante, debes ingresar el código de curso proporcionado por tu docente.
+              Al registrarte como estudiante, debes ingresar el código de CAI proporcionado por tu Gestor del Conocimiento.
             </p>
           ) : (
             <p className="text-center">
