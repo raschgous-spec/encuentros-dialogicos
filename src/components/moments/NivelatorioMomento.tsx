@@ -206,6 +206,11 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
 
   const videos = [
     {
+      id: 'eO7sNmZ9Ut8',
+      title: 'ÁRBOL DE PROBLEMAS',
+      description: 'Herramienta gráfica para análisis de causas y efectos'
+    },
+    {
       id: '_6vz0-Hx9cE',
       title: 'DOFA',
       description: 'Análisis DOFA: Debilidades, Oportunidades, Fortalezas y Amenazas'
