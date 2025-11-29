@@ -16,6 +16,8 @@ import { useNivelatorioProblematica } from '@/hooks/useNivelatorioProblematica';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Textarea } from '@/components/ui/textarea';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface Encuentro4MomentoProps {
   onComplete?: () => void;
@@ -135,6 +137,190 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
     control: planForm.control,
     name: "indicadoresLogro",
   });
+
+  const generatePDF = (data: z.infer<typeof planFormSchema>) => {
+    const doc = new jsPDF();
+    let yPos = 15;
+
+    // Header
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PLAN DE MEJORAMIENTO DIGITAL', 105, yPos, { align: 'center' });
+    yPos += 8;
+    doc.setFontSize(14);
+    doc.text('MOMENTO 6 - ENCUENTRO 4', 105, yPos, { align: 'center' });
+    yPos += 12;
+
+    // Problemática Context
+    if (problematica) {
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('PROBLEMÁTICA SELECCIONADA', 20, yPos);
+      yPos += 7;
+      
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const dimensionText = `Dimensión: ${problematica.dimension}`;
+      const splitDimension = doc.splitTextToSize(dimensionText, 170);
+      doc.text(splitDimension, 20, yPos);
+      yPos += splitDimension.length * 5;
+      
+      const problemaText = `Problema: ${problematica.problematica}`;
+      const splitProblema = doc.splitTextToSize(problemaText, 170);
+      doc.text(splitProblema, 20, yPos);
+      yPos += splitProblema.length * 5 + 10;
+    }
+
+    // Plan Information
+    if (data.tituloProyecto) {
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TÍTULO DEL PROYECTO', 20, yPos);
+      yPos += 7;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const titleText = doc.splitTextToSize(data.tituloProyecto, 170);
+      doc.text(titleText, 20, yPos);
+      yPos += titleText.length * 5 + 5;
+    }
+
+    if (data.propositoGeneral) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('PROPÓSITO GENERAL', 20, yPos);
+      yPos += 7;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const propText = doc.splitTextToSize(data.propositoGeneral, 170);
+      doc.text(propText, 20, yPos);
+      yPos += propText.length * 5 + 5;
+    }
+
+    if (data.objetivoGeneral) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('OBJETIVO GENERAL', 20, yPos);
+      yPos += 7;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const objText = doc.splitTextToSize(data.objetivoGeneral, 170);
+      doc.text(objText, 20, yPos);
+      yPos += objText.length * 5 + 5;
+    }
+
+    // Objetivos Específicos
+    if (data.objetivosEspecificos && data.objetivosEspecificos.length > 0) {
+      if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('OBJETIVOS ESPECÍFICOS', 20, yPos);
+      yPos += 7;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      data.objetivosEspecificos.forEach((obj, index) => {
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+        const objText = doc.splitTextToSize(`${index + 1}. ${obj.objetivo}`, 170);
+        doc.text(objText, 20, yPos);
+        yPos += objText.length * 5 + 3;
+      });
+      yPos += 5;
+    }
+
+    // Plan de Mejoramiento Table
+    if (data.planMejoramiento && data.planMejoramiento.length > 0) {
+      if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ACCIONES DE MEJORAMIENTO', 20, yPos);
+      yPos += 7;
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Tema', 'Necesidad', 'Estrategia', 'Acciones', 'Responsables', 'Fecha Inicial', 'Fecha Final', 'Indicador']],
+        body: data.planMejoramiento.map(item => [
+          item.tema || '',
+          item.descripcionNecesidad || '',
+          item.estrategia || '',
+          item.accionesMejora || '',
+          item.responsables || '',
+          item.fechaInicial || '',
+          item.fechaFinal || '',
+          item.indicadorCumplimiento || ''
+        ]),
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        margin: { left: 20, right: 20 },
+      });
+      yPos = (doc as any).lastAutoTable.finalY + 10;
+    }
+
+    // Indicadores de Logro
+    if (data.indicadoresLogro && data.indicadoresLogro.length > 0) {
+      if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('INDICADORES DE LOGRO', 20, yPos);
+      yPos += 7;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      data.indicadoresLogro.forEach((ind, index) => {
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+        const indText = doc.splitTextToSize(`${index + 1}. ${ind.indicador}`, 170);
+        doc.text(indText, 20, yPos);
+        yPos += indText.length * 5 + 3;
+      });
+      yPos += 5;
+    }
+
+    // Seguimiento
+    if (data.seguimiento) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('SEGUIMIENTO', 20, yPos);
+      yPos += 7;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const segText = doc.splitTextToSize(data.seguimiento, 170);
+      doc.text(segText, 20, yPos);
+    }
+
+    doc.save(`plan-mejoramiento-encuentro4-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
+  const handleComplete = () => {
+    const formData = planForm.getValues();
+    generatePDF(formData);
+    if (onComplete) {
+      onComplete();
+    }
+  };
 
   const onSubmitPlan = async (data: z.infer<typeof planFormSchema>) => {
     if (!user) {
@@ -497,7 +683,7 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
 
           {onComplete && (
             <div className="mt-6">
-              <Button onClick={onComplete} className="w-full" disabled={isLocked}>
+              <Button onClick={handleComplete} className="w-full" disabled={isLocked}>
                 {isLocked ? 'Momento Bloqueado' : 'Marcar como Completado'}
               </Button>
             </div>
