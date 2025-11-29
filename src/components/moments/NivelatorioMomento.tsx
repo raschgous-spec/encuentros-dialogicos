@@ -2,8 +2,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { BookOpen, Video, FileCheck, Download } from 'lucide-react';
-import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { BookOpen, Video, FileCheck, Download, Key } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { calculateCaseStudyScore } from '@/utils/evaluation';
+import { ReporteCasoEstudio } from '@/components/evaluation/ReporteCasoEstudio';
 import dofaImage from '@/assets/dofa-diagram.webp';
 import brainstormingImage from '@/assets/brainstorming-diagram.png';
 import affinityImage from '@/assets/affinity-diagram.png';
@@ -16,9 +23,38 @@ interface NivelatorioMomentoProps {
 }
 
 export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [showVideos, setShowVideos] = useState(false);
   const [showMaterial, setShowMaterial] = useState(false);
   const [showEvaluacion, setShowEvaluacion] = useState(false);
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  const [completeCode, setCompleteCode] = useState('');
+  const [latestEvaluation, setLatestEvaluation] = useState<any>(null);
+  const [showReport, setShowReport] = useState(false);
+  const [evaluationResult, setEvaluationResult] = useState<any>(null);
+
+  // Load latest evaluation on mount
+  useEffect(() => {
+    const loadLatestEvaluation = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('student_evaluations')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('momento', 'nivelatorio')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      if (!error && data) {
+        setLatestEvaluation(data);
+      }
+    };
+    
+    loadLatestEvaluation();
+  }, [user]);
 
   const materials = [
     {
@@ -97,6 +133,61 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
       pdfUrl: '/documents/Pareto.pdf'
     }
   ];
+
+  const handleMarkComplete = async () => {
+    if (completeCode.trim().toUpperCase() !== 'MEDIT') {
+      toast({
+        title: "Código incorrecto",
+        description: "Por favor, verifica el código e intenta nuevamente",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!latestEvaluation) {
+      toast({
+        title: "Error",
+        description: "No se encontró ninguna evaluación para generar el reporte",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Calculate score with current progress
+    const evaluacionData = {
+      problematica: latestEvaluation.problematica,
+      dimension: latestEvaluation.dimension,
+      brainstorming: latestEvaluation.brainstorming_data,
+      affinity: latestEvaluation.affinity_data,
+      ishikawa: latestEvaluation.ishikawa_data,
+      dofa: latestEvaluation.dofa_data,
+      pareto: latestEvaluation.pareto_data
+    };
+
+    const result = calculateCaseStudyScore(evaluacionData);
+    setEvaluationResult(result);
+    
+    // Update evaluation if score changed
+    if (result.automaticScore !== latestEvaluation.automatic_score) {
+      await supabase
+        .from('student_evaluations')
+        .update({
+          automatic_score: result.automaticScore,
+          max_score: result.maxScore,
+          passed: result.passed
+        })
+        .eq('id', latestEvaluation.id);
+    }
+
+    setShowCompleteDialog(false);
+    setCompleteCode('');
+    setShowReport(true);
+
+    toast({
+      title: "Reporte generado",
+      description: "Tu evaluación ha sido procesada. Revisa los resultados y descarga el PDF.",
+    });
+  };
 
   const videos = [
     {
@@ -323,23 +414,127 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
         </div>
       )}
 
-      {showEvaluacion && (
+      {showEvaluacion && !showReport && (
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-primary">Evaluación del Caso de Estudio</h2>
           <CasoEstudioEvaluacion onComplete={(data) => {
             console.log('Evaluación completada:', data);
-            // Aquí se guardará en la base de datos
+            // Reload latest evaluation
+            const loadEval = async () => {
+              if (!user) return;
+              const { data: evalData } = await supabase
+                .from('student_evaluations')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('momento', 'nivelatorio')
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+              
+              if (evalData) {
+                setLatestEvaluation(evalData);
+              }
+            };
+            loadEval();
           }} />
         </div>
       )}
 
-      {onComplete && (
+      {showReport && evaluationResult && latestEvaluation && (
+        <div className="space-y-6">
+          <h2 className="text-2xl font-semibold text-primary">Reporte de Evaluación</h2>
+          <ReporteCasoEstudio
+            evaluacionData={{
+              problematica: latestEvaluation.problematica,
+              dimension: latestEvaluation.dimension,
+              brainstorming: latestEvaluation.brainstorming_data,
+              affinity: latestEvaluation.affinity_data,
+              ishikawa: latestEvaluation.ishikawa_data,
+              dofa: latestEvaluation.dofa_data,
+              pareto: latestEvaluation.pareto_data
+            }}
+            result={evaluationResult}
+            onClose={() => {
+              setShowReport(false);
+              if (onComplete && evaluationResult.passed) {
+                onComplete();
+              }
+            }}
+          />
+        </div>
+      )}
+
+      {onComplete && !showReport && (
         <div className="flex justify-end">
-          <Button onClick={onComplete} size="lg">
+          <Button 
+            onClick={() => setShowCompleteDialog(true)} 
+            size="lg"
+            disabled={!latestEvaluation}
+          >
             Marcar como Completado
           </Button>
         </div>
       )}
+
+      {/* Complete Dialog */}
+      <Dialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5" />
+              Confirmar Finalización
+            </DialogTitle>
+            <DialogDescription>
+              Para marcar el momento nivelatorio como completado y generar tu reporte, ingresa el código de acceso.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {!latestEvaluation ? (
+              <p className="text-sm text-destructive">
+                No se encontró ninguna evaluación iniciada. Por favor, inicia la evaluación antes de marcar como completado.
+              </p>
+            ) : (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Se generará un reporte con tu progreso actual en las herramientas que hayas completado.
+                </p>
+                <div className="space-y-2">
+                  <label htmlFor="complete-code" className="text-sm font-medium">
+                    Código de acceso
+                  </label>
+                  <Input
+                    id="complete-code"
+                    type="text"
+                    placeholder="Ingresa el código"
+                    value={completeCode}
+                    onChange={(e) => setCompleteCode(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleMarkComplete();
+                      }
+                    }}
+                    className="uppercase"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowCompleteDialog(false);
+              setCompleteCode('');
+            }}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleMarkComplete}
+              disabled={!latestEvaluation}
+            >
+              Generar Reporte
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
