@@ -13,11 +13,11 @@ import { ParetoEval } from './ParetoEval';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { calculateCaseStudyScore } from '@/utils/evaluation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { ReporteCasoEstudio } from './ReporteCasoEstudio';
 
 interface EvaluacionData {
   problematica?: string;
@@ -68,6 +68,7 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
     automaticScore: number;
     maxScore: number;
     passed: boolean;
+    breakdown: Record<string, number>;
   } | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -200,45 +201,18 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
   if (step === 'complete') {
     if (!evaluationResult) return null;
     
-    const passed = evaluationResult.passed;
-    
     return (
-      <Card>
-        <CardContent className="py-12 text-center space-y-4">
-          {passed ? (
-            <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto" />
-          ) : (
-            <XCircle className="h-16 w-16 text-destructive mx-auto" />
-          )}
-          <h2 className="text-2xl font-bold">
-            {passed ? '¡Evaluación Aprobada!' : 'Evaluación Completada'}
-          </h2>
-          <div className="space-y-2">
-            <p className="text-3xl font-bold">
-              {evaluationResult.automaticScore}/{evaluationResult.maxScore}
-            </p>
-            <p className="text-muted-foreground">
-              {passed 
-                ? 'Has completado exitosamente el análisis de la problemática usando las 5 herramientas de calidad.'
-                : 'Has completado el análisis, pero necesitas al menos 60 puntos para aprobar y desbloquear el Momento 3.'}
-            </p>
-          </div>
-          {passed ? (
-            <>
-              <p className="text-sm text-success font-medium">
-                ✓ Has desbloqueado el Momento 3 - Encuentro 1
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Tu evaluación será revisada por el coordinador para la calificación final.
-              </p>
-            </>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Puedes intentar nuevamente para mejorar tu calificación.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+      <ReporteCasoEstudio
+        evaluacionData={evaluacionData}
+        result={evaluationResult}
+        onClose={() => {
+          // Optionally navigate back or refresh
+          setStep('tipo');
+          setEvaluacionData({});
+          setCurrentToolIndex(0);
+          setEvaluationResult(null);
+        }}
+      />
     );
   }
 
