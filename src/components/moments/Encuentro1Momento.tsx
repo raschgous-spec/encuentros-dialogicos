@@ -14,6 +14,8 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { ParticipacionesTable } from './ParticipacionesTable';
+import { ProblemaContextCard } from '@/components/evaluation/ProblemaContextCard';
+import { useNivelatorioProblematica } from '@/hooks/useNivelatorioProblematica';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import jsPDF from 'jspdf';
@@ -100,6 +102,7 @@ const actaFormSchema = z.object({
 export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1MomentoProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { problematica, loading: loadingProblematica } = useNivelatorioProblematica();
   const [activeTab, setActiveTab] = useState('acta');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -617,6 +620,16 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
             Este momento está bloqueado. Debes completar el Momento 2 - Nivelatorio con una calificación aprobatoria (≥60) para poder desarrollar este encuentro.
           </AlertDescription>
         </Alert>
+      )}
+
+      {/* Problemática del Nivelatorio */}
+      {!loadingProblematica && problematica && (
+        <ProblemaContextCard
+          tipo={problematica.tipo}
+          dimension={problematica.dimension}
+          problematica={problematica.problematica}
+          caracteristicas={problematica.caracteristicas}
+        />
       )}
 
       <Card className="border-primary/20 bg-primary/5">
