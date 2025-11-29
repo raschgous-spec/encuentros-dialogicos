@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import { Shield, BookOpen, GraduationCap } from 'lucide-react';
 import { authSchema } from '@/lib/validations';
+import udecLogo from '@/assets/udec-logo.jpeg';
 
 type UserType = 'estudiante' | 'docente' | 'admin';
 
@@ -138,7 +139,14 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4">
       <Card className="w-full max-w-2xl">
-        <CardHeader className="space-y-1">
+        <CardHeader className="space-y-4">
+          <div className="flex justify-center">
+            <img 
+              src={udecLogo} 
+              alt="Universidad de Cundinamarca Logo" 
+              className="h-20 w-auto object-contain"
+            />
+          </div>
           <CardTitle className="text-2xl font-bold text-center">
             Encuentros dialógicos Universidad de Cundinamarca
           </CardTitle>
