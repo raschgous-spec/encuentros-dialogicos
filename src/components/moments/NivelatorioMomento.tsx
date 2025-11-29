@@ -58,6 +58,20 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
 
   const materials = [
     {
+      id: 'arbolProblemas',
+      title: '🌳 Árbol de Problemas',
+      description: 'Herramienta gráfica para análisis de causas y efectos',
+      image: null,
+      content: [
+        '💡 Concepto: El árbol de problemas es una herramienta de análisis que organiza la información de un problema central, desglosando sus causas (raíces) y sus efectos o consecuencias (ramas).',
+        '🔧 Uso y desarrollo: Esta herramienta visual permite identificar las relaciones causa-efecto de una situación problemática. El problema central se coloca en el tronco, las causas que lo originan forman las raíces, y los efectos o consecuencias constituyen las ramas.',
+        '✅ Ventajas: Facilita la comprensión integral de un problema. Permite identificar causas raíz y priorizar intervenciones. Visual y fácil de comunicar.',
+        '⚠️ Limitaciones: Requiere tiempo para un análisis completo. Puede simplificar problemas muy complejos. La calidad depende de la participación del grupo.',
+        '📌 Ejemplo: Análisis de bajo rendimiento académico identificando causas (falta de hábitos de estudio, problemas familiares) y efectos (deserción, baja autoestima).'
+      ],
+      pdfUrl: null
+    },
+    {
       id: 'dofa',
       title: '🧭 Matriz DOFA / FODA (SWOT)',
       description: 'Análisis estratégico de Debilidades, Oportunidades, Fortalezas y Amenazas',
@@ -157,6 +171,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
     const evaluacionData = {
       problematica: latestEvaluation.problematica,
       dimension: latestEvaluation.dimension,
+      arbolProblemas: latestEvaluation.arbol_problemas_data,
       brainstorming: latestEvaluation.brainstorming_data,
       affinity: latestEvaluation.affinity_data,
       ishikawa: latestEvaluation.ishikawa_data,
@@ -272,7 +287,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
               </div>
               <div>
                 <CardTitle className="text-lg">3. EVALUACIÓN - CASO DE ESTUDIO</CardTitle>
-                <CardDescription>Aplica las 5 herramientas a un caso real</CardDescription>
+                <CardDescription>Aplica las 6 herramientas a un caso real</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -345,6 +360,13 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">Árbol de Problemas</TableCell>
+                    <TableCell>Estructural</TableCell>
+                    <TableCell>Análisis causa-efecto global</TableCell>
+                    <TableCell>Cualitativa</TableCell>
+                    <TableCell>Visualiza estructura completa del problema</TableCell>
+                  </TableRow>
                   <TableRow>
                     <TableCell className="font-medium">Brainstorming</TableCell>
                     <TableCell>Creativa</TableCell>
@@ -447,6 +469,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
             evaluacionData={{
               problematica: latestEvaluation.problematica,
               dimension: latestEvaluation.dimension,
+              arbolProblemas: latestEvaluation.arbol_problemas_data,
               brainstorming: latestEvaluation.brainstorming_data,
               affinity: latestEvaluation.affinity_data,
               ishikawa: latestEvaluation.ishikawa_data,

@@ -160,7 +160,7 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
         title: result.passed ? "¡Evaluación Aprobada!" : "Evaluación Completada",
         description: result.passed 
           ? `Has obtenido ${result.automaticScore}/${result.maxScore} puntos. Has desbloqueado el Momento 3.`
-          : `Has obtenido ${result.automaticScore}/${result.maxScore} puntos. Necesitas al menos 60 puntos para continuar.`,
+          : `Has obtenido ${result.automaticScore}/${result.maxScore} puntos. Necesitas al menos 72 puntos para continuar.`,
         variant: result.passed ? "default" : "destructive"
       });
 
