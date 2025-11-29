@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Problematica } from '@/data/problematicas';
+import { ProblemaTranslocal } from '@/data/problemasTranslocales';
+import { TipoSeleccion } from './TipoSeleccion';
 import { ProblematicaSelection } from './ProblematicaSelection';
+import { ProblemaTranslocalSelection } from './ProblemaTranslocalSelection';
 import { BrainstormingEval } from './BrainstormingEval';
 import { AffinityEval } from './AffinityEval';
 import { IshikawaEval } from './IshikawaEval';
@@ -52,7 +55,8 @@ const toolsConfig: Record<ToolComponent, { name: string; icon: string }> = {
 export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [step, setStep] = useState<'selection' | 'evaluation' | 'complete'>('selection');
+  const [step, setStep] = useState<'tipo' | 'selection' | 'translocal' | 'evaluation' | 'complete'>('tipo');
+  const [tipoSeleccion, setTipoSeleccion] = useState<'dimension' | 'translocal' | null>(null);
   const [selectedProblematica, setSelectedProblematica] = useState<Problematica | null>(null);
   const [selectedItem, setSelectedItem] = useState<string>('');
   const [currentToolIndex, setCurrentToolIndex] = useState(0);
@@ -71,12 +75,30 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
     setToolsOrder(shuffleArray(tools));
   }, []);
 
+  const handleTipoSelect = (tipo: 'dimension' | 'translocal') => {
+    setTipoSeleccion(tipo);
+    if (tipo === 'dimension') {
+      setStep('selection');
+    } else {
+      setStep('translocal');
+    }
+  };
+
   const handleProblematicaSelect = (problematica: Problematica, item: string) => {
     setSelectedProblematica(problematica);
     setSelectedItem(item);
     setEvaluacionData({
       problematica: item,
       dimension: problematica.categoria
+    });
+    setStep('evaluation');
+  };
+
+  const handleTranslocalSelect = (problema: ProblemaTranslocal) => {
+    setSelectedItem(problema.problematica);
+    setEvaluacionData({
+      problematica: problema.problematica,
+      dimension: `${problema.unidad_regional} - ${problema.programa_academico}`
     });
     setStep('evaluation');
   };
@@ -155,8 +177,21 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
   const currentTool = toolsOrder[currentToolIndex];
   const progress = ((currentToolIndex + 1) / toolsOrder.length) * 100;
 
+  if (step === 'tipo') {
+    return <TipoSeleccion onSelect={handleTipoSelect} />;
+  }
+
   if (step === 'selection') {
     return <ProblematicaSelection onSelect={handleProblematicaSelect} />;
+  }
+
+  if (step === 'translocal') {
+    return (
+      <ProblemaTranslocalSelection 
+        onSelect={handleTranslocalSelect}
+        onBack={() => setStep('tipo')}
+      />
+    );
   }
 
   if (step === 'complete') {
