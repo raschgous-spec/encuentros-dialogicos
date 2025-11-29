@@ -140,7 +140,7 @@ const Auth = () => {
       <Card className="w-full max-w-2xl">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Sistema de Gestión UCundinamarca
+            Encuentros dialógicos Universidad de Cundinamarca
           </CardTitle>
           <CardDescription className="text-center">
             Selecciona tu tipo de acceso
