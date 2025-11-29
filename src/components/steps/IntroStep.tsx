@@ -1,10 +1,16 @@
 import { CasoCentral } from '@/components/CasoCentral';
 import { BookOpen } from 'lucide-react';
+import udecLogo from '@/assets/udec-logo.jpeg';
 
 export const IntroStep = () => {
   return (
     <div className="space-y-6">
       <div className="text-center">
+        <img 
+          src={udecLogo} 
+          alt="Universidad de Cundinamarca" 
+          className="h-24 mx-auto mb-6"
+        />
         <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
           <BookOpen className="text-primary" size={32} />
         </div>
