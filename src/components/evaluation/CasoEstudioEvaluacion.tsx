@@ -4,6 +4,7 @@ import { ProblemaTranslocal } from '@/data/problemasTranslocales';
 import { TipoSeleccion } from './TipoSeleccion';
 import { ProblematicaSelection } from './ProblematicaSelection';
 import { ProblemaTranslocalSelection } from './ProblemaTranslocalSelection';
+import { ProblemaContextCard } from './ProblemaContextCard';
 import { BrainstormingEval } from './BrainstormingEval';
 import { AffinityEval } from './AffinityEval';
 import { IshikawaEval } from './IshikawaEval';
@@ -21,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 interface EvaluacionData {
   problematica?: string;
   dimension?: string;
+  caracteristicas?: string;
   brainstorming?: any;
   affinity?: any;
   ishikawa?: any;
@@ -98,7 +100,8 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
     setSelectedItem(problema.problematica);
     setEvaluacionData({
       problematica: problema.problematica,
-      dimension: `${problema.unidad_regional} - ${problema.programa_academico}`
+      dimension: `${problema.unidad_regional} - ${problema.programa_academico}`,
+      caracteristicas: problema.caracteristicas
     });
     setStep('evaluation');
   };
@@ -251,6 +254,13 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
 
   return (
     <div className="space-y-6">
+      <ProblemaContextCard
+        tipo={tipoSeleccion || 'dimension'}
+        dimension={evaluacionData.dimension || ''}
+        problematica={evaluacionData.problematica || ''}
+        caracteristicas={evaluacionData.caracteristicas}
+      />
+
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-4">
