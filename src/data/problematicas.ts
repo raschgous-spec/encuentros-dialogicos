@@ -11,19 +11,17 @@ export const problematicas: Problematica[] = [
     categoria: "1. Dimensión de la Persona",
     titulo: "La Persona",
     items: [
-      "Falta de hábitos de estudio autónomo en entornos digitales",
-      "Desmotivación frente a los procesos académicos virtuales",
-      "Dificultades para la autorregulación del tiempo y la organización personal",
-      "Desconocimiento de herramientas digitales para el aprendizaje independiente",
-      "Baja autoestima académica en los primeros semestres",
-      "Estrés y ansiedad asociados a las exigencias universitarias",
-      "Escaso reconocimiento de las propias fortalezas y potencialidades",
-      "Dificultades para establecer metas personales y académicas claras",
-      "Carencia de estrategias para la gestión emocional frente al fracaso",
-      "Falta de compromiso con la responsabilidad ética en entornos virtuales",
-      "Débil desarrollo de habilidades blandas (asertividad, empatía, liderazgo)",
-      "Desinterés por la formación continua o por los procesos de actualización digital",
-      "Falta de conciencia sobre el autocuidado físico y mental en la vida universitaria"
+      "Bajo interés y motivación para aprender una segunda lengua (inglés)",
+      "Reducción del nivel de lengua extranjera post-pandemia",
+      "Bajo rendimiento académico en matemáticas y temor a la disciplina",
+      "Dificultades cognitivas en comprensión y aplicación de conceptos matemáticos",
+      "Afectaciones emocionales derivadas del COVID-19",
+      "Perfil psicomotor infantil desconocido (Soacha)",
+      "Patologías físicas, motrices y psicológicas no caracterizadas en adultos mayores (Soacha)",
+      "Maltrato, abuso infantil y problemas de salud mental (Girardot)",
+      "Consumo de SPA, depresión, intentos de suicidio en jóvenes (Girardot)",
+      "Desempleo que afecta el desarrollo profesional y el proyecto de vida",
+      "Bajo nivel de tecnificación en procesos agrícolas que genera sobrecarga laboral"
     ]
   },
   {
@@ -31,19 +29,14 @@ export const problematicas: Problematica[] = [
     categoria: "2. Dimensión del Aula",
     titulo: "El Aula",
     items: [
-      "Escasa participación en actividades colaborativas digitales",
-      "Limitada interacción entre estudiantes y docentes en el CAI",
-      "Uso tradicionalista de las plataformas digitales (como repositorio, no como espacio de co-construcción)",
-      "Dificultades para la comunicación efectiva en espacios virtuales",
-      "Desigualdad en el acceso a dispositivos o conexión a internet",
-      "Baja apropiación de los recursos educativos digitales por parte del estudiantado",
-      "Dificultades en la retroalimentación oportuna en entornos virtuales",
-      "Limitada integración entre la teoría y la práctica mediante herramientas digitales",
-      "Poca innovación en las estrategias de mediación pedagógica",
-      "Falta de acompañamiento docente en el uso de entornos interactivos",
-      "Dificultades para la evaluación formativa mediante instrumentos digitales",
-      "Inadecuada planeación del aprendizaje colaborativo en línea",
-      "Limitado uso de herramientas de coautoría digital (Miro, Padlet, Jamboard, etc.)"
+      "La transversalidad de inglés no es evidente en los programas académicos",
+      "Pocas estrategias pedagógicas para enseñanza de lenguas",
+      "Falta de materiales didácticos modernos en escuelas rurales (Sumapaz)",
+      "Ausencia de recursos tecnológicos: computadores, conectividad, laboratorios",
+      "Ausencia de espacios académicos de ciencia y tecnología para niños y jóvenes",
+      "Procesos pedagógicos de educación física sin caracterización de población",
+      "Limitadas didácticas en matemáticas que afectan el rendimiento estudiantil",
+      "Falta de integración curricular con prácticas internacionales en escuelas rurales"
     ]
   },
   {
@@ -51,18 +44,14 @@ export const problematicas: Problematica[] = [
     categoria: "3. Dimensión de la Cultura",
     titulo: "La Cultura",
     items: [
-      "Desconocimiento del valor del patrimonio cultural regional en los procesos educativos",
-      "Escasa integración de la diversidad cultural en las dinámicas institucionales",
-      "Debilidad en la promoción de eventos artísticos y culturales en formato digital",
-      "Pérdida del sentido de comunidad universitaria",
-      "Insuficiente reconocimiento de la identidad cundinamarquesa en los programas académicos",
-      "Falta de espacios para el diálogo intercultural y la inclusión",
-      "Escasa participación de estudiantes en grupos o semilleros culturales",
-      "Débil apropiación de la ética y los valores institucionales",
-      "Limitado aprovechamiento de los medios digitales para difundir la cultura universitaria",
-      "Dificultades para integrar la cultura digital como forma de expresión académica",
-      "Desinterés por la participación en proyectos artísticos o culturales colectivos",
-      "Falta de reconocimiento a las prácticas culturales estudiantiles"
+      "Resistencia de agricultores al uso de TIC para comercialización de productos",
+      "Tradición minera con bajos estándares de formación profesional (Ubaté)",
+      "Cultura de la informalidad empresarial (Fusagasugá)",
+      "Prácticas de silvicultura urbana con especies exóticas (Girardot)",
+      "Desconexión entre cultura académica y cultura productiva rural",
+      "Falta de apropiación comunitaria hacia el cuidado ambiental y manejo de residuos",
+      "Persistencia de modelos tradicionales de comercio agrícola sin asociatividad",
+      "Cultura del abandono y maltrato animal (Sabana Occidente)"
     ]
   },
   {
@@ -70,18 +59,13 @@ export const problematicas: Problematica[] = [
     categoria: "4. Dimensión de la Familia",
     titulo: "La Familia",
     items: [
-      "Escaso acompañamiento familiar en el proceso educativo universitario",
-      "Falta de comprensión por parte de las familias del modelo educativo digital",
-      "Conflictos familiares que afectan la continuidad académica",
-      "Dificultad para conciliar responsabilidades familiares y académicas",
-      "Desconocimiento de los logros y avances del estudiante por parte de su familia",
-      "Brecha generacional en el uso de tecnologías y comprensión del entorno digital",
-      "Ausencia de redes de apoyo familiar durante los periodos de evaluación",
-      "Poca participación de la familia en las actividades institucionales",
-      "Sobrecarga emocional derivada de la falta de apoyo familiar",
-      "Desmotivación académica por desinterés del núcleo familiar",
-      "Limitado acceso de las familias a los canales de información institucional",
-      "Falta de orientación a los padres o tutores sobre la formación universitaria"
+      "Violencia intrafamiliar que afecta a niños, adolescentes y adultos mayores (Girardot)",
+      "Abuso infantil en sus diferentes modalidades",
+      "Consumo de SPA en jóvenes dentro de entornos familiares vulnerables",
+      "Pobre acompañamiento familiar en procesos educativos durante y después del COVID-19",
+      "Migración forzada de familias por desempleo y falta de oportunidades",
+      "Abandono del adulto mayor en sus hogares",
+      "Familias afectadas por falta de conectividad y recursos para educación virtual/rural"
     ]
   },
   {
@@ -89,17 +73,14 @@ export const problematicas: Problematica[] = [
     categoria: "5. Dimensión de la Naturaleza",
     titulo: "La Naturaleza",
     items: [
-      "Falta de conciencia ambiental entre estudiantes y personal universitario",
-      "Desperdicio de recursos (agua, energía, papel) en las sedes universitarias",
-      "Escasa participación en proyectos de sostenibilidad o reciclaje",
-      "Débil articulación de la educación ambiental en los programas académicos",
-      "Contaminación visual y auditiva en espacios universitarios",
-      "Falta de campañas institucionales permanentes sobre sostenibilidad",
-      "Inadecuado manejo de residuos sólidos y orgánicos",
-      "Ausencia de indicadores de sostenibilidad ambiental en los planes de mejora",
-      "Escaso aprovechamiento de zonas verdes con fines educativos o ecológicos",
-      "Desinterés por la implementación de tecnologías limpias o energías renovables",
-      "Falta de proyectos de reforestación o compensación ambiental universitaria"
+      "Impactos ambientales por actividades antrópicas (Fusagasugá, Sumapaz)",
+      "Contaminación del agua, disponibilidad y calidad insuficiente (Facatativá)",
+      "Uso de especies exóticas en silvicultura urbana (Girardot)",
+      "Gestión ineficiente de residuos sólidos domiciliarios",
+      "Explotación minera y carbonífera contaminante (Ubaté)",
+      "Sobreutilización de pesticidas y baja monitorización de variables ambientales",
+      "Pérdida de biodiversidad y falta de aprovechamiento sostenible del ecoturismo",
+      "Problemas de ruido, emisiones y afectación del aire por conurbación"
     ]
   },
   {
@@ -107,18 +88,16 @@ export const problematicas: Problematica[] = [
     categoria: "6. Dimensión de la Institución",
     titulo: "La Institución",
     items: [
-      "Procesos administrativos lentos o poco digitalizados",
-      "Inconsistencia en la comunicación institucional entre sedes",
-      "Falta de seguimiento al cumplimiento de los planes de mejoramiento",
-      "Dificultades en la actualización de datos académicos y administrativos",
-      "Escasa coordinación entre dependencias académicas y administrativas",
-      "Débil cultura de evaluación institucional y rendición de cuentas",
-      "Limitada formación del personal administrativo en competencias digitales",
-      "Poca participación de los estudiantes en procesos de planeación institucional",
-      "Falta de reconocimiento a las buenas prácticas de gestión y docencia",
-      "Necesidad de fortalecer los canales de comunicación interna",
-      "Débil articulación entre programas académicos y políticas institucionales",
-      "Inadecuado aprovechamiento del CAI como sistema integral de gestión educativa"
+      "Falta de estudios, proyectos y políticas regionales con enfoque de sostenibilidad",
+      "Escasos proyectos de vigilancia tecnológica en MIPYMES",
+      "Falta de coordinación administrativa para proyectos regionales",
+      "Carencia de apoyo institucional a emprendimientos y fortalecimiento empresarial",
+      "Insuficiencia de infraestructura vial, recreativa y turística",
+      "Falta de digitalización de PYMES y dificultades para sostenibilidad postpandemia",
+      "Ausencia de políticas efectivas para la caracterización y uso de Big Data en empresas",
+      "Recursos económicos limitados para proyectos de ciencia, tecnología e innovación",
+      "Ausencia de un sistema efectivo de recolección y aprovechamiento de residuos sólidos",
+      "Débil articulación entre universidad y territorios para el desarrollo de ciencia y tecnología"
     ]
   },
   {
@@ -126,18 +105,17 @@ export const problematicas: Problematica[] = [
     categoria: "7. Dimensión de la Sociedad",
     titulo: "La Sociedad",
     items: [
-      "Escasa vinculación entre la universidad y el sector productivo local",
-      "Falta de impacto visible de los proyectos académicos en las comunidades regionales",
-      "Limitada participación de la universidad en redes de cooperación nacional e internacional",
-      "Dificultades para transferir conocimiento científico a la sociedad",
-      "Baja participación en procesos de innovación social y tecnológica",
-      "Escasa articulación de los proyectos de aula con problemáticas sociales reales",
-      "Falta de estrategias de comunicación para divulgar el aporte institucional al desarrollo local",
-      "Dificultades en la inclusión de comunidades rurales y vulnerables en proyectos académicos",
-      "Desconexión entre la investigación universitaria y las necesidades territoriales",
-      "Poca participación estudiantil en proyectos de responsabilidad social",
-      "Falta de políticas institucionales de voluntariado y servicio social",
-      "Débil promoción del pensamiento crítico frente a los desafíos globales"
+      "Destrucción del tejido social por presencia de grupos armados y estructuras criminales (Soacha)",
+      "Aumento de pobreza y desigualdad post-COVID",
+      "Baja asociatividad campesina y debilidades en la economía rural",
+      "Migración y subempleo por bajo desarrollo empresarial en regiones (Ubaté)",
+      "Problemas graves de movilidad entre Soacha y Bogotá",
+      "Empleos vulnerables derivados de la informalidad empresarial",
+      "Falta de políticas públicas orientadas a desarrollo productivo específico por región",
+      "Abandono estatal y falta de acceso a servicios públicos esenciales (Ubaté)",
+      "Débil integración regional para proyectos colectivos",
+      "Crecimiento urbano sin planificación y sin proyección de servicios públicos",
+      "Contaminación, residuos, y deterioro ambiental como fenómeno social colectivo"
     ]
   }
 ];
