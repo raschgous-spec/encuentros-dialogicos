@@ -109,6 +109,26 @@ export function calculateOverallResults(studentResults: StudentResults): {
 }
 
 // Case Study Evaluation Functions
+export function evaluateArbolProblemas(data: any): number {
+  // Score based on problem tree completeness (20 points max)
+  const problemaCentral = data?.problemaCentral || '';
+  const causas = data?.causas || [];
+  const efectos = data?.efectos || [];
+  
+  // Problema central defined (5 points)
+  const problemaCentralScore = problemaCentral.trim().length >= 20 ? 5 : 
+                                problemaCentral.trim().length >= 10 ? 3 : 
+                                problemaCentral.trim().length > 0 ? 1 : 0;
+  
+  // Causas identified (8 points max)
+  const causasScore = Math.min((causas.length / 4) * 8, 8); // 4 or more causas = full points
+  
+  // Efectos identified (7 points max)
+  const efectosScore = Math.min((efectos.length / 3) * 7, 7); // 3 or more efectos = full points
+  
+  return Math.round(problemaCentralScore + causasScore + efectosScore);
+}
+
 export function evaluateCaseBrainstorming(data: any): number {
   // Score based on number of ideas (20 points max)
   const ideas = data?.ideas || [];
@@ -190,6 +210,7 @@ export function calculateCaseStudyScore(evaluacionData: any): {
   breakdown: Record<string, number>;
 } {
   const breakdown = {
+    arbolProblemas: evaluateArbolProblemas(evaluacionData.arbolProblemas),
     brainstorming: evaluateCaseBrainstorming(evaluacionData.brainstorming),
     affinity: evaluateCaseAffinity(evaluacionData.affinity),
     ishikawa: evaluateCaseIshikawa(evaluacionData.ishikawa),
@@ -198,8 +219,8 @@ export function calculateCaseStudyScore(evaluacionData: any): {
   };
   
   const automaticScore = Object.values(breakdown).reduce((sum, score) => sum + score, 0);
-  const maxScore = 100;
-  const passed = automaticScore >= 60; // 60% to pass
+  const maxScore = 120; // 6 tools x 20 points each
+  const passed = automaticScore >= 72; // 60% of 120
   
   return { automaticScore, maxScore, passed, breakdown };
 }
