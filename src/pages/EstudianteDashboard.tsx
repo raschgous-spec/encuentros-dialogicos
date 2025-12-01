@@ -10,6 +10,7 @@ import { Encuentro1Momento } from '@/components/moments/Encuentro1Momento';
 import { Encuentro2Momento } from '@/components/moments/Encuentro2Momento';
 import { Encuentro3Momento } from '@/components/moments/Encuentro3Momento';
 import { Encuentro4Momento } from '@/components/moments/Encuentro4Momento';
+import { PortafolioMomento } from '@/components/moments/PortafolioMomento';
 import { supabase } from '@/integrations/supabase/client';
 import { CheckCircle2, Lock, Key, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -239,7 +240,7 @@ const EstudianteDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
             <TabsTrigger value="diagnostico" className="flex flex-col items-center gap-1 justify-center py-3">
               <span className="font-semibold text-xs text-center">DIAGNÓSTICO</span>
             </TabsTrigger>
@@ -278,6 +279,12 @@ const EstudianteDashboard = () => {
             >
               {!momentoProgress.encuentro4 && !unlockedWithCode.encuentro4 && <Lock className="h-4 w-4" />}
               <span className="font-semibold text-xs text-center">ENCUENTRO 4</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="portafolio" 
+              className="flex flex-col items-center gap-1 justify-center py-3"
+            >
+              <span className="font-semibold text-xs text-center">PORTAFOLIO</span>
             </TabsTrigger>
           </TabsList>
 
@@ -389,6 +396,20 @@ const EstudianteDashboard = () => {
                   onComplete={() => handleMomentoComplete('encuentro4')} 
                   isLocked={!momentoProgress.encuentro4 && !unlockedWithCode.encuentro4}
                 />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="portafolio" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>MI PORTAFOLIO</CardTitle>
+                <CardDescription>
+                  Resumen completo de tus valoraciones, actas y planes de mejoramiento
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PortafolioMomento />
               </CardContent>
             </Card>
           </TabsContent>
