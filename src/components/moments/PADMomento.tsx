@@ -1,8 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import padLogo from '@/assets/pad-logo.png';
-import { BookOpen, Calendar, Clock, Users, Target, FileText, Video } from 'lucide-react';
+import { BookOpen, Calendar, Clock, Users, Target, FileText, Video, Download } from 'lucide-react';
 
 export const PADMomento = () => {
   return (
@@ -416,6 +417,25 @@ export const PADMomento = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Download Button */}
+      <div className="flex justify-center mt-8">
+        <Button 
+          size="lg"
+          onClick={() => {
+            const link = document.createElement('a');
+            link.href = '/documents/PAD_CAI_Encuentros_Dialogicos.pdf';
+            link.download = 'PAD_CAI_Encuentros_Dialogicos.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}
+          className="gap-2"
+        >
+          <Download className="h-5 w-5" />
+          Descargar Documento Completo PAD
+        </Button>
+      </div>
     </div>
   );
 };
