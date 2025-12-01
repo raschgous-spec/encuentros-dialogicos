@@ -238,7 +238,7 @@ export const ProblemaTranslocalSelection = ({ onSelect, onBack }: ProblemaTransl
               disabled={!selectedProblemaId}
               size="lg"
             >
-              Continuar a la Evaluación
+              Continuar a la Valoración
             </Button>
           </div>
         </CardContent>

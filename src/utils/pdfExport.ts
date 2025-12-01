@@ -38,7 +38,7 @@ export const generateCaseStudyPDF = (
   // Subtítulo
   doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
-  doc.text('Evaluación de Caso de Estudio', pageWidth / 2, yPosition, { align: 'center' });
+  doc.text('Valoración de Caso de Estudio', pageWidth / 2, yPosition, { align: 'center' });
   yPosition += 15;
 
   // Sección 1: Problema Seleccionado

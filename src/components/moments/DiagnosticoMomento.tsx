@@ -180,7 +180,7 @@ export const DiagnosticoMomento = ({ onComplete }: DiagnosticoMomentoProps) => {
       if (error) throw error;
 
       toast({
-        title: 'Evaluación guardada',
+        title: 'Valoración guardada',
         description: 'Tu diagnóstico ha sido registrado exitosamente.',
       });
 
@@ -191,7 +191,7 @@ export const DiagnosticoMomento = ({ onComplete }: DiagnosticoMomentoProps) => {
       console.error('Error saving evaluation:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo guardar la evaluación. Por favor, intenta de nuevo.',
+        description: 'No se pudo guardar la valoración. Por favor, intenta de nuevo.',
         variant: 'destructive',
       });
     } finally {

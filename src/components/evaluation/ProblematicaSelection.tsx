@@ -30,7 +30,7 @@ export const ProblematicaSelection = ({ onSelect }: ProblematicaSelectionProps) 
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          Selecciona una dimensión y una problemática específica que trabajarás durante toda la evaluación.
+          Selecciona una dimensión y una problemática específica que trabajarás durante toda la valoración.
           Aplicarás las 6 herramientas de calidad a esta problemática.
         </AlertDescription>
       </Alert>
@@ -95,7 +95,7 @@ export const ProblematicaSelection = ({ onSelect }: ProblematicaSelectionProps) 
           disabled={!selectedDimension || !selectedItem}
           size="lg"
         >
-          Continuar a la Evaluación
+          Continuar a la Valoración
           <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
       </div>

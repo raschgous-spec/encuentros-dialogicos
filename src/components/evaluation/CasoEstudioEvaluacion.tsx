@@ -166,7 +166,7 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
       if (error) throw error;
 
       toast({
-        title: result.passed ? "¡Evaluación Aprobada!" : "Evaluación Completada",
+        title: result.passed ? "¡Valoración Aprobada!" : "Valoración Completada",
         description: result.passed 
           ? `Has obtenido ${result.automaticScore}/${result.maxScore} puntos. Has desbloqueado el Momento 3.`
           : `Has obtenido ${result.automaticScore}/${result.maxScore} puntos. Necesitas al menos 72 puntos para continuar.`,
@@ -183,7 +183,7 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
       console.error('Error saving evaluation:', error);
       toast({
         title: "Error",
-        description: "No se pudo guardar la evaluación. Por favor intenta nuevamente.",
+        description: "No se pudo guardar la valoración. Por favor intenta nuevamente.",
         variant: "destructive"
       });
     } finally {
@@ -233,7 +233,7 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <p className="text-lg">Guardando evaluación...</p>
+          <p className="text-lg">Guardando valoración...</p>
         </CardContent>
       </Card>
     );
@@ -255,7 +255,7 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
         <CardContent className="pt-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Progreso de la Evaluación</h3>
+              <h3 className="font-semibold">Progreso de la Valoración</h3>
               <span className="text-sm text-muted-foreground">
                 {currentToolIndex + 1} de {toolsOrder.length}
               </span>

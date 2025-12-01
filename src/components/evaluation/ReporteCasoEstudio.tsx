@@ -175,7 +175,7 @@ export const ReporteCasoEstudio = ({ evaluacionData, result, onClose }: ReporteC
               )}
               <div>
                 <CardTitle className="text-2xl">
-                  {result.passed ? '¡Evaluación Aprobada!' : 'Evaluación Completada'}
+                  {result.passed ? '¡Valoración Aprobada!' : 'Valoración Completada'}
                 </CardTitle>
                 <CardDescription className="text-base mt-1">
                   {result.passed 
@@ -285,13 +285,13 @@ export const ReporteCasoEstudio = ({ evaluacionData, result, onClose }: ReporteC
           ) : (
             <>
             <p className="text-sm leading-relaxed">
-              ⚠️ <strong>Tu evaluación está completa pero no alcanza el puntaje mínimo requerido (72 puntos).</strong> Revisa la retroalimentación detallada de cada herramienta.
+              ⚠️ <strong>Tu valoración está completa pero no alcanza el puntaje mínimo requerido (72 puntos).</strong> Revisa la retroalimentación detallada de cada herramienta.
             </p>
               <p className="text-sm leading-relaxed">
                 📚 Te recomendamos revisar el material de estudio y los videos explicativos antes de realizar un nuevo intento.
               </p>
             <p className="text-sm leading-relaxed">
-              🔄 Puedes realizar la evaluación nuevamente para mejorar tu calificación y desbloquear el Momento 3. Necesitas obtener al menos 72 puntos.
+              🔄 Puedes realizar la valoración nuevamente para mejorar tu calificación y desbloquear el Momento 3. Necesitas obtener al menos 72 puntos.
             </p>
             </>
           )}

@@ -171,14 +171,14 @@ const Index = () => {
       }
 
       toast({
-        title: 'Evaluación guardada',
-        description: 'Tu evaluación ha sido registrada exitosamente',
+        title: 'Valoración guardada',
+        description: 'Tu valoración ha sido registrada exitosamente',
       });
     } catch (error) {
       console.error('Error in saveEvaluacion:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo guardar la evaluación',
+        description: 'No se pudo guardar la valoración',
         variant: 'destructive',
       });
     } finally {
