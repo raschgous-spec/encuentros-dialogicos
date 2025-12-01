@@ -21,6 +21,25 @@ import { useAuth } from '@/hooks/useAuth';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+// Helper function to add logo to PDF
+const addLogoToPDF = (doc: jsPDF, yPosition: number = 10): number => {
+  const logo = new Image();
+  logo.src = '/logo-udec.png';
+  
+  try {
+    const logoWidth = 60;
+    const logoHeight = 20;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const xPosition = (pageWidth - logoWidth) / 2;
+    
+    doc.addImage(logo, 'PNG', xPosition, yPosition, logoWidth, logoHeight);
+    return yPosition + logoHeight + 10;
+  } catch (error) {
+    console.error('Error adding logo to PDF:', error);
+    return yPosition;
+  }
+};
+
 interface Encuentro3MomentoProps {
   onComplete?: () => void;
   isLocked?: boolean;
@@ -252,7 +271,10 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
 
   const generatePDF = (data: z.infer<typeof actaFormSchema>) => {
     const doc = new jsPDF();
-    let yPos = 15;
+    let yPos = 10;
+
+    // Add logo at the top
+    yPos = addLogoToPDF(doc, yPos);
 
     // Header - Title
     doc.setFontSize(16);

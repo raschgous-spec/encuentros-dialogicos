@@ -1,6 +1,26 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+// Helper function to add logo to PDF
+const addLogoToPDF = (doc: jsPDF, yPosition: number = 10): number => {
+  const logo = new Image();
+  logo.src = '/logo-udec.png';
+  
+  try {
+    // Add logo centered at the top
+    const logoWidth = 60;
+    const logoHeight = 20;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const xPosition = (pageWidth - logoWidth) / 2;
+    
+    doc.addImage(logo, 'PNG', xPosition, yPosition, logoWidth, logoHeight);
+    return yPosition + logoHeight + 10; // Return new Y position after logo
+  } catch (error) {
+    console.error('Error adding logo to PDF:', error);
+    return yPosition; // Return original position if error
+  }
+};
+
 interface EvaluacionData {
   problematica?: string;
   dimension?: string;
@@ -27,7 +47,10 @@ export const generateCaseStudyPDF = (
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
-  let yPosition = 20;
+  let yPosition = 10;
+
+  // Add logo at the top
+  yPosition = addLogoToPDF(doc, yPosition);
 
   // Título principal
   doc.setFontSize(18);
