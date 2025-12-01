@@ -11,6 +11,7 @@ import { Encuentro2Momento } from '@/components/moments/Encuentro2Momento';
 import { Encuentro3Momento } from '@/components/moments/Encuentro3Momento';
 import { Encuentro4Momento } from '@/components/moments/Encuentro4Momento';
 import { PortafolioMomento } from '@/components/moments/PortafolioMomento';
+import { PADMomento } from '@/components/moments/PADMomento';
 import { supabase } from '@/integrations/supabase/client';
 import { CheckCircle2, Lock, Key, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,7 @@ const EstudianteDashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('diagnostico');
+  const [activeTab, setActiveTab] = useState('pad');
   const [momentoProgress, setMomentoProgress] = useState<Record<string, boolean>>({
     diagnostico: true,
     nivelatorio: false,
@@ -240,7 +241,10 @@ const EstudianteDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
+            <TabsTrigger value="pad" className="flex flex-col items-center gap-1 justify-center py-3">
+              <span className="font-semibold text-xs text-center">PAD</span>
+            </TabsTrigger>
             <TabsTrigger value="diagnostico" className="flex flex-col items-center gap-1 justify-center py-3">
               <span className="font-semibold text-xs text-center">DIAGNÓSTICO</span>
             </TabsTrigger>
@@ -287,6 +291,20 @@ const EstudianteDashboard = () => {
               <span className="font-semibold text-xs text-center">PORTAFOLIO</span>
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="pad" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>PLAN DE APRENDIZAJE DIGITAL (PAD)</CardTitle>
+                <CardDescription>
+                  Encuentra aquí toda la información sobre el Plan de Aprendizaje Digital CAI - Encuentros Dialógicos
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PADMomento />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="diagnostico" className="space-y-6">
             <Card>
