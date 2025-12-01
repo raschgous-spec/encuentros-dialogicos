@@ -16,6 +16,7 @@ interface DiagnosticoResult {
   puntaje_promedio: number;
   nivel: string;
   fecha: string;
+  respuestas_completas: any;
 }
 
 interface NivelatorioResult {
@@ -25,6 +26,9 @@ interface NivelatorioResult {
   completed_at: string;
   dimension: string;
   problematica: string;
+  coordinator_reviewed: boolean;
+  coordinator_score: number | null;
+  coordinator_comments: string | null;
 }
 
 interface ActaResult {
@@ -71,7 +75,7 @@ export const PortafolioMomento = () => {
         // Fetch diagnostico results
         const { data: diagData } = await supabase
           .from('evaluaciones')
-          .select('id, puntaje_promedio, nivel, fecha')
+          .select('id, puntaje_promedio, nivel, fecha, respuestas_completas')
           .eq('estudiante_id', user.id)
           .order('fecha', { ascending: false })
           .limit(1)
@@ -84,7 +88,7 @@ export const PortafolioMomento = () => {
         // Fetch nivelatorio results
         const { data: nivData } = await supabase
           .from('student_evaluations')
-          .select('id, automatic_score, passed, completed_at, dimension, problematica')
+          .select('id, automatic_score, passed, completed_at, dimension, problematica, coordinator_reviewed, coordinator_score, coordinator_comments')
           .eq('user_id', user.id)
           .eq('momento', 'nivelatorio')
           .order('completed_at', { ascending: false })
@@ -408,6 +412,32 @@ export const PortafolioMomento = () => {
               <p className="text-sm text-muted-foreground">Problemática</p>
               <p className="text-sm font-medium">{nivelatorio.problematica}</p>
             </div>
+            
+            {nivelatorio.coordinator_reviewed && (
+              <>
+                <Separator />
+                <div className="space-y-4 bg-muted/50 p-4 rounded-lg">
+                  <h4 className="text-sm font-semibold">Retroalimentación del Coordinador</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Puntaje del Coordinador</p>
+                      <p className="text-2xl font-bold">{nivelatorio.coordinator_score || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Estado de Revisión</p>
+                      <Badge variant="secondary">Revisado</Badge>
+                    </div>
+                  </div>
+                  {nivelatorio.coordinator_comments && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">Comentarios</p>
+                      <p className="text-sm">{nivelatorio.coordinator_comments}</p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+            
             <Button onClick={handleDownloadNivelatorio} variant="outline" className="w-full">
               <Download className="h-4 w-4 mr-2" />
               Descargar Valoración Nivelatorio
