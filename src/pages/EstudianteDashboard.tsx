@@ -288,7 +288,7 @@ const EstudianteDashboard = () => {
               value="portafolio" 
               className="flex flex-col items-center gap-1 justify-center py-3"
             >
-              <span className="font-semibold text-xs text-center">PORTAFOLIO</span>
+              <span className="font-semibold text-xs text-center">MI ESPACIO DE APRENDIZAJE</span>
             </TabsTrigger>
           </TabsList>
 
@@ -421,7 +421,7 @@ const EstudianteDashboard = () => {
           <TabsContent value="portafolio" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>MI PORTAFOLIO</CardTitle>
+                <CardTitle>MI ESPACIO DE APRENDIZAJE</CardTitle>
                 <CardDescription>
                   Resumen completo de tus valoraciones, actas y planes de mejoramiento
                 </CardDescription>
