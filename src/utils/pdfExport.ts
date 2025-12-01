@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 // Helper function to add logo to PDF
-const addLogoToPDF = (doc: jsPDF, yPosition: number = 10): number => {
+export const addLogoToPDF = (doc: jsPDF, yPosition: number = 10): number => {
   const logo = new Image();
   logo.src = '/logo-udec.png';
   
