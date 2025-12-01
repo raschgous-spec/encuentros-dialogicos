@@ -10,7 +10,7 @@ export const TipoSeleccion = ({ onSelect }: TipoSeleccionProps) => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto p-6">
       <div className="text-center space-y-2">
-        <h2 className="text-3xl font-bold">Evaluación - Caso de Estudio</h2>
+        <h2 className="text-3xl font-bold">Valoración - Caso de Estudio</h2>
         <p className="text-muted-foreground">
           Selecciona el tipo de problema que deseas analizar
         </p>

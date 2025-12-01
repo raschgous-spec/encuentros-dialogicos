@@ -169,7 +169,7 @@ export const ParetoEval = ({ problematica, onComplete }: ParetoEvalProps) => {
             : `✓ Análisis de Pareto completo (${causes.length} causas)`}
         </p>
         <Button onClick={handleSubmit} disabled={!isComplete} size="lg">
-          Finalizar Evaluación
+          Finalizar Valoración
         </Button>
       </div>
     </div>

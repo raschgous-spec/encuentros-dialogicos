@@ -458,7 +458,7 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
                 <ul className="space-y-2 text-sm text-muted-foreground list-disc list-inside">
                   <li>Cierre y consolidación de conocimientos</li>
                   <li>Presentación de proyectos finales</li>
-                  <li>Autoevaluación y coevaluación</li>
+                  <li>Autovaloración y covaloración</li>
                   <li>Planificación de acciones futuras</li>
                 </ul>
               </div>

@@ -114,13 +114,13 @@ const AdminDashboard = () => {
                         <FileText className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <CardTitle>Evaluaciones</CardTitle>
+                        <CardTitle>Valoraciones</CardTitle>
                         <CardDescription>Revisar diagnósticos completados</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full">Ver Evaluaciones</Button>
+                    <Button className="w-full">Ver Valoraciones</Button>
                   </CardContent>
                 </Card>
 
@@ -158,7 +158,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="flex items-center justify-between py-3 border-b">
                       <div>
-                        <p className="font-medium">Evaluación completada</p>
+                        <p className="font-medium">Valoración completada</p>
                         <p className="text-sm text-muted-foreground">Hace 15 minutos</p>
                       </div>
                       <Button variant="ghost" size="sm">Ver</Button>

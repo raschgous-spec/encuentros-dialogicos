@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-interface Evaluacion {
+interface Valoracion {
   id: string;
   fecha: string;
   puntaje_promedio: number | null;
@@ -60,7 +60,7 @@ interface Estudiante {
     nombre: string;
     codigo: string;
   } | null;
-  evaluaciones: Evaluacion[];
+  evaluaciones: Valoracion[];
   momentoProgreso: MomentoProgreso[];
   nivelatorioEval: NivelatorioEvaluation | null;
 }
@@ -112,7 +112,7 @@ export const EstudiantesManager = () => {
         throw profilesError;
       }
 
-      // Obtener información de cursos, evaluaciones, progreso y evaluación nivelatorio para cada estudiante
+      // Obtener información de cursos, valoraciones, progreso y valoración nivelatorio para cada estudiante
       const estudiantesWithEvaluaciones = await Promise.all(
         (profilesData || []).map(async (profile: any) => {
           const { data: cursoData } = await supabase
@@ -128,7 +128,7 @@ export const EstudiantesManager = () => {
             .order('fecha', { ascending: false });
           
           if (evalError) {
-            console.error('Error fetching evaluaciones for student:', profile.id, evalError);
+            console.error('Error fetching valoraciones for student:', profile.id, evalError);
           }
 
           // Fetch momento progreso
@@ -241,7 +241,7 @@ export const EstudiantesManager = () => {
       {estudiantes.some(e => e.evaluaciones.length > 0) && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Award className="h-4 w-4" />
-          <span>Mostrando resultados de evaluaciones completadas</span>
+          <span>Mostrando resultados de valoraciones completadas</span>
         </div>
       )}
 
@@ -281,7 +281,7 @@ export const EstudiantesManager = () => {
                   {new Date(estudiante.created_at).toLocaleDateString()}
                 </div>
                 <Badge variant="secondary">
-                  {estudiante.evaluaciones.length} evaluación(es)
+                  {estudiante.evaluaciones.length} valoración(es)
                 </Badge>
               </div>
 
@@ -289,7 +289,7 @@ export const EstudiantesManager = () => {
                 <div className="mt-3 pt-3 border-t space-y-2">
                   <div className="flex items-center gap-2 text-sm font-medium">
                     <TrendingUp className="h-4 w-4" />
-                    Resultados de Evaluaciones
+                    Resultados de Valoraciones
                   </div>
                   {estudiante.evaluaciones.map((evaluacion) => (
                     <div key={evaluacion.id} className="bg-muted/50 rounded-lg p-3 space-y-2">
@@ -388,7 +388,7 @@ export const EstudiantesManager = () => {
               {selectedStudent?.full_name || selectedStudent?.email}
             </DialogTitle>
             <DialogDescription>
-              Progreso y evaluaciones del estudiante
+              Progreso y valoraciones del estudiante
             </DialogDescription>
           </DialogHeader>
 
@@ -397,7 +397,7 @@ export const EstudiantesManager = () => {
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="progreso">Progreso de Momentos</TabsTrigger>
                 <TabsTrigger value="nivelatorio">
-                  Evaluación Nivelatorio
+                  Valoración Nivelatorio
                   {selectedStudent.nivelatorioEval && (
                     selectedStudent.nivelatorioEval.passed ? (
                       <CheckCircle2 className="h-4 w-4 ml-2 text-green-500" />
@@ -628,7 +628,7 @@ export const EstudiantesManager = () => {
                     <CardContent className="py-12 text-center">
                       <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                       <p className="text-muted-foreground">
-                        El estudiante aún no ha completado la evaluación del nivelatorio.
+                        El estudiante aún no ha completado la valoración del nivelatorio.
                       </p>
                     </CardContent>
                   </Card>

@@ -1864,7 +1864,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                           <Textarea
                             value={actaForm.watch('seguimiento') || ''}
                             onChange={(e) => actaForm.setValue('seguimiento', e.target.value)}
-                            placeholder="Describa el seguimiento y periodo de evaluación"
+                            placeholder="Describa el seguimiento y periodo de valoración"
                             className="min-h-[80px]"
                             disabled={isLocked}
                           />

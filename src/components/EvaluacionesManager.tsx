@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-interface Evaluacion {
+interface Valoracion {
   id: string;
   fecha: string;
   puntaje_brainstorming: number;
@@ -36,16 +36,16 @@ interface Evaluacion {
 }
 
 export const EvaluacionesManager = ({ showRecent = false }: { showRecent?: boolean }) => {
-  const [evaluaciones, setEvaluaciones] = useState<Evaluacion[]>([]);
-  const [selectedEvaluacion, setSelectedEvaluacion] = useState<Evaluacion | null>(null);
+  const [evaluaciones, setEvaluaciones] = useState<Valoracion[]>([]);
+  const [selectedEvaluacion, setSelectedEvaluacion] = useState<Valoracion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchEvaluaciones();
+    fetchValoraciones();
   }, []);
 
-  const fetchEvaluaciones = async () => {
+  const fetchValoraciones = async () => {
     try {
       setIsLoading(true);
       
@@ -70,7 +70,7 @@ export const EvaluacionesManager = ({ showRecent = false }: { showRecent?: boole
       const { data: cursosData } = await cursosQuery;
       const cursoIds = cursosData?.map(c => c.id) || [];
 
-      // Obtener todas las evaluaciones de los cursos
+      // Obtener todas las valoraciones de los cursos
       const { data: evaluacionesData, error: evalError } = await supabase
         .from('evaluaciones')
         .select('*')
@@ -78,7 +78,7 @@ export const EvaluacionesManager = ({ showRecent = false }: { showRecent?: boole
         .order('fecha', { ascending: false });
 
       if (evalError) {
-        console.error('Error fetching evaluaciones:', evalError);
+        console.error('Error fetching valoraciones:', evalError);
         throw evalError;
       }
 
@@ -111,12 +111,12 @@ export const EvaluacionesManager = ({ showRecent = false }: { showRecent?: boole
         finalQuery = finalQuery.slice(0, 5);
       }
 
-      setEvaluaciones(finalQuery as Evaluacion[]);
+      setEvaluaciones(finalQuery as Valoracion[]);
     } catch (error) {
-      console.error('Error fetching evaluaciones:', error);
+      console.error('Error fetching valoraciones:', error);
       toast({
         title: 'Error',
-        description: 'No se pudieron cargar las evaluaciones',
+        description: 'No se pudieron cargar las valoraciones',
         variant: 'destructive',
       });
     } finally {
@@ -150,12 +150,12 @@ export const EvaluacionesManager = ({ showRecent = false }: { showRecent?: boole
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {!showRecent && (
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold">Evaluaciones</h2>
-            <p className="text-muted-foreground">Resultados de diagnósticos completados</p>
-          </div>
-        )}
+      {!showRecent && (
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold">Valoraciones</h2>
+          <p className="text-muted-foreground">Resultados de diagnósticos completados</p>
+        </div>
+      )}
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <Card key={i}>
@@ -173,9 +173,9 @@ export const EvaluacionesManager = ({ showRecent = false }: { showRecent?: boole
     <div className="space-y-6">
       {!showRecent && (
         <div>
-          <h2 className="text-2xl font-bold">Evaluaciones</h2>
+          <h2 className="text-2xl font-bold">Valoraciones</h2>
           <p className="text-muted-foreground">
-            {evaluaciones.length} evaluación(es) completada(s)
+            {evaluaciones.length} valoración(es) completada(s)
           </p>
         </div>
       )}
@@ -239,7 +239,7 @@ export const EvaluacionesManager = ({ showRecent = false }: { showRecent?: boole
             <CardContent className="flex flex-col items-center justify-center py-12">
               <FileText className="h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-muted-foreground text-center">
-                No hay evaluaciones completadas todavía.
+                No hay valoraciones completadas todavía.
               </p>
             </CardContent>
           </Card>
@@ -250,7 +250,7 @@ export const EvaluacionesManager = ({ showRecent = false }: { showRecent?: boole
       <Dialog open={!!selectedEvaluacion} onOpenChange={() => setSelectedEvaluacion(null)}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Detalles de Evaluación</DialogTitle>
+            <DialogTitle>Detalles de Valoración</DialogTitle>
             <DialogDescription>
               {selectedEvaluacion?.estudiante?.full_name || selectedEvaluacion?.estudiante?.email}
             </DialogDescription>

@@ -36,7 +36,7 @@ const DocenteDashboard = () => {
               <TabsTrigger value="seguimiento">Seguimiento en Tiempo Real</TabsTrigger>
               <TabsTrigger value="cursos">Mis CAI - Encuentros dialógicos</TabsTrigger>
               <TabsTrigger value="estudiantes">Estudiantes</TabsTrigger>
-              <TabsTrigger value="evaluaciones">Evaluaciones</TabsTrigger>
+              <TabsTrigger value="evaluaciones">Valoraciones</TabsTrigger>
               <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
             </TabsList>
 
@@ -113,14 +113,14 @@ const DocenteDashboard = () => {
                         <FileText className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <CardTitle>Evaluaciones</CardTitle>
+                        <CardTitle>Valoraciones</CardTitle>
                         <CardDescription>Revisar diagnósticos</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <Button className="w-full" onClick={() => setActiveTab('evaluaciones')}>
-                      Ver Evaluaciones
+                      Ver Valoraciones
                     </Button>
                   </CardContent>
                 </Card>
@@ -166,7 +166,7 @@ const DocenteDashboard = () => {
 
               <Card className="mt-8">
                 <CardHeader>
-                  <CardTitle>Evaluaciones Recientes</CardTitle>
+                  <CardTitle>Valoraciones Recientes</CardTitle>
                   <CardDescription>Últimos diagnósticos completados por estudiantes</CardDescription>
                 </CardHeader>
                 <CardContent>
