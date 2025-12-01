@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2 } from 'lucide-react';
+import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -1631,11 +1631,26 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
 
             <TabsContent value="plan" className="space-y-4">
               <div className="rounded-lg border bg-card p-6 space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Plan de Mejoramiento Digital</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Visualización del plan de mejoramiento formulado en el acta
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Plan de Mejoramiento Digital</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Visualización del plan de mejoramiento formulado en el acta
+                    </p>
+                  </div>
+                  <Button
+                    onClick={async () => {
+                      if (!user) return;
+                      const { generateConsolidatedPlanPDF } = await import('@/utils/pdfExport');
+                      await generateConsolidatedPlanPDF(user.id, problematica);
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    Descargar Plan Consolidado
+                  </Button>
                 </div>
                 
                 {actaForm.watch('planMejoramiento').length > 0 && actaForm.watch('planMejoramiento')[0].tema ? (

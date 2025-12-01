@@ -5,7 +5,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Target, Lightbulb, Lock, ClipboardList, Plus, Trash2 } from 'lucide-react';
+import { Users, Target, Lightbulb, Lock, ClipboardList, Plus, Trash2, Download } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -489,11 +489,26 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
 
             <TabsContent value="plan" className="space-y-4">
               <div className="rounded-lg border bg-card p-6 space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Plan de Mejoramiento Digital</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Actualiza y complementa el plan de mejoramiento del proyecto
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Plan de Mejoramiento Digital</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Actualiza y complementa el plan de mejoramiento del proyecto
+                    </p>
+                  </div>
+                  <Button
+                    onClick={async () => {
+                      if (!user) return;
+                      const { generateConsolidatedPlanPDF } = await import('@/utils/pdfExport');
+                      await generateConsolidatedPlanPDF(user.id, problematica);
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    Descargar Plan Consolidado
+                  </Button>
                 </div>
 
                 <Form {...planForm}>

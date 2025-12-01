@@ -315,3 +315,160 @@ export const generateCaseStudyPDF = (
   // Guardar PDF
   doc.save('Prototipo_Momento_Nivelatorio.pdf');
 };
+
+// Function to generate consolidated improvement plan PDF
+export const generateConsolidatedPlanPDF = async (
+  userId: string,
+  problematica: { problematica: string; dimension: string; tipo: string; unidad_regional?: string; facultad?: string; programa_academico?: string }
+) => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  let yPosition = 10;
+
+  // Add logo at the top
+  yPosition = addLogoToPDF(doc, yPosition);
+
+  // Title
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PLAN DE MEJORAMIENTO DIGITAL CONSOLIDADO', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 10;
+
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text('ENCUENTROS DIALÓGICOS - Universidad de Cundinamarca', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 15;
+
+  // Problem Context
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PROBLEMÁTICA TRABAJADA', 14, yPosition);
+  yPosition += 8;
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Dimensión/Contexto: ${problematica.dimension}`, 14, yPosition);
+  yPosition += 6;
+  
+  const problematicaLines = doc.splitTextToSize(`Problemática: ${problematica.problematica}`, pageWidth - 28);
+  doc.text(problematicaLines, 14, yPosition);
+  yPosition += problematicaLines.length * 6 + 5;
+
+  if (problematica.tipo === 'translocal' && problematica.unidad_regional) {
+    doc.text(`Unidad Regional: ${problematica.unidad_regional}`, 14, yPosition);
+    yPosition += 6;
+    if (problematica.facultad) {
+      doc.text(`Facultad: ${problematica.facultad}`, 14, yPosition);
+      yPosition += 6;
+    }
+    if (problematica.programa_academico) {
+      doc.text(`Programa Académico: ${problematica.programa_academico}`, 14, yPosition);
+      yPosition += 6;
+    }
+  }
+
+  yPosition += 10;
+
+  // Fetch all actas from database
+  const { supabase } = await import('@/integrations/supabase/client');
+  const { data: actasData, error } = await supabase
+    .from('actas_encuentro')
+    .select('*')
+    .eq('estudiante_id', userId)
+    .in('momento', ['encuentro1', 'encuentro2', 'encuentro3', 'encuentro4'])
+    .order('momento', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching actas:', error);
+    doc.setFontSize(12);
+    doc.text('Error al cargar los datos del plan de mejoramiento', 14, yPosition);
+    doc.save('plan_mejoramiento_consolidado.pdf');
+    return;
+  }
+
+  if (!actasData || actasData.length === 0) {
+    doc.setFontSize(12);
+    doc.text('No hay datos de plan de mejoramiento disponibles', 14, yPosition);
+    doc.save('plan_mejoramiento_consolidado.pdf');
+    return;
+  }
+
+  // Consolidate all plan data
+  const allPlanItems: any[] = [];
+  const momentoNames: Record<string, string> = {
+    encuentro1: 'Momento 3 - Encuentro 1',
+    encuentro2: 'Momento 4 - Encuentro 2',
+    encuentro3: 'Momento 5 - Encuentro 3',
+    encuentro4: 'Momento 6 - Encuentro 4'
+  };
+
+  actasData.forEach(acta => {
+    const planData = acta.plan_mejoramiento as any[];
+    if (planData && Array.isArray(planData)) {
+      planData.forEach(item => {
+        allPlanItems.push({
+          ...item,
+          momento: momentoNames[acta.momento] || acta.momento
+        });
+      });
+    }
+  });
+
+  if (allPlanItems.length === 0) {
+    doc.setFontSize(12);
+    doc.text('No hay elementos en el plan de mejoramiento', 14, yPosition);
+    doc.save('plan_mejoramiento_consolidado.pdf');
+    return;
+  }
+
+  // Table of all plan items
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PLAN DE MEJORAMIENTO CONSOLIDADO', 14, yPosition);
+  yPosition += 10;
+
+  const tableData = allPlanItems.map(item => [
+    item.momento || '',
+    item.tema || item.objetivo || '',
+    item.descripcionNecesidad || item.descripcion || '',
+    item.estrategia || item.accion || '',
+    item.responsables || item.responsable || '',
+    `${item.fechaInicial || ''} - ${item.fechaFinal || ''}`,
+    item.indicadorCumplimiento || item.indicador || ''
+  ]);
+
+  autoTable(doc, {
+    startY: yPosition,
+    head: [['Momento', 'Tema/Objetivo', 'Descripción', 'Estrategia/Acción', 'Responsables', 'Periodo', 'Indicador']],
+    body: tableData,
+    theme: 'grid',
+    headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+    styles: { fontSize: 8, cellPadding: 2 },
+    columnStyles: {
+      0: { cellWidth: 25 },
+      1: { cellWidth: 25 },
+      2: { cellWidth: 35 },
+      3: { cellWidth: 30 },
+      4: { cellWidth: 25 },
+      5: { cellWidth: 25 },
+      6: { cellWidth: 25 }
+    },
+    margin: { left: 10, right: 10 }
+  });
+
+  // Footer
+  const pageCount = doc.internal.pages.length - 1;
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(
+      `Página ${i} de ${pageCount} | Plan de Mejoramiento Digital Consolidado`,
+      pageWidth / 2,
+      doc.internal.pageSize.getHeight() - 10,
+      { align: 'center' }
+    );
+  }
+
+  doc.save(`plan_mejoramiento_consolidado_${new Date().toISOString().split('T')[0]}.pdf`);
+};
