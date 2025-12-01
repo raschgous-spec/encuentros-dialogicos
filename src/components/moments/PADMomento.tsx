@@ -420,21 +420,20 @@ export const PADMomento = () => {
 
       {/* Download Button */}
       <div className="flex justify-center mt-8">
-        <Button 
-          size="lg"
-          onClick={() => {
-            const link = document.createElement('a');
-            link.href = '/documents/PAD_CAI_Encuentros_Dialogicos.pdf';
-            link.download = 'PAD_CAI_Encuentros_Dialogicos.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }}
-          className="gap-2"
+        <a 
+          href="/documents/PAD_CAI_Encuentros_Dialogicos.pdf" 
+          download="PAD_CAI_Encuentros_Dialogicos.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
         >
-          <Download className="h-5 w-5" />
-          Descargar Documento Completo PAD
-        </Button>
+          <Button 
+            size="lg"
+            className="gap-2"
+          >
+            <Download className="h-5 w-5" />
+            Descargar Documento Completo PAD
+          </Button>
+        </a>
       </div>
     </div>
   );
