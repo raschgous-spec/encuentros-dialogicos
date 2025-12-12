@@ -51,7 +51,11 @@ Deno.serve(async (req) => {
 
     // Crear cliente con el token del usuario
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    console.log('SUPABASE_URL:', supabaseUrl ? 'set' : 'not set');
+    console.log('SUPABASE_ANON_KEY:', supabaseAnonKey ? 'set' : 'not set');
+    
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: false,
