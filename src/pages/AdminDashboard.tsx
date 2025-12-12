@@ -1,14 +1,16 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, BookOpen, Settings, BarChart3, FileText, Shield, ArrowLeft } from 'lucide-react';
+import { Users, BookOpen, Settings, BarChart3, FileText, Shield, ArrowLeft, GraduationCap } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocentesManager } from '@/components/DocentesManager';
+import { EstudiantesManager } from '@/components/EstudiantesManager';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  
+  const [activeTab, setActiveTab] = useState('overview');
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -24,9 +26,10 @@ const AdminDashboard = () => {
             Volver
           </Button>
           
-          <Tabs defaultValue="overview" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList>
               <TabsTrigger value="overview">Panel General</TabsTrigger>
+              <TabsTrigger value="estudiantes">Estudiantes</TabsTrigger>
               <TabsTrigger value="docentes">Coordinadores</TabsTrigger>
             </TabsList>
 
@@ -52,7 +55,7 @@ const AdminDashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full">Ver Usuarios</Button>
+                    <Button className="w-full" onClick={() => setActiveTab('estudiantes')}>Ver Usuarios</Button>
                   </CardContent>
                 </Card>
 
@@ -173,6 +176,10 @@ const AdminDashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="estudiantes">
+              <EstudiantesManager />
             </TabsContent>
 
             <TabsContent value="docentes">
