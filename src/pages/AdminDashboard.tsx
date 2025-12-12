@@ -7,6 +7,7 @@ import { Users, BookOpen, Settings, BarChart3, FileText, Shield, ArrowLeft, Grad
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocentesManager } from '@/components/DocentesManager';
 import { EstudiantesManager } from '@/components/EstudiantesManager';
+import { RolesManager } from '@/components/RolesManager';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="overview">Panel General</TabsTrigger>
               <TabsTrigger value="estudiantes">Estudiantes</TabsTrigger>
               <TabsTrigger value="docentes">Coordinadores</TabsTrigger>
+              <TabsTrigger value="roles">Roles</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -72,7 +74,7 @@ const AdminDashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full">Gestionar Roles</Button>
+                    <Button className="w-full" onClick={() => setActiveTab('roles')}>Gestionar Roles</Button>
                   </CardContent>
                 </Card>
 
@@ -184,6 +186,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="docentes">
               <DocentesManager />
+            </TabsContent>
+
+            <TabsContent value="roles">
+              <RolesManager />
             </TabsContent>
           </Tabs>
         </div>
