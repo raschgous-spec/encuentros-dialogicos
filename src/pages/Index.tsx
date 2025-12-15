@@ -18,7 +18,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const { user, loading, profile } = useAuth();
+  const { user, loading, profile, hasRole } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
@@ -35,15 +35,31 @@ const Index = () => {
 
   // Redirect based on authentication and role
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        navigate('/auth');
-      } else {
-        // Redirect to estudiante dashboard if logged in
-        navigate('/estudiante');
-      }
+    if (loading) return;
+
+    if (!user) {
+      navigate('/auth');
+      return;
     }
-  }, [user, loading, navigate]);
+
+    // Prefer higher-privilege dashboards first
+    if (hasRole('admin')) {
+      navigate('/admin');
+      return;
+    }
+
+    if (hasRole('docente')) {
+      navigate('/docente');
+      return;
+    }
+
+    if (hasRole('estudiante')) {
+      navigate('/estudiante');
+      return;
+    }
+
+    // If the user has no recognized role, stay here and show a message.
+  }, [user, loading, hasRole, navigate]);
 
   // Start tracking time when step changes
   useEffect(() => {
