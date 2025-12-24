@@ -17,15 +17,25 @@ const AdminDashboard = () => {
       <Header />
       <div className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
-          </Button>
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/estudiante')}
+              className="gap-2"
+            >
+              <GraduationCap className="w-4 h-4" />
+              Acceso Estudiante
+            </Button>
+          </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList>
