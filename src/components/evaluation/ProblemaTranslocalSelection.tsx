@@ -17,8 +17,7 @@ interface ProblemaTranslocalSelectionProps {
 export const ProblemaTranslocalSelection = ({ onSelect, onBack }: ProblemaTranslocalSelectionProps) => {
   const [selectedProblemaId, setSelectedProblemaId] = useState<string>("");
   const [selectedUnidadRegional, setSelectedUnidadRegional] = useState<string>("");
-  const [selectedFacultad, setSelectedFacultad] = useState<string>("");
-  const [selectedPrograma, setSelectedPrograma] = useState<string>("");
+  const [selectedLineaTranslocal, setSelectedLineaTranslocal] = useState<string>("");
 
   // Get unique values for each filter level
   const unidadesRegionales = useMemo(() => {
@@ -26,21 +25,12 @@ export const ProblemaTranslocalSelection = ({ onSelect, onBack }: ProblemaTransl
     return uniques.sort();
   }, []);
 
-  const facultadesDisponibles = useMemo(() => {
+  const lineasTranslocalesDisponibles = useMemo(() => {
     if (!selectedUnidadRegional) return [];
     const filtered = problemasTranslocales.filter(p => p.unidad_regional === selectedUnidadRegional);
-    const uniques = Array.from(new Set(filtered.map(p => p.facultad)));
+    const uniques = Array.from(new Set(filtered.map(p => p.linea_translocal)));
     return uniques.sort();
   }, [selectedUnidadRegional]);
-
-  const programasDisponibles = useMemo(() => {
-    if (!selectedFacultad) return [];
-    const filtered = problemasTranslocales.filter(
-      p => p.unidad_regional === selectedUnidadRegional && p.facultad === selectedFacultad
-    );
-    const uniques = Array.from(new Set(filtered.map(p => p.programa_academico)));
-    return uniques.sort();
-  }, [selectedUnidadRegional, selectedFacultad]);
 
   const problemasFiltered = useMemo(() => {
     let filtered = problemasTranslocales;
@@ -48,31 +38,21 @@ export const ProblemaTranslocalSelection = ({ onSelect, onBack }: ProblemaTransl
     if (selectedUnidadRegional) {
       filtered = filtered.filter(p => p.unidad_regional === selectedUnidadRegional);
     }
-    if (selectedFacultad) {
-      filtered = filtered.filter(p => p.facultad === selectedFacultad);
-    }
-    if (selectedPrograma) {
-      filtered = filtered.filter(p => p.programa_academico === selectedPrograma);
+    if (selectedLineaTranslocal) {
+      filtered = filtered.filter(p => p.linea_translocal === selectedLineaTranslocal);
     }
     
     return filtered;
-  }, [selectedUnidadRegional, selectedFacultad, selectedPrograma]);
+  }, [selectedUnidadRegional, selectedLineaTranslocal]);
 
   const handleUnidadChange = (value: string) => {
     setSelectedUnidadRegional(value);
-    setSelectedFacultad("");
-    setSelectedPrograma("");
+    setSelectedLineaTranslocal("");
     setSelectedProblemaId("");
   };
 
-  const handleFacultadChange = (value: string) => {
-    setSelectedFacultad(value);
-    setSelectedPrograma("");
-    setSelectedProblemaId("");
-  };
-
-  const handleProgramaChange = (value: string) => {
-    setSelectedPrograma(value);
+  const handleLineaChange = (value: string) => {
+    setSelectedLineaTranslocal(value);
     setSelectedProblemaId("");
   };
 
@@ -109,11 +89,11 @@ export const ProblemaTranslocalSelection = ({ onSelect, onBack }: ProblemaTransl
             Filtrar Problemáticas
           </CardTitle>
           <CardDescription>
-            Selecciona la Unidad Regional, Facultad y Programa Académico para filtrar las problemáticas
+            Selecciona la Unidad Regional y Línea Translocal para filtrar las problemáticas
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="space-y-2">
               <Label htmlFor="unidad-regional">1. Unidad Regional (Extensión)</Label>
               <Select value={selectedUnidadRegional} onValueChange={handleUnidadChange}>
@@ -131,39 +111,19 @@ export const ProblemaTranslocalSelection = ({ onSelect, onBack }: ProblemaTransl
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="facultad">2. Facultad</Label>
+              <Label htmlFor="linea-translocal">2. Línea Translocal</Label>
               <Select 
-                value={selectedFacultad} 
-                onValueChange={handleFacultadChange}
+                value={selectedLineaTranslocal} 
+                onValueChange={handleLineaChange}
                 disabled={!selectedUnidadRegional}
               >
-                <SelectTrigger id="facultad">
-                  <SelectValue placeholder="Seleccionar facultad" />
+                <SelectTrigger id="linea-translocal">
+                  <SelectValue placeholder="Seleccionar línea translocal" />
                 </SelectTrigger>
                 <SelectContent>
-                  {facultadesDisponibles.map((facultad) => (
-                    <SelectItem key={facultad} value={facultad}>
-                      {facultad}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="programa">3. Programa Académico</Label>
-              <Select 
-                value={selectedPrograma} 
-                onValueChange={handleProgramaChange}
-                disabled={!selectedFacultad}
-              >
-                <SelectTrigger id="programa">
-                  <SelectValue placeholder="Seleccionar programa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {programasDisponibles.map((programa) => (
-                    <SelectItem key={programa} value={programa}>
-                      {programa}
+                  {lineasTranslocalesDisponibles.map((linea) => (
+                    <SelectItem key={linea} value={linea}>
+                      {linea}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -171,10 +131,10 @@ export const ProblemaTranslocalSelection = ({ onSelect, onBack }: ProblemaTransl
             </div>
           </div>
 
-          {selectedPrograma && (
+          {selectedLineaTranslocal && (
             <div className="mb-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
               <p className="text-sm text-muted-foreground">
-                <strong>Filtros aplicados:</strong> {selectedUnidadRegional} → {selectedFacultad} → {selectedPrograma}
+                <strong>Filtros aplicados:</strong> {selectedUnidadRegional} → {selectedLineaTranslocal}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
                 {problemasFiltered.length} problemática{problemasFiltered.length !== 1 ? 's' : ''} encontrada{problemasFiltered.length !== 1 ? 's' : ''}
@@ -210,7 +170,7 @@ export const ProblemaTranslocalSelection = ({ onSelect, onBack }: ProblemaTransl
                           <div className="flex flex-wrap gap-2 mb-2">
                             <Badge variant="outline">{problema.unidad_regional}</Badge>
                             <Badge variant="secondary" className="text-xs">
-                              {problema.programa_academico}
+                              {problema.fuente}
                             </Badge>
                           </div>
                           <p className="font-semibold text-foreground">
@@ -220,7 +180,7 @@ export const ProblemaTranslocalSelection = ({ onSelect, onBack }: ProblemaTransl
                             {problema.caracteristicas}
                           </p>
                           <p className="text-xs text-muted-foreground italic">
-                            Facultad: {problema.facultad}
+                            Línea: {problema.linea_translocal}
                           </p>
                         </Label>
                       </div>

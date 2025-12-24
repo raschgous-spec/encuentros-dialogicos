@@ -8,8 +8,8 @@ export interface ProblematicaNivelatorio {
   problematica: string;
   caracteristicas?: string;
   unidad_regional?: string;
-  facultad?: string;
-  programa_academico?: string;
+  linea_translocal?: string;
+  fuente?: string;
 }
 
 export const useNivelatorioProblematica = () => {
@@ -46,9 +46,9 @@ export const useNivelatorioProblematica = () => {
             dimension: data.dimension,
             problematica: data.problematica,
             caracteristicas: undefined, // We don't store this in student_evaluations currently
-            unidad_regional: data.unidad_regional,
-            facultad: data.facultad,
-            programa_academico: data.programa_academico
+            unidad_regional: data.unidad_regional || undefined,
+            linea_translocal: data.facultad || undefined,
+            fuente: data.programa_academico || undefined
           });
         }
       } catch (error) {

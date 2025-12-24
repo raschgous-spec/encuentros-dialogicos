@@ -8,8 +8,8 @@ interface ProblemaContextCardProps {
   problematica: string;
   caracteristicas?: string;
   unidad_regional?: string;
-  facultad?: string;
-  programa_academico?: string;
+  linea_translocal?: string;
+  fuente?: string;
 }
 
 export const ProblemaContextCard = ({ 
@@ -18,8 +18,8 @@ export const ProblemaContextCard = ({
   problematica, 
   caracteristicas,
   unidad_regional,
-  facultad,
-  programa_academico
+  linea_translocal,
+  fuente
 }: ProblemaContextCardProps) => {
   return (
     <Card className="border-primary/20 bg-primary/5">
@@ -37,7 +37,7 @@ export const ProblemaContextCard = ({
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        {tipo === 'translocal' && (unidad_regional || facultad || programa_academico) && (
+        {tipo === 'translocal' && (unidad_regional || linea_translocal || fuente) && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pb-3 border-b">
             {unidad_regional && (
               <div>
@@ -45,16 +45,16 @@ export const ProblemaContextCard = ({
                 <Badge variant="outline" className="text-xs">{unidad_regional}</Badge>
               </div>
             )}
-            {facultad && (
+            {linea_translocal && (
               <div>
-                <p className="text-xs font-medium text-muted-foreground mb-1">Facultad:</p>
-                <Badge variant="outline" className="text-xs">{facultad}</Badge>
+                <p className="text-xs font-medium text-muted-foreground mb-1">Línea Translocal:</p>
+                <Badge variant="outline" className="text-xs">{linea_translocal}</Badge>
               </div>
             )}
-            {programa_academico && (
+            {fuente && (
               <div>
-                <p className="text-xs font-medium text-muted-foreground mb-1">Programa Académico:</p>
-                <Badge variant="outline" className="text-xs">{programa_academico}</Badge>
+                <p className="text-xs font-medium text-muted-foreground mb-1">Fuente:</p>
+                <Badge variant="outline" className="text-xs">{fuente}</Badge>
               </div>
             )}
           </div>

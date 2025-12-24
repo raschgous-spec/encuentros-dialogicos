@@ -189,17 +189,17 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
           doc.text(`Unidad Regional: ${problematica.unidad_regional}`, 20, yPos);
           yPos += 5;
         }
-        if (problematica.facultad) {
-          const facultadText = `Facultad: ${problematica.facultad}`;
-          const splitFacultad = doc.splitTextToSize(facultadText, 170);
-          doc.text(splitFacultad, 20, yPos);
-          yPos += splitFacultad.length * 5;
+        if (problematica.linea_translocal) {
+          const lineaText = `Línea Translocal: ${problematica.linea_translocal}`;
+          const splitLinea = doc.splitTextToSize(lineaText, 170);
+          doc.text(splitLinea, 20, yPos);
+          yPos += splitLinea.length * 5;
         }
-        if (problematica.programa_academico) {
-          const programaText = `Programa Académico: ${problematica.programa_academico}`;
-          const splitPrograma = doc.splitTextToSize(programaText, 170);
-          doc.text(splitPrograma, 20, yPos);
-          yPos += splitPrograma.length * 5;
+        if (problematica.fuente) {
+          const fuenteText = `Fuente: ${problematica.fuente}`;
+          const splitFuente = doc.splitTextToSize(fuenteText, 170);
+          doc.text(splitFuente, 20, yPos);
+          yPos += splitFuente.length * 5;
         }
         yPos += 3;
       }
@@ -451,8 +451,8 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
           problematica={problematica.problematica}
           caracteristicas={problematica.caracteristicas}
           unidad_regional={problematica.unidad_regional}
-          facultad={problematica.facultad}
-          programa_academico={problematica.programa_academico}
+          linea_translocal={problematica.linea_translocal}
+          fuente={problematica.fuente}
         />
       )}
 

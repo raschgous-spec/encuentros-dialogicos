@@ -25,8 +25,8 @@ interface EvaluacionData {
   dimension?: string;
   caracteristicas?: string;
   unidad_regional?: string;
-  facultad?: string;
-  programa_academico?: string;
+  linea_translocal?: string;
+  fuente?: string;
   arbolProblemas?: any;
   brainstorming?: any;
   affinity?: any;
@@ -107,11 +107,11 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
     setSelectedItem(problema.problematica);
     setEvaluacionData({
       problematica: problema.problematica,
-      dimension: `${problema.unidad_regional} - ${problema.programa_academico}`,
+      dimension: `${problema.unidad_regional} - ${problema.linea_translocal}`,
       caracteristicas: problema.caracteristicas,
       unidad_regional: problema.unidad_regional,
-      facultad: problema.facultad,
-      programa_academico: problema.programa_academico
+      linea_translocal: problema.linea_translocal,
+      fuente: problema.fuente
     });
     setStep('evaluation');
   };
@@ -150,8 +150,8 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
           dimension: finalData.dimension || '',
           problematica: finalData.problematica || '',
           unidad_regional: finalData.unidad_regional,
-          facultad: finalData.facultad,
-          programa_academico: finalData.programa_academico,
+          facultad: finalData.linea_translocal,
+          programa_academico: finalData.fuente,
           arbol_problemas_data: finalData.arbolProblemas,
           brainstorming_data: finalData.brainstorming,
           affinity_data: finalData.affinity,
@@ -247,8 +247,8 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
         problematica={evaluacionData.problematica || ''}
         caracteristicas={evaluacionData.caracteristicas}
         unidad_regional={evaluacionData.unidad_regional}
-        facultad={evaluacionData.facultad}
-        programa_academico={evaluacionData.programa_academico}
+        linea_translocal={evaluacionData.linea_translocal}
+        fuente={evaluacionData.fuente}
       />
 
       <Card>
