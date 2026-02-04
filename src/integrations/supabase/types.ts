@@ -113,6 +113,36 @@ export type Database = {
         }
         Relationships: []
       }
+      coordinadores_autorizados: {
+        Row: {
+          correo: string
+          created_at: string | null
+          facultad: string
+          id: string
+          nombre_completo: string
+          programa: string
+          sede: string
+        }
+        Insert: {
+          correo: string
+          created_at?: string | null
+          facultad: string
+          id?: string
+          nombre_completo: string
+          programa: string
+          sede: string
+        }
+        Update: {
+          correo?: string
+          created_at?: string | null
+          facultad?: string
+          id?: string
+          nombre_completo?: string
+          programa?: string
+          sede?: string
+        }
+        Relationships: []
+      }
       cursos: {
         Row: {
           codigo: string
@@ -150,6 +180,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      estudiantes_autorizados: {
+        Row: {
+          correo: string
+          created_at: string | null
+          documento: string
+          facultad: string
+          id: string
+          nombre_completo: string
+          programa: string
+          sede: string
+        }
+        Insert: {
+          correo: string
+          created_at?: string | null
+          documento: string
+          facultad: string
+          id?: string
+          nombre_completo: string
+          programa: string
+          sede: string
+        }
+        Update: {
+          correo?: string
+          created_at?: string | null
+          documento?: string
+          facultad?: string
+          id?: string
+          nombre_completo?: string
+          programa?: string
+          sede?: string
+        }
+        Relationships: []
       }
       evaluaciones: {
         Row: {
