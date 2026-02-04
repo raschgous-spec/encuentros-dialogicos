@@ -2,103 +2,202 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import { Shield, BookOpen, GraduationCap, ArrowLeft } from 'lucide-react';
-import { authSchema } from '@/lib/validations';
+import { supabase } from '@/integrations/supabase/client';
 import udecLogo from '@/assets/udec-logo.png';
+import { LoginForm } from '@/components/auth/LoginForm';
+import { CoordinatorRegistrationForm } from '@/components/auth/CoordinatorRegistrationForm';
+import { StudentRegistrationForm } from '@/components/auth/StudentRegistrationForm';
 
 type UserType = 'estudiante' | 'docente' | 'admin';
 
 const Auth = () => {
   const [userType, setUserType] = useState<UserType>('estudiante');
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [codigoCurso, setCodigoCurso] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (user) {
       navigate('/');
     }
   }, [user, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (email: string, password: string) => {
     setIsLoading(true);
-
     try {
-      if (isLogin) {
-        const { error } = await signIn(email, password);
-        if (error) {
-          toast({
-            title: 'Error al iniciar sesión',
-            description: error.message,
-            variant: 'destructive',
-          });
-        } else {
-          toast({
-            title: 'Sesión iniciada',
-            description: 'Bienvenido de vuelta',
-          });
-          navigate('/');
-        }
-      } else {
-        // Solo los estudiantes pueden registrarse
-        if (userType !== 'estudiante') {
-          toast({
-            title: 'Registro no disponible',
-            description: 'Solo los estudiantes pueden registrarse. Contacta al administrador.',
-            variant: 'destructive',
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        // Validate signup data with Zod
-        const validationResult = authSchema.safeParse({
-          email,
-          password,
-          fullName,
-          codigoCurso
+      const { error } = await signIn(email, password);
+      if (error) {
+        toast({
+          title: 'Error al iniciar sesión',
+          description: error.message,
+          variant: 'destructive',
         });
+      } else {
+        toast({
+          title: 'Sesión iniciada',
+          description: 'Bienvenido de vuelta',
+        });
+        navigate('/');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        if (!validationResult.success) {
-          const firstError = validationResult.error.errors[0];
-          toast({
-            title: 'Error de validación',
-            description: firstError.message,
-            variant: 'destructive',
-          });
-          setIsLoading(false);
-          return;
-        }
+  const handleCoordinatorRegistration = async (data: {
+    email: string;
+    password: string;
+    fullName: string;
+    facultad: string;
+    programa: string;
+    sede: string;
+  }) => {
+    setIsLoading(true);
+    try {
+      // Verificar que el coordinador está autorizado
+      const { data: coordinador, error: coordError } = await supabase
+        .from('coordinadores_autorizados')
+        .select('*')
+        .eq('correo', data.email.toLowerCase())
+        .eq('facultad', data.facultad)
+        .eq('programa', data.programa)
+        .eq('sede', data.sede)
+        .maybeSingle();
 
-        const { error } = await signUp(email, password, fullName, codigoCurso);
-        if (error) {
-          toast({
-            title: 'Error al registrarse',
-            description: error.message,
-            variant: 'destructive',
-          });
-        } else {
-          toast({
-            title: 'Registro exitoso',
-            description: 'Tu cuenta ha sido creada y asociada al curso',
-          });
-          navigate('/');
+      if (coordError || !coordinador) {
+        toast({
+          title: 'Error de validación',
+          description: 'No se encontró un coordinador autorizado con esos datos.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Crear usuario con rol de docente
+      const redirectUrl = `${window.location.origin}/`;
+      const { data: authData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: data.fullName,
+            facultad: data.facultad,
+            programa: data.programa,
+            sede: data.sede,
+            is_coordinator: true,
+          },
+        },
+      });
+
+      if (error) {
+        toast({
+          title: 'Error al registrarse',
+          description: error.message,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Actualizar el rol a docente si el registro fue exitoso
+      if (authData.user) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .update({ role: 'docente' })
+          .eq('user_id', authData.user.id);
+
+        if (roleError) {
+          console.error('Error updating role:', roleError);
         }
       }
+
+      toast({
+        title: 'Registro exitoso',
+        description: 'Tu cuenta de coordinador ha sido creada. Revisa tu correo para confirmar.',
+      });
+      setIsLogin(true);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Ocurrió un error inesperado',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleStudentRegistration = async (data: {
+    email: string;
+    password: string;
+    fullName: string;
+    documento: string;
+  }) => {
+    setIsLoading(true);
+    try {
+      // Verificar que el estudiante está autorizado
+      const { data: estudiante, error: studError } = await supabase
+        .from('estudiantes_autorizados')
+        .select('*')
+        .eq('documento', data.documento)
+        .maybeSingle();
+
+      if (studError || !estudiante) {
+        toast({
+          title: 'Estudiante no encontrado',
+          description: 'Tu documento no está registrado en el sistema.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (estudiante.correo.toLowerCase() !== data.email.toLowerCase()) {
+        toast({
+          title: 'Error de validación',
+          description: 'El correo no coincide con el documento registrado.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Crear usuario estudiante
+      const redirectUrl = `${window.location.origin}/`;
+      const { error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: data.fullName,
+            documento: data.documento,
+            sede: estudiante.sede,
+            facultad: estudiante.facultad,
+            programa: estudiante.programa,
+          },
+        },
+      });
+
+      if (error) {
+        toast({
+          title: 'Error al registrarse',
+          description: error.message,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      toast({
+        title: 'Registro exitoso',
+        description: 'Tu cuenta ha sido creada. Revisa tu correo para confirmar.',
+      });
+      setIsLogin(true);
     } catch (error) {
       toast({
         title: 'Error',
@@ -136,6 +235,8 @@ const Auth = () => {
   const info = getUserTypeInfo();
   const Icon = info.icon;
 
+  const canRegister = userType === 'estudiante' || userType === 'docente';
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4">
       <div className="w-full max-w-2xl">
@@ -151,169 +252,105 @@ const Auth = () => {
         
         <Card className="w-full">
           <CardHeader className="space-y-4">
-          <div className="flex justify-center">
-            <img 
-              src={udecLogo} 
-              alt="Universidad de Cundinamarca Logo" 
-              className="h-20 w-auto object-contain"
-            />
-          </div>
-          <CardTitle className="text-2xl font-bold text-center">
-            Encuentros dialógicos Universidad de Cundinamarca
-          </CardTitle>
-          <CardDescription className="text-center">
-            Selecciona tu tipo de acceso
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Selector de tipo de usuario */}
-          <div className="grid grid-cols-3 gap-3">
-            <Button
-              type="button"
-              variant={userType === 'estudiante' ? 'default' : 'outline'}
-              className="flex flex-col items-center gap-2 h-auto py-4"
-              onClick={() => setUserType('estudiante')}
-            >
-              <GraduationCap className="h-6 w-6" />
-              <span className="text-xs">Estudiante</span>
-            </Button>
-            <Button
-              type="button"
-              variant={userType === 'docente' ? 'default' : 'outline'}
-              className="flex flex-col items-center gap-2 h-auto py-4"
-              onClick={() => setUserType('docente')}
-            >
-              <BookOpen className="h-6 w-6" />
-              <span className="text-xs">Coordinador</span>
-            </Button>
-            <Button
-              type="button"
-              variant={userType === 'admin' ? 'default' : 'outline'}
-              className="flex flex-col items-center gap-2 h-auto py-4"
-              onClick={() => setUserType('admin')}
-            >
-              <Shield className="h-6 w-6" />
-              <span className="text-xs">Admin</span>
-            </Button>
-          </div>
-
-          {/* Info del tipo de usuario seleccionado */}
-          <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
-            <Icon className="h-8 w-8 text-primary" />
-            <div>
-              <h3 className="font-semibold">{info.title}</h3>
-              <p className="text-sm text-muted-foreground">{info.description}</p>
+            <div className="flex justify-center">
+              <img 
+                src={udecLogo} 
+                alt="Universidad de Cundinamarca Logo" 
+                className="h-20 w-auto object-contain"
+              />
             </div>
-          </div>
+            <CardTitle className="text-2xl font-bold text-center">
+              Encuentros dialógicos Universidad de Cundinamarca
+            </CardTitle>
+            <CardDescription className="text-center">
+              Selecciona tu tipo de acceso
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Selector de tipo de usuario */}
+            <div className="grid grid-cols-3 gap-3">
+              <Button
+                type="button"
+                variant={userType === 'estudiante' ? 'default' : 'outline'}
+                className="flex flex-col items-center gap-2 h-auto py-4"
+                onClick={() => setUserType('estudiante')}
+              >
+                <GraduationCap className="h-6 w-6" />
+                <span className="text-xs">Estudiante</span>
+              </Button>
+              <Button
+                type="button"
+                variant={userType === 'docente' ? 'default' : 'outline'}
+                className="flex flex-col items-center gap-2 h-auto py-4"
+                onClick={() => setUserType('docente')}
+              >
+                <BookOpen className="h-6 w-6" />
+                <span className="text-xs">Coordinador</span>
+              </Button>
+              <Button
+                type="button"
+                variant={userType === 'admin' ? 'default' : 'outline'}
+                className="flex flex-col items-center gap-2 h-auto py-4"
+                onClick={() => setUserType('admin')}
+              >
+                <Shield className="h-6 w-6" />
+                <span className="text-xs">Admin</span>
+              </Button>
+            </div>
 
-          {/* Formularios de login/registro */}
-          <Tabs value={isLogin ? 'login' : 'signup'} onValueChange={(v) => setIsLogin(v === 'login')}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
-              <TabsTrigger value="signup" disabled={userType !== 'estudiante'}>
-                Registrarse
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="login">
-              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
+            {/* Info del tipo de usuario seleccionado */}
+            <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+              <Icon className="h-8 w-8 text-primary" />
+              <div>
+                <h3 className="font-semibold">{info.title}</h3>
+                <p className="text-sm text-muted-foreground">{info.description}</p>
+              </div>
+            </div>
+
+            {/* Formularios de login/registro */}
+            <Tabs value={isLogin ? 'login' : 'signup'} onValueChange={(v) => setIsLogin(v === 'login')}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
+                <TabsTrigger value="signup" disabled={!canRegister}>
+                  Registrarse
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="login">
+                <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
+              </TabsContent>
+              
+              <TabsContent value="signup">
+                {userType === 'docente' ? (
+                  <CoordinatorRegistrationForm 
+                    onSubmit={handleCoordinatorRegistration} 
+                    isLoading={isLoading} 
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Contraseña</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                ) : userType === 'estudiante' ? (
+                  <StudentRegistrationForm 
+                    onSubmit={handleStudentRegistration} 
+                    isLoading={isLoading} 
                   />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-                </Button>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Nombre Completo</Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="Juan Pérez"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Contraseña</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="Mín. 8 caracteres, 1 mayúscula, 1 número"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={8}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="codigoCurso">Código de CAI - Encuentros dialógicos</Label>
-                  <Input
-                    id="codigoCurso"
-                    type="text"
-                    placeholder="Ejemplo: MAT101-2025"
-                    value={codigoCurso}
-                    onChange={(e) => setCodigoCurso(e.target.value.toUpperCase())}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Ingresa el código proporcionado por tu coordinador
-                  </p>
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Registrando...' : 'Crear Cuenta'}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4 text-sm text-muted-foreground">
-          {userType === 'estudiante' ? (
-            <p className="text-center">
-              Al registrarte como estudiante, debes ingresar el código de CAI proporcionado por tu Gestor del Conocimiento.
-            </p>
-          ) : (
-            <p className="text-center">
-              Si eres {userType === 'admin' ? 'administrador' : 'coordinador'}, contacta al administrador del sistema para obtener tus credenciales de acceso.
-            </p>
-          )}
-        </CardFooter>
-      </Card>
+                ) : null}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4 text-sm text-muted-foreground">
+            {userType === 'estudiante' ? (
+              <p className="text-center">
+                Para registrarte necesitas tu número de documento y correo institucional registrados en el sistema.
+              </p>
+            ) : userType === 'docente' ? (
+              <p className="text-center">
+                Para registrarte como coordinador, debes estar en la base de datos de coordinadores autorizados.
+              </p>
+            ) : (
+              <p className="text-center">
+                Si eres administrador, contacta al administrador del sistema para obtener tus credenciales de acceso.
+              </p>
+            )}
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );
