@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, BookOpen, Settings, BarChart3, FileText, Shield, ArrowLeft, GraduationCap } from 'lucide-react';
+import { Users, BookOpen, Settings, BarChart3, FileText, Shield, ArrowLeft, GraduationCap, Upload } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocentesManager } from '@/components/DocentesManager';
 import { EstudiantesManager } from '@/components/EstudiantesManager';
 import { RolesManager } from '@/components/RolesManager';
+import { ImportManager } from '@/components/admin/ImportManager';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -43,6 +44,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="estudiantes">Estudiantes</TabsTrigger>
               <TabsTrigger value="docentes">Coordinadores</TabsTrigger>
               <TabsTrigger value="roles">Roles</TabsTrigger>
+              <TabsTrigger value="importar">Importar</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -200,6 +202,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="roles">
               <RolesManager />
+            </TabsContent>
+
+            <TabsContent value="importar">
+              <ImportManager />
             </TabsContent>
           </Tabs>
         </div>
