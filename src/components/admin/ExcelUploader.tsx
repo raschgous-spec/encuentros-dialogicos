@@ -11,8 +11,10 @@
  import { toast } from 'sonner';
  import { Upload, FileSpreadsheet, Check, X, Loader2, Download } from 'lucide-react';
  import { ScrollArea } from '@/components/ui/scroll-area';
+import { Progress } from '@/components/ui/progress';
  
  interface CoordinadorRow {
+  [key: string]: string;
    sede: string;
    facultad: string;
    programa: string;
@@ -21,6 +23,7 @@
  }
  
  interface EstudianteRow {
+  [key: string]: string;
    sede: string;
    facultad: string;
    programa: string;
@@ -45,9 +48,9 @@
    const [isLoading, setIsLoading] = useState(false);
    const [isUploading, setIsUploading] = useState(false);
    const [uploadResult, setUploadResult] = useState<{ success: number; failed: number } | null>(null);
+  const [progress, setProgress] = useState(0);
  
    const expectedColumns = type === 'coordinadores' ? COORDINADOR_COLUMNS : ESTUDIANTE_COLUMNS;
-   const tableName = type === 'coordinadores' ? 'coordinadores_autorizados' : 'estudiantes_autorizados';
  
    const validateRow = (row: Record<string, any>, index: number): string[] => {
      const rowErrors: string[] = [];
@@ -131,51 +134,46 @@
      }
    }, [expectedColumns, type]);
  
-   const handleUpload = async () => {
-     if (data.length === 0 || errors.length > 0) return;
- 
-     setIsUploading(true);
-     let successCount = 0;
-     let failedCount = 0;
- 
-     const BATCH_SIZE = 100;
-     const batches = [];
-     
-     for (let i = 0; i < data.length; i += BATCH_SIZE) {
-       batches.push(data.slice(i, i + BATCH_SIZE));
-     }
- 
-     try {
-       for (const batch of batches) {
-         const { error } = await supabase
-           .from(tableName)
-           .upsert(batch as any[], { 
-             onConflict: type === 'coordinadores' ? 'correo' : 'documento',
-             ignoreDuplicates: true 
-           });
- 
-         if (error) {
-           console.error('Batch insert error:', error);
-           failedCount += batch.length;
-         } else {
-           successCount += batch.length;
-         }
+  const handleUpload = useCallback(async () => {
+    if (data.length === 0 || errors.length > 0) return;
+
+    setIsUploading(true);
+    setProgress(0);
+
+    try {
+      // For large datasets, use the edge function
+      const payload = type === 'coordinadores' 
+        ? { type: 'coordinadores', coordinadores: data, estudiantes: [] }
+        : { type: 'estudiantes', coordinadores: [], estudiantes: data };
+
+      const { data: result, error } = await supabase.functions.invoke('import-excel', {
+        body: payload,
+      });
+
+      if (error) throw error;
+
+      const successCount = type === 'coordinadores' 
+        ? result.results.coordinadores.inserted 
+        : result.results.estudiantes.inserted;
+      const failedCount = type === 'coordinadores'
+        ? result.results.coordinadores.errors
+        : result.results.estudiantes.errors;
+
+      setUploadResult({ success: successCount, failed: failedCount });
+      setProgress(100);
+      
+      if (failedCount === 0) {
+        toast.success(`${successCount} registros importados exitosamente`);
+      } else {
+        toast.warning(`${successCount} importados, ${failedCount} fallidos`);
        }
- 
-       setUploadResult({ success: successCount, failed: failedCount });
-       
-       if (failedCount === 0) {
-         toast.success(`${successCount} registros importados exitosamente`);
-       } else {
-         toast.warning(`${successCount} importados, ${failedCount} fallidos`);
-       }
-     } catch (error) {
-       console.error('Upload error:', error);
-       toast.error('Error al cargar los datos');
-     } finally {
-       setIsUploading(false);
-     }
-   };
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast.error(error.message || 'Error al cargar los datos');
+    } finally {
+      setIsUploading(false);
+    }
+  }, [data, errors, type]);
  
    const downloadTemplate = () => {
      const templateData = type === 'coordinadores' 
@@ -207,6 +205,10 @@
          </CardDescription>
        </CardHeader>
        <CardContent className="space-y-4">
+         {isUploading && (
+           <Progress value={progress} className="w-full" />
+         )}
+ 
          <div className="flex gap-2">
            <Button variant="outline" size="sm" onClick={downloadTemplate}>
              <Download className="h-4 w-4 mr-2" />
