@@ -1,1 +1,16 @@
 project_id = "bngjrshsekskanbqxqcz"
+
+[functions.import-excel]
+verify_jwt = false
+
+[functions.bulk-import-xlsx]
+verify_jwt = false
+
+[functions.create-admin]
+verify_jwt = false
+
+[functions.create-docente]
+verify_jwt = true
+
+[functions.update-user-role]
+verify_jwt = true
