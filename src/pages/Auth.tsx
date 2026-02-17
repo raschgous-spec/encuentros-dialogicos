@@ -61,17 +61,15 @@ const Auth = () => {
   }) => {
     setIsLoading(true);
     try {
-      // Verificar que el coordinador está autorizado
-      const { data: coordinador, error: coordError } = await supabase
-        .from('coordinadores_autorizados')
-        .select('*')
-        .eq('correo', data.email.toLowerCase())
-        .eq('facultad', data.facultad)
-        .eq('programa', data.programa)
-        .eq('sede', data.sede)
-        .maybeSingle();
+      // Validate via secure RPC (no direct table query)
+      const { data: isValid, error: coordError } = await supabase.rpc('validate_coordinator_registration', {
+        p_correo: data.email.toLowerCase(),
+        p_facultad: data.facultad,
+        p_programa: data.programa,
+        p_sede: data.sede,
+      });
 
-      if (coordError || !coordinador) {
+      if (coordError || !isValid) {
         toast({
           title: 'Error de validación',
           description: 'No se encontró un coordinador autorizado con esos datos.',
@@ -80,7 +78,7 @@ const Auth = () => {
         return;
       }
 
-      // Crear usuario con rol de docente
+      // Create user with docente role
       const redirectUrl = `${window.location.origin}/`;
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
@@ -106,7 +104,7 @@ const Auth = () => {
         return;
       }
 
-      // Actualizar el rol a docente si el registro fue exitoso
+      // Update role to docente
       if (authData.user) {
         const { error: roleError } = await supabase
           .from('user_roles')
@@ -142,32 +140,24 @@ const Auth = () => {
   }) => {
     setIsLoading(true);
     try {
-      // Verificar que el estudiante está autorizado
-      const { data: estudiante, error: studError } = await supabase
-        .from('estudiantes_autorizados')
-        .select('*')
-        .eq('documento', data.documento)
-        .maybeSingle();
+      // Validate via secure RPC (no direct table query)
+      const { data: validationData, error: valError } = await supabase.rpc('validate_student_registration', {
+        p_documento: data.documento,
+        p_correo: data.email.toLowerCase(),
+      });
 
-      if (studError || !estudiante) {
+      if (valError || !validationData || validationData.length === 0) {
         toast({
           title: 'Estudiante no encontrado',
-          description: 'Tu documento no está registrado en el sistema.',
+          description: 'Tu documento o correo no están registrados en el sistema.',
           variant: 'destructive',
         });
         return;
       }
 
-      if (estudiante.correo.toLowerCase() !== data.email.toLowerCase()) {
-        toast({
-          title: 'Error de validación',
-          description: 'El correo no coincide con el documento registrado.',
-          variant: 'destructive',
-        });
-        return;
-      }
+      const studentInfo = validationData[0];
 
-      // Crear usuario estudiante
+      // Create student user
       const redirectUrl = `${window.location.origin}/`;
       const { error } = await supabase.auth.signUp({
         email: data.email,
@@ -177,9 +167,9 @@ const Auth = () => {
           data: {
             full_name: data.fullName,
             documento: data.documento,
-            sede: estudiante.sede,
-            facultad: estudiante.facultad,
-            programa: estudiante.programa,
+            sede: studentInfo.sede,
+            facultad: studentInfo.facultad,
+            programa: studentInfo.programa,
           },
         },
       });
@@ -267,7 +257,6 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Selector de tipo de usuario */}
             <div className="grid grid-cols-3 gap-3">
               <Button
                 type="button"
@@ -298,7 +287,6 @@ const Auth = () => {
               </Button>
             </div>
 
-            {/* Info del tipo de usuario seleccionado */}
             <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
               <Icon className="h-8 w-8 text-primary" />
               <div>
@@ -307,7 +295,6 @@ const Auth = () => {
               </div>
             </div>
 
-            {/* Formularios de login/registro */}
             <Tabs value={isLogin ? 'login' : 'signup'} onValueChange={(v) => setIsLogin(v === 'login')}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>

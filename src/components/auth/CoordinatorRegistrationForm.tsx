@@ -19,12 +19,10 @@ interface CoordinatorRegistrationFormProps {
   isLoading: boolean;
 }
 
-interface CoordinadorAutorizado {
+interface CoordinatorOption {
   facultad: string;
   programa: string;
   sede: string;
-  nombre_completo: string;
-  correo: string;
 }
 
 export const CoordinatorRegistrationForm = ({ onSubmit, isLoading }: CoordinatorRegistrationFormProps) => {
@@ -34,62 +32,41 @@ export const CoordinatorRegistrationForm = ({ onSubmit, isLoading }: Coordinator
   const [facultad, setFacultad] = useState('');
   const [programa, setPrograma] = useState('');
   const [sede, setSede] = useState('');
-  const [coordinadores, setCoordinadores] = useState<CoordinadorAutorizado[]>([]);
+  const [options, setOptions] = useState<CoordinatorOption[]>([]);
   const [isValidating, setIsValidating] = useState(false);
   const { toast } = useToast();
 
-  // Cargar coordinadores autorizados
+  // Load coordinator options (no PII exposed)
   useEffect(() => {
-    const fetchCoordinadores = async () => {
-      const { data, error } = await supabase
-        .from('coordinadores_autorizados')
-        .select('facultad, programa, sede, nombre_completo, correo');
+    const fetchOptions = async () => {
+      const { data, error } = await supabase.rpc('get_coordinator_options');
       
       if (error) {
-        console.error('Error fetching coordinadores:', error);
+        console.error('Error fetching options:', error);
         return;
       }
       
-      setCoordinadores(data || []);
+      setOptions((data as CoordinatorOption[]) || []);
     };
     
-    fetchCoordinadores();
+    fetchOptions();
   }, []);
 
-  // Obtener listas únicas para los selectores
-  const facultades = [...new Set(coordinadores.map(c => c.facultad))].sort();
+  const facultades = [...new Set(options.map(c => c.facultad))].sort();
   const programas = facultad 
-    ? [...new Set(coordinadores.filter(c => c.facultad === facultad).map(c => c.programa))].sort()
+    ? [...new Set(options.filter(c => c.facultad === facultad).map(c => c.programa))].sort()
     : [];
   const sedes = facultad && programa
-    ? [...new Set(coordinadores.filter(c => c.facultad === facultad && c.programa === programa).map(c => c.sede))].sort()
+    ? [...new Set(options.filter(c => c.facultad === facultad && c.programa === programa).map(c => c.sede))].sort()
     : [];
-
-  // Validar si existe el coordinador
-  const validateCoordinador = async () => {
-    const coordinadorEncontrado = coordinadores.find(
-      c => c.correo.toLowerCase() === email.toLowerCase() &&
-           c.facultad === facultad &&
-           c.programa === programa &&
-           c.sede === sede
-    );
-    
-    return coordinadorEncontrado;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsValidating(true);
 
     try {
-      // Validar con Zod
       const validationResult = coordinatorAuthSchema.safeParse({
-        email,
-        password,
-        fullName,
-        facultad,
-        programa,
-        sede
+        email, password, fullName, facultad, programa, sede
       });
 
       if (!validationResult.success) {
@@ -102,13 +79,18 @@ export const CoordinatorRegistrationForm = ({ onSubmit, isLoading }: Coordinator
         return;
       }
 
-      // Validar que el coordinador esté en la base de datos
-      const coordinador = await validateCoordinador();
+      // Validate via secure RPC (returns boolean, no PII)
+      const { data: isValid, error } = await supabase.rpc('validate_coordinator_registration', {
+        p_correo: email.toLowerCase(),
+        p_facultad: facultad,
+        p_programa: programa,
+        p_sede: sede,
+      });
       
-      if (!coordinador) {
+      if (error || !isValid) {
         toast({
           title: 'Coordinador no encontrado',
-          description: 'Los datos ingresados no corresponden a un coordinador autorizado. Se creará una cuenta de estudiante.',
+          description: 'Los datos ingresados no corresponden a un coordinador autorizado.',
           variant: 'destructive',
         });
         return;
