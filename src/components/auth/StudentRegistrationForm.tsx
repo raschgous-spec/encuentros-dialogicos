@@ -24,32 +24,13 @@ export const StudentRegistrationForm = ({ onSubmit, isLoading }: StudentRegistra
   const [isValidating, setIsValidating] = useState(false);
   const { toast } = useToast();
 
-  const validateEstudiante = async () => {
-    const { data, error } = await supabase
-      .from('estudiantes_autorizados')
-      .select('*')
-      .eq('documento', documento)
-      .maybeSingle();
-    
-    if (error) {
-      console.error('Error validating estudiante:', error);
-      return null;
-    }
-    
-    return data;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsValidating(true);
 
     try {
-      // Validar con Zod
       const validationResult = studentAuthSchema.safeParse({
-        email,
-        password,
-        fullName,
-        documento
+        email, password, fullName, documento
       });
 
       if (!validationResult.success) {
@@ -62,10 +43,12 @@ export const StudentRegistrationForm = ({ onSubmit, isLoading }: StudentRegistra
         return;
       }
 
-      // Validar que el estudiante esté en la base de datos
-      const estudiante = await validateEstudiante();
-      
-      if (!estudiante) {
+      // Check document exists first
+      const { data: docExists, error: docError } = await supabase.rpc('check_student_document', {
+        p_documento: documento,
+      });
+
+      if (docError || !docExists) {
         toast({
           title: 'Estudiante no encontrado',
           description: 'El documento ingresado no está registrado en el sistema. Contacta al administrador.',
@@ -74,8 +57,13 @@ export const StudentRegistrationForm = ({ onSubmit, isLoading }: StudentRegistra
         return;
       }
 
-      // Verificar que el correo coincida
-      if (estudiante.correo.toLowerCase() !== email.toLowerCase()) {
+      // Validate document + email match via secure RPC
+      const { data: validationData, error: valError } = await supabase.rpc('validate_student_registration', {
+        p_documento: documento,
+        p_correo: email.toLowerCase(),
+      });
+
+      if (valError || !validationData || validationData.length === 0) {
         toast({
           title: 'Datos incorrectos',
           description: 'El correo no coincide con el documento registrado.',

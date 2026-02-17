@@ -452,12 +452,42 @@ export type Database = {
         Args: { _estudiante_id: string; _momento: string }
         Returns: boolean
       }
+      check_student_document: {
+        Args: { p_documento: string }
+        Returns: boolean
+      }
+      get_coordinator_options: {
+        Args: never
+        Returns: {
+          facultad: string
+          programa: string
+          sede: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      validate_coordinator_registration: {
+        Args: {
+          p_correo: string
+          p_facultad: string
+          p_programa: string
+          p_sede: string
+        }
+        Returns: boolean
+      }
+      validate_student_registration: {
+        Args: { p_correo: string; p_documento: string }
+        Returns: {
+          facultad: string
+          is_valid: boolean
+          programa: string
+          sede: string
+        }[]
       }
     }
     Enums: {
