@@ -47,11 +47,17 @@ const ObservadorDashboard = () => {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
-              <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Panel del Observador Administrativo</h1>
-                <p className="text-muted-foreground">
-                  Visualización completa de la plataforma — estudiantes, coordinadores y progreso académico
-                </p>
+              <div className="flex items-start justify-between mb-8">
+                <div>
+                  <h1 className="text-3xl font-bold mb-2">Panel del Observador Administrativo</h1>
+                  <p className="text-muted-foreground">
+                    Visualización completa de la plataforma — estudiantes, coordinadores y progreso académico
+                  </p>
+                </div>
+                <Button onClick={() => navigate('/estudiante')} className="flex items-center gap-2 shrink-0">
+                  <Eye className="w-4 h-4" />
+                  Vista Estudiante
+                </Button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
