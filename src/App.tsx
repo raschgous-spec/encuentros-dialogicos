@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import DocenteDashboard from "./pages/DocenteDashboard";
 import EstudianteDashboard from "./pages/EstudianteDashboard";
+import ObservadorDashboard from "./pages/ObservadorDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,14 @@ const App = () => (
             element={
               <ProtectedRoute allowedRoles={['docente', 'admin']}>
                 <DocenteDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/observador" 
+            element={
+              <ProtectedRoute allowedRoles={['observador', 'admin']}>
+                <ObservadorDashboard />
               </ProtectedRoute>
             } 
           />

@@ -53,6 +53,11 @@ const Index = () => {
       return;
     }
 
+    if (hasRole('observador')) {
+      navigate('/observador');
+      return;
+    }
+
     if (hasRole('estudiante')) {
       navigate('/estudiante');
       return;
