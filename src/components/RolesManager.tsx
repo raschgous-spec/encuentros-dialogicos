@@ -12,13 +12,14 @@ interface UserWithRole {
   id: string;
   email: string;
   full_name: string | null;
-  role: 'admin' | 'docente' | 'estudiante';
+  role: 'admin' | 'docente' | 'estudiante' | 'observador';
 }
 
 const roleLabels = {
   admin: { label: 'Administrador', icon: Shield, color: 'bg-red-500' },
   docente: { label: 'Coordinador', icon: UserCog, color: 'bg-blue-500' },
   estudiante: { label: 'Estudiante', icon: GraduationCap, color: 'bg-green-500' },
+  observador: { label: 'Observador Administrativo', icon: Users, color: 'bg-orange-500' },
 };
 
 export const RolesManager = () => {
@@ -51,13 +52,13 @@ export const RolesManager = () => {
           id: profile.id,
           email: profile.email,
           full_name: profile.full_name,
-          role: (userRole?.role as 'admin' | 'docente' | 'estudiante') || 'estudiante',
+          role: (userRole?.role as UserWithRole['role']) || 'estudiante',
         };
       });
 
       // Sort: admins first, then docentes, then estudiantes
       usersWithRoles.sort((a, b) => {
-        const order = { admin: 0, docente: 1, estudiante: 2 };
+        const order = { admin: 0, docente: 1, observador: 2, estudiante: 3 };
         return order[a.role] - order[b.role];
       });
 
@@ -114,6 +115,7 @@ export const RolesManager = () => {
   const counts = {
     admin: users.filter(u => u.role === 'admin').length,
     docente: users.filter(u => u.role === 'docente').length,
+    observador: users.filter(u => u.role === 'observador').length,
     estudiante: users.filter(u => u.role === 'estudiante').length,
   };
 
@@ -141,11 +143,11 @@ export const RolesManager = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-red-500" />
+              <Shield className="h-5 w-5 text-destructive" />
               <div>
                 <p className="text-2xl font-bold">{counts.admin}</p>
                 <p className="text-xs text-muted-foreground">Administradores</p>
@@ -156,7 +158,7 @@ export const RolesManager = () => {
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <UserCog className="h-5 w-5 text-blue-500" />
+              <UserCog className="h-5 w-5 text-primary" />
               <div>
                 <p className="text-2xl font-bold">{counts.docente}</p>
                 <p className="text-xs text-muted-foreground">Coordinadores</p>
@@ -167,7 +169,18 @@ export const RolesManager = () => {
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <GraduationCap className="h-5 w-5 text-green-500" />
+              <Users className="h-5 w-5 text-secondary-foreground" />
+              <div>
+                <p className="text-2xl font-bold">{counts.observador}</p>
+                <p className="text-xs text-muted-foreground">Observadores</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2">
+              <GraduationCap className="h-5 w-5 text-accent-foreground" />
               <div>
                 <p className="text-2xl font-bold">{counts.estudiante}</p>
                 <p className="text-xs text-muted-foreground">Estudiantes</p>
@@ -207,6 +220,7 @@ export const RolesManager = () => {
                     <SelectContent>
                       <SelectItem value="admin">Administrador</SelectItem>
                       <SelectItem value="docente">Coordinador</SelectItem>
+                      <SelectItem value="observador">Observador Administrativo</SelectItem>
                       <SelectItem value="estudiante">Estudiante</SelectItem>
                     </SelectContent>
                   </Select>
