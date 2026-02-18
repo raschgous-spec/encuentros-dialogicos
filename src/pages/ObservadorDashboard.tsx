@@ -168,6 +168,25 @@ const ObservadorDashboard = () => {
                     </Button>
                   </CardContent>
                 </Card>
+
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Eye className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle>Vista Estudiante</CardTitle>
+                        <CardDescription>Ver la plataforma como un estudiante</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full" onClick={() => navigate('/estudiante')}>
+                      Acceder como Estudiante
+                    </Button>
+                  </CardContent>
+                </Card>
               </div>
 
               <Card className="mt-8">
