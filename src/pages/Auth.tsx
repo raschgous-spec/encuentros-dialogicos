@@ -6,14 +6,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
-import { Shield, BookOpen, GraduationCap, ArrowLeft } from 'lucide-react';
+import { Shield, BookOpen, GraduationCap, ArrowLeft, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import udecLogo from '@/assets/udec-logo.png';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { CoordinatorRegistrationForm } from '@/components/auth/CoordinatorRegistrationForm';
 import { StudentRegistrationForm } from '@/components/auth/StudentRegistrationForm';
 
-type UserType = 'estudiante' | 'docente' | 'admin';
+type UserType = 'estudiante' | 'docente' | 'admin' | 'observador';
 
 const Auth = () => {
   const [userType, setUserType] = useState<UserType>('estudiante');
@@ -213,6 +213,12 @@ const Auth = () => {
           description: 'Gestión de CAI - Encuentros dialógicos y estudiantes',
           icon: BookOpen,
         };
+      case 'observador':
+        return {
+          title: 'Acceso Observador Administrativo',
+          description: 'Visualización de actividad de estudiantes y coordinadores',
+          icon: Eye,
+        };
       default:
         return {
           title: 'Acceso Estudiante',
@@ -257,7 +263,7 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <Button
                 type="button"
                 variant={userType === 'estudiante' ? 'default' : 'outline'}
@@ -275,6 +281,15 @@ const Auth = () => {
               >
                 <BookOpen className="h-6 w-6" />
                 <span className="text-xs">Coordinador</span>
+              </Button>
+              <Button
+                type="button"
+                variant={userType === 'observador' ? 'default' : 'outline'}
+                className="flex flex-col items-center gap-2 h-auto py-4"
+                onClick={() => setUserType('observador')}
+              >
+                <Eye className="h-6 w-6" />
+                <span className="text-xs">Observador Adm.</span>
               </Button>
               <Button
                 type="button"
@@ -330,6 +345,10 @@ const Auth = () => {
             ) : userType === 'docente' ? (
               <p className="text-center">
                 Para registrarte como coordinador, debes estar en la base de datos de coordinadores autorizados.
+              </p>
+            ) : userType === 'observador' ? (
+              <p className="text-center">
+                El acceso de Observador Administrativo es asignado por el administrador del sistema.
               </p>
             ) : (
               <p className="text-center">
