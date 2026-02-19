@@ -11,14 +11,44 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
      return new Response("ok", { headers: corsHeaders });
    }
  
-   try {
-     // Create Supabase client with service role
-     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-     const supabase = createClient(supabaseUrl, supabaseKey);
- 
-    // Get the parsed data from the request (parsed on frontend)
-    const { type, coordinadores, estudiantes } = await req.json();
+  try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+      // Authenticate the caller
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader?.startsWith("Bearer ")) {
+        return new Response(JSON.stringify({ error: "No authorization header" }), { status: 401, headers: corsHeaders });
+      }
+
+      const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await supabaseUser.auth.getClaims(token);
+      if (claimsError || !claimsData?.claims) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+      }
+      const userId = claimsData.claims.sub;
+
+      // Verify admin role
+      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+      const { data: adminRole } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!adminRole) {
+        return new Response(JSON.stringify({ error: "Admin access required" }), { status: 403, headers: corsHeaders });
+      }
+
+      const supabase = supabaseAdmin;
+
+     // Get the parsed data from the request (parsed on frontend)
+     const { type, coordinadores, estudiantes } = await req.json();
     
     console.log(`Processing import: type=${type}, coordinadores=${coordinadores?.length || 0}, estudiantes=${estudiantes?.length || 0}`);
  
