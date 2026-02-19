@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download } from 'lucide-react';
+import { StudentSearchInput } from '@/components/StudentSearchInput';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -910,6 +911,14 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Participantes (nombres completos, uno por línea)</FormLabel>
+                          <StudentSearchInput
+                            currentParticipantes={field.value || ''}
+                            onAddStudent={(name) => {
+                              const current = field.value || '';
+                              field.onChange(current ? `${current}\n${name}` : name);
+                            }}
+                            disabled={isLocked}
+                          />
                           <FormControl>
                             <Textarea 
                               placeholder="Nombre del participante 1&#10;Nombre del participante 2&#10;Nombre del participante 3"
@@ -1743,13 +1752,23 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
 
                         <div className="border-b pb-2">
                           <label className="text-sm font-semibold">Participantes:</label>
-                          <Textarea
-                            value={actaForm.watch('participantes') || ''}
-                            onChange={(e) => actaForm.setValue('participantes', e.target.value)}
-                            placeholder="Escriba los participantes"
-                            className="mt-1 min-h-[80px]"
-                            disabled={isLocked}
-                          />
+                          <div className="mt-1 space-y-2">
+                            <StudentSearchInput
+                              currentParticipantes={actaForm.watch('participantes') || ''}
+                              onAddStudent={(name) => {
+                                const current = actaForm.getValues('participantes') || '';
+                                actaForm.setValue('participantes', current ? `${current}\n${name}` : name);
+                              }}
+                              disabled={isLocked}
+                            />
+                            <Textarea
+                              value={actaForm.watch('participantes') || ''}
+                              onChange={(e) => actaForm.setValue('participantes', e.target.value)}
+                              placeholder="Escriba los participantes"
+                              className="min-h-[80px]"
+                              disabled={isLocked}
+                            />
+                          </div>
                         </div>
 
                         <div className="border-b pb-2">
