@@ -4,8 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Mail, BookOpen, Calendar, Award, TrendingUp, MapPin, ChevronRight, CheckCircle2, XCircle, FileText } from 'lucide-react';
+import { Users, Mail, BookOpen, Calendar, Award, TrendingUp, MapPin, ChevronRight, CheckCircle2, XCircle, FileText, UserCheck, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -65,10 +66,24 @@ interface Estudiante {
   nivelatorioEval: NivelatorioEvaluation | null;
 }
 
+interface EstudianteAutorizado {
+  id: string;
+  nombre_completo: string;
+  correo: string;
+  documento: string;
+  sede: string;
+  facultad: string;
+  programa: string;
+}
+
 export const EstudiantesManager = () => {
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
+  const [estudiantesAutorizados, setEstudiantesAutorizados] = useState<EstudianteAutorizado[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingAutorizados, setIsLoadingAutorizados] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Estudiante | null>(null);
+  const [activeMainTab, setActiveMainTab] = useState('registrados');
+  const [searchAutorizados, setSearchAutorizados] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -174,6 +189,46 @@ export const EstudiantesManager = () => {
     }
   };
 
+  const fetchEstudiantesAutorizados = async () => {
+    try {
+      setIsLoadingAutorizados(true);
+      const { data, error } = await supabase
+        .from('estudiantes_autorizados')
+        .select('*')
+        .order('nombre_completo', { ascending: true });
+
+      if (error) throw error;
+      setEstudiantesAutorizados(data || []);
+    } catch (error) {
+      console.error('Error fetching estudiantes autorizados:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudieron cargar los estudiantes precargados',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoadingAutorizados(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeMainTab === 'precargados' && estudiantesAutorizados.length === 0) {
+      fetchEstudiantesAutorizados();
+    }
+  }, [activeMainTab]);
+
+  const filteredAutorizados = estudiantesAutorizados.filter(e => {
+    const search = searchAutorizados.toLowerCase();
+    return (
+      e.nombre_completo.toLowerCase().includes(search) ||
+      e.correo.toLowerCase().includes(search) ||
+      e.documento.toLowerCase().includes(search) ||
+      e.facultad.toLowerCase().includes(search) ||
+      e.programa.toLowerCase().includes(search) ||
+      e.sede.toLowerCase().includes(search)
+    );
+  });
+
   const getMomentoActual = (progreso: MomentoProgreso[]) => {
     const momentos = ['diagnostico', 'nivelatorio', 'encuentro1', 'encuentro2', 'encuentro3', 'encuentro4'];
     
@@ -232,11 +287,28 @@ export const EstudiantesManager = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Mis Estudiantes</h2>
+        <h2 className="text-2xl font-bold">Estudiantes</h2>
         <p className="text-muted-foreground">
-          {estudiantes.length} estudiante(s) registrado(s) en tus CAI - Encuentros dialógicos
+          Gestiona estudiantes registrados y precargados
         </p>
       </div>
+
+      <Tabs value={activeMainTab} onValueChange={setActiveMainTab}>
+        <TabsList>
+          <TabsTrigger value="registrados">
+            <Users className="h-4 w-4 mr-2" />
+            Registrados ({estudiantes.length})
+          </TabsTrigger>
+          <TabsTrigger value="precargados">
+            <UserCheck className="h-4 w-4 mr-2" />
+            Precargados (Autorizados)
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="registrados" className="space-y-4 mt-4">
+          <p className="text-sm text-muted-foreground">
+            {estudiantes.length} estudiante(s) registrado(s) en tus CAI - Encuentros dialógicos
+          </p>
 
       {estudiantes.some(e => e.evaluaciones.length > 0) && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -638,6 +710,77 @@ export const EstudiantesManager = () => {
           )}
         </DialogContent>
       </Dialog>
+
+        </TabsContent>
+
+        <TabsContent value="precargados" className="space-y-4 mt-4">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nombre, correo, documento, facultad..."
+                value={searchAutorizados}
+                onChange={(e) => setSearchAutorizados(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {filteredAutorizados.length} de {estudiantesAutorizados.length} estudiante(s) precargado(s)
+            </p>
+          </div>
+
+          {isLoadingAutorizados ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <Card key={i}>
+                  <CardHeader><Skeleton className="h-6 w-3/4" /><Skeleton className="h-4 w-1/2" /></CardHeader>
+                  <CardContent><Skeleton className="h-16 w-full" /></CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredAutorizados.map((est) => (
+                <Card key={est.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <UserCheck className="h-4 w-4" />
+                      {est.nombre_completo}
+                    </CardTitle>
+                    <CardDescription className="flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      {est.correo}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">Doc: {est.documento}</Badge>
+                    </div>
+                    <div className="grid grid-cols-1 gap-1 text-muted-foreground">
+                      <span><strong>Sede:</strong> {est.sede}</span>
+                      <span><strong>Facultad:</strong> {est.facultad}</span>
+                      <span><strong>Programa:</strong> {est.programa}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+
+              {filteredAutorizados.length === 0 && !isLoadingAutorizados && (
+                <Card className="col-span-full">
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <UserCheck className="h-12 w-12 text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground text-center">
+                      {searchAutorizados
+                        ? 'No se encontraron estudiantes con ese criterio de búsqueda.'
+                        : 'No hay estudiantes precargados en el sistema.'}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
