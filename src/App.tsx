@@ -10,6 +10,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import DocenteDashboard from "./pages/DocenteDashboard";
 import EstudianteDashboard from "./pages/EstudianteDashboard";
 import ObservadorDashboard from "./pages/ObservadorDashboard";
+import GenerarGuiaPDF from "./pages/GenerarGuiaPDF";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          <Route path="/guia-pdf" element={<GenerarGuiaPDF />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
