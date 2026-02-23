@@ -1354,7 +1354,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                       <FormControl>
                                         <Textarea 
                                           placeholder="Describa la necesidad identificada"
-                                          className="min-h-[80px]"
+                                          className="min-h-[100px]"
                                           disabled={isLocked}
                                           {...field}
                                         />
@@ -1373,7 +1373,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                       <FormControl>
                                         <Textarea 
                                           placeholder="Describa las acciones de mejora"
-                                          className="min-h-[80px]"
+                                          className="min-h-[100px]"
                                           disabled={isLocked}
                                           {...field}
                                         />
@@ -1452,7 +1452,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                       <FormControl>
                                         <Textarea 
                                           placeholder="Observaciones adicionales"
-                                          className="min-h-[60px]"
+                                          className="min-h-[75px]"
                                           disabled={isLocked}
                                           {...field}
                                         />
@@ -1519,7 +1519,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                   <FormControl>
                                     <Textarea 
                                       placeholder="Describa el propósito general"
-                                      className="min-h-[80px]"
+                                      className="min-h-[100px]"
                                       disabled={isLocked}
                                       {...field}
                                     />
@@ -1538,7 +1538,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                   <FormControl>
                                     <Textarea 
                                       placeholder="Objetivo general del plan"
-                                      className="min-h-[80px]"
+                                      className="min-h-[100px]"
                                       disabled={isLocked}
                                       {...field}
                                     />
@@ -1643,7 +1643,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                                   <FormControl>
                                     <Textarea 
                                       placeholder="Descripción del seguimiento del plan"
-                                      className="min-h-[80px]"
+                                      className="min-h-[100px]"
                                       disabled={isLocked}
                                       {...field}
                                     />
@@ -1948,7 +1948,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                             value={actaForm.watch('seguimiento') || ''}
                             onChange={(e) => actaForm.setValue('seguimiento', e.target.value)}
                             placeholder="Describa el seguimiento y periodo de valoración"
-                            className="min-h-[80px]"
+                            className="min-h-[100px]"
                             disabled={isLocked}
                           />
                         </div>
