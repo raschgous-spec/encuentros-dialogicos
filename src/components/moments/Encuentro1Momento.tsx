@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download } from 'lucide-react';
 import { StudentSearchInput } from '@/components/StudentSearchInput';
+import { CoordinatorSearchInput } from '@/components/CoordinatorSearchInput';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -826,9 +827,13 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                       name="nombreDirector"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nombre del Director del Programa Académico</FormLabel>
+                          <FormLabel>Nombre del Coordinador</FormLabel>
                           <FormControl>
-                            <Input placeholder="Nombre completo del director" disabled={isLocked} {...field} />
+                            <CoordinatorSearchInput
+                              value={field.value}
+                              onChange={field.onChange}
+                              disabled={isLocked}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
