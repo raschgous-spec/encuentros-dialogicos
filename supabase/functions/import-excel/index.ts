@@ -22,15 +22,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
         return new Response(JSON.stringify({ error: "No authorization header" }), { status: 401, headers: corsHeaders });
       }
 
-      const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
-        global: { headers: { Authorization: authHeader } },
-      });
-      const token = authHeader.replace("Bearer ", "");
-      const { data: claimsData, error: claimsError } = await supabaseUser.auth.getClaims(token);
-      if (claimsError || !claimsData?.claims) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
-      }
-      const userId = claimsData.claims.sub;
+       const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
+         global: { headers: { Authorization: authHeader } },
+       });
+       const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
+       if (userError || !user) {
+         return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+       }
+       const userId = user.id;
 
       // Verify admin role
       const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, { auth: { persistSession: false, autoRefreshToken: false } });
