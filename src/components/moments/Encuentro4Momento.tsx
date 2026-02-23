@@ -539,7 +539,7 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
                           <FormControl>
                             <Textarea 
                               placeholder="Describa el propósito general"
-                              className="min-h-[80px]"
+                              className="min-h-[100px]"
                               disabled={isLocked}
                               {...field}
                             />
@@ -558,7 +558,7 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
                           <FormControl>
                             <Textarea 
                               placeholder="Objetivo general del plan"
-                              className="min-h-[80px]"
+                              className="min-h-[100px]"
                               disabled={isLocked}
                               {...field}
                             />
@@ -663,7 +663,7 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
                           <FormControl>
                             <Textarea 
                               placeholder="Descripción del seguimiento del plan"
-                              className="min-h-[80px]"
+                              className="min-h-[100px]"
                               disabled={isLocked}
                               {...field}
                             />
