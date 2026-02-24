@@ -9,6 +9,7 @@ import { DocentesManager } from '@/components/DocentesManager';
 import { EstudiantesManager } from '@/components/EstudiantesManager';
 import { RolesManager } from '@/components/RolesManager';
 import { ImportManager } from '@/components/admin/ImportManager';
+import { EstadisticasManager } from '@/components/EstadisticasManager';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="estudiantes">Estudiantes</TabsTrigger>
               <TabsTrigger value="docentes">Coordinadores</TabsTrigger>
               <TabsTrigger value="roles">Roles</TabsTrigger>
+              <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
               <TabsTrigger value="importar">Importar</TabsTrigger>
             </TabsList>
 
@@ -120,7 +122,7 @@ const AdminDashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full">Ver Reportes</Button>
+                    <Button className="w-full" onClick={() => setActiveTab('estadisticas')}>Ver Reportes</Button>
                   </CardContent>
                 </Card>
 
@@ -206,6 +208,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="importar">
               <ImportManager />
+            </TabsContent>
+
+            <TabsContent value="estadisticas">
+              <EstadisticasManager />
             </TabsContent>
           </Tabs>
         </div>

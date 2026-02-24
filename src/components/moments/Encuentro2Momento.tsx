@@ -12,7 +12,8 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { ProblemaContextCard } from '@/components/evaluation/ProblemaContextCard';
-import { useNivelatorioProblematica } from '@/hooks/useNivelatorioProblematica';
+import { ProblematicaEncuentroSelector } from '@/components/evaluation/ProblematicaEncuentroSelector';
+import { useNivelatorioProblematica, type ProblematicaNivelatorio } from '@/hooks/useNivelatorioProblematica';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Textarea } from '@/components/ui/textarea';
@@ -70,10 +71,18 @@ const planFormSchema = z.object({
 export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2MomentoProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
-  const { problematica, loading: loadingProblematica } = useNivelatorioProblematica();
+  const { problematica: nivelatorioProblematica, loading: loadingProblematica } = useNivelatorioProblematica();
+  const [problematica, setProblematica] = useState<ProblematicaNivelatorio | null>(null);
   const [activeTab, setActiveTab] = useState('info');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Default to nivelatorio problematica when loaded
+  useEffect(() => {
+    if (!loadingProblematica && nivelatorioProblematica && !problematica) {
+      setProblematica(nivelatorioProblematica);
+    }
+  }, [loadingProblematica, nivelatorioProblematica, problematica]);
 
   const planForm = useForm<z.infer<typeof planFormSchema>>({
     resolver: zodResolver(planFormSchema),
@@ -444,18 +453,14 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
         </Alert>
       )}
 
-      {/* Problemática del Nivelatorio */}
-      {!loadingProblematica && problematica && (
-        <ProblemaContextCard
-          tipo={problematica.tipo}
-          dimension={problematica.dimension}
-          problematica={problematica.problematica}
-          caracteristicas={problematica.caracteristicas}
-          unidad_regional={problematica.unidad_regional}
-          linea_translocal={problematica.linea_translocal}
-          fuente={problematica.fuente}
-        />
-      )}
+      {/* Selección de Problemática */}
+      <ProblematicaEncuentroSelector
+        nivelatorioProblematica={nivelatorioProblematica}
+        loadingNivelatorio={loadingProblematica}
+        currentProblematica={problematica}
+        onProblematicaSelected={setProblematica}
+        momento="Momento 4 - Encuentro 2"
+      />
 
       <Card className="border-primary/20">
         <CardHeader>
