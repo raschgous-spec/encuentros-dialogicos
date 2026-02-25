@@ -22,15 +22,17 @@ import { Progress } from '@/components/ui/progress';
    correo: string;
  }
  
- interface EstudianteRow {
-  [key: string]: string;
-   sede: string;
-   facultad: string;
-   programa: string;
-   documento: string;
-   nombre_completo: string;
-   correo: string;
- }
+interface EstudianteRow {
+ [key: string]: string;
+  sede: string;
+  facultad: string;
+  programa: string;
+  documento: string;
+  nombre_completo: string;
+  correo: string;
+  nombre_coordinador: string;
+  correo_coordinador: string;
+}
  
  type UploadType = 'coordinadores' | 'estudiantes';
  
@@ -39,7 +41,7 @@ import { Progress } from '@/components/ui/progress';
  }
  
  const COORDINADOR_COLUMNS = ['sede', 'facultad', 'programa', 'nombre_completo', 'correo'];
- const ESTUDIANTE_COLUMNS = ['sede', 'facultad', 'programa', 'documento', 'nombre_completo', 'correo'];
+ const ESTUDIANTE_COLUMNS = ['sede', 'facultad', 'programa', 'documento', 'nombre_completo', 'correo', 'nombre_coordinador', 'correo_coordinador'];
  
  export const ExcelUploader = ({ type }: ExcelUploaderProps) => {
    const [file, setFile] = useState<File | null>(null);
@@ -178,7 +180,7 @@ import { Progress } from '@/components/ui/progress';
    const downloadTemplate = () => {
      const templateData = type === 'coordinadores' 
        ? [{ sede: 'Fusagasugá', facultad: 'Ingeniería', programa: 'Ingeniería de Sistemas', nombre_completo: 'Juan Pérez', correo: 'juan@ucundinamarca.edu.co' }]
-       : [{ sede: 'Fusagasugá', facultad: 'Ingeniería', programa: 'Ingeniería de Sistemas', documento: '1234567890', nombre_completo: 'María García', correo: 'maria@ucundinamarca.edu.co' }];
+       : [{ sede: 'Fusagasugá', facultad: 'Ingeniería', programa: 'Ingeniería de Sistemas', documento: '1234567890', nombre_completo: 'María García', correo: 'maria@ucundinamarca.edu.co', nombre_coordinador: 'Juan Pérez', correo_coordinador: 'juan@ucundinamarca.edu.co' }];
      
      const ws = XLSX.utils.json_to_sheet(templateData);
      const wb = XLSX.utils.book_new();

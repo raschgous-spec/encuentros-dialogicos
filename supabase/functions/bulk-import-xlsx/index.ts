@@ -115,6 +115,9 @@ serve(async (req: Request) => {
         const nombre = (row["NOMBRES"] || "").toString().trim();
         let correo = (row["CORREO"] || "").toString().trim().toLowerCase();
         correo = correo.replace(/\\@/g, "@");
+        const nombre_coordinador = (row["NOMBRE_COORDINADOR"] || row["NOMBRE COORDINADOR"] || "").toString().trim();
+        let correo_coordinador = (row["CORREO_COORDINADOR"] || row["CORREO COORDINADOR"] || "").toString().trim().toLowerCase();
+        correo_coordinador = correo_coordinador.replace(/\\@/g, "@");
 
         if (!documento || !correo || !nombre || !correo.includes("@")) continue;
 
@@ -125,6 +128,8 @@ serve(async (req: Request) => {
           sede,
           facultad,
           programa,
+          nombre_coordinador,
+          correo_coordinador,
         });
       }
 
