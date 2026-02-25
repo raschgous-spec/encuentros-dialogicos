@@ -84,6 +84,9 @@ import { toast } from 'sonner';
         const nombres = row[4] ? String(row[4]).trim() : '';
         let correo = row[5] ? String(row[5]).trim() : '';
         correo = correo.replace(/\\@/g, '@').toLowerCase();
+        const nombre_coordinador = row[6] ? String(row[6]).trim() : '';
+        let correo_coordinador = row[7] ? String(row[7]).trim() : '';
+        correo_coordinador = correo_coordinador.replace(/\\@/g, '@').toLowerCase();
         
         if (documento && nombres && correo && correo.includes('@')) {
           estudiantes.push({
@@ -93,6 +96,8 @@ import { toast } from 'sonner';
             documento,
             nombre_completo: nombres,
             correo,
+            nombre_coordinador,
+            correo_coordinador,
           });
         }
       }

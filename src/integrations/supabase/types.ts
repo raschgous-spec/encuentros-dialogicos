@@ -184,31 +184,37 @@ export type Database = {
       estudiantes_autorizados: {
         Row: {
           correo: string
+          correo_coordinador: string | null
           created_at: string | null
           documento: string
           facultad: string
           id: string
           nombre_completo: string
+          nombre_coordinador: string | null
           programa: string
           sede: string
         }
         Insert: {
           correo: string
+          correo_coordinador?: string | null
           created_at?: string | null
           documento: string
           facultad: string
           id?: string
           nombre_completo: string
+          nombre_coordinador?: string | null
           programa: string
           sede: string
         }
         Update: {
           correo?: string
+          correo_coordinador?: string | null
           created_at?: string | null
           documento?: string
           facultad?: string
           id?: string
           nombre_completo?: string
+          nombre_coordinador?: string | null
           programa?: string
           sede?: string
         }
