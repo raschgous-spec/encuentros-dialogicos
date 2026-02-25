@@ -1,0 +1,1 @@
+ALTER TABLE public.estudiantes_autorizados DROP CONSTRAINT IF EXISTS estudiantes_autorizados_correo_key;
