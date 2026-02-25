@@ -105,78 +105,128 @@ export const EstudiantesManager = () => {
 
       const isAdmin = rolesData?.some(r => r.role === 'admin');
 
-      // Si es admin, obtener todos los cursos; si no, solo los propios
-      let cursosQuery = supabase.from('cursos').select('id');
-      
-      if (!isAdmin) {
-        cursosQuery = cursosQuery.eq('docente_id', user.id);
+      if (isAdmin) {
+        // Admin: obtener todos los estudiantes via cursos
+        let cursosQuery = supabase.from('cursos').select('id');
+        const { data: cursosData } = await cursosQuery;
+        const cursoIds = cursosData?.map(c => c.id) || [];
+
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, email, full_name, created_at, curso_id')
+          .in('curso_id', cursoIds)
+          .order('created_at', { ascending: false });
+
+        if (profilesError) throw profilesError;
+
+        const estudiantesWithEvaluaciones = await Promise.all(
+          (profilesData || []).map(async (profile: any) => {
+            const { data: cursoData } = await supabase
+              .from('cursos')
+              .select('nombre, codigo')
+              .eq('id', profile.curso_id)
+              .maybeSingle();
+
+            const { data: evaluacionesData } = await supabase
+              .from('evaluaciones')
+              .select('id, fecha, puntaje_promedio, nivel, puntaje_brainstorming, puntaje_affinity, puntaje_ishikawa, puntaje_dofa, puntaje_pareto')
+              .eq('estudiante_id', profile.id)
+              .order('fecha', { ascending: false });
+
+            const { data: momentoData } = await supabase
+              .from('momento_progreso')
+              .select('momento, completado, fecha_completado')
+              .eq('estudiante_id', profile.id)
+              .order('fecha_completado', { ascending: false });
+
+            const { data: nivelatorioData } = await supabase
+              .from('student_evaluations')
+              .select('*')
+              .eq('user_id', profile.id)
+              .eq('momento', 'nivelatorio')
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+            
+            return {
+              id: profile.id,
+              email: profile.email,
+              full_name: profile.full_name,
+              created_at: profile.created_at,
+              curso: cursoData,
+              evaluaciones: evaluacionesData || [],
+              momentoProgreso: momentoData || [],
+              nivelatorioEval: nivelatorioData
+            };
+          })
+        );
+        setEstudiantes(estudiantesWithEvaluaciones);
+      } else {
+        // Coordinador: obtener estudiantes asignados por correo_coordinador
+        const { data: autorizados, error: autError } = await supabase
+          .from('estudiantes_autorizados')
+          .select('correo')
+          .eq('correo_coordinador', user.email!.toLowerCase());
+
+        if (autError) throw autError;
+
+        const assignedEmails = (autorizados || []).map(a => a.correo.toLowerCase());
+
+        if (assignedEmails.length === 0) {
+          setEstudiantes([]);
+          return;
+        }
+
+        // Get profiles matching those emails
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, email, full_name, created_at, curso_id')
+          .in('email', assignedEmails)
+          .order('created_at', { ascending: false });
+
+        if (profilesError) throw profilesError;
+
+        const estudiantesWithEvaluaciones = await Promise.all(
+          (profilesData || []).map(async (profile: any) => {
+            const { data: cursoData } = profile.curso_id 
+              ? await supabase.from('cursos').select('nombre, codigo').eq('id', profile.curso_id).maybeSingle()
+              : { data: null };
+
+            const { data: evaluacionesData } = await supabase
+              .from('evaluaciones')
+              .select('id, fecha, puntaje_promedio, nivel, puntaje_brainstorming, puntaje_affinity, puntaje_ishikawa, puntaje_dofa, puntaje_pareto')
+              .eq('estudiante_id', profile.id)
+              .order('fecha', { ascending: false });
+
+            const { data: momentoData } = await supabase
+              .from('momento_progreso')
+              .select('momento, completado, fecha_completado')
+              .eq('estudiante_id', profile.id)
+              .order('fecha_completado', { ascending: false });
+
+            const { data: nivelatorioData } = await supabase
+              .from('student_evaluations')
+              .select('*')
+              .eq('user_id', profile.id)
+              .eq('momento', 'nivelatorio')
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+            
+            return {
+              id: profile.id,
+              email: profile.email,
+              full_name: profile.full_name,
+              created_at: profile.created_at,
+              curso: cursoData,
+              evaluaciones: evaluacionesData || [],
+              momentoProgreso: momentoData || [],
+              nivelatorioEval: nivelatorioData
+            };
+          })
+        );
+        setEstudiantes(estudiantesWithEvaluaciones);
       }
-
-      const { data: cursosData } = await cursosQuery;
-      const cursoIds = cursosData?.map(c => c.id) || [];
-
-      // Obtener estudiantes de esos cursos
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, email, full_name, created_at, curso_id')
-        .in('curso_id', cursoIds)
-        .order('created_at', { ascending: false });
-
-      if (profilesError) {
-        console.error('Error fetching profiles:', profilesError);
-        throw profilesError;
-      }
-
-      // Obtener información de cursos, valoraciones, progreso y valoración nivelatorio para cada estudiante
-      const estudiantesWithEvaluaciones = await Promise.all(
-        (profilesData || []).map(async (profile: any) => {
-          const { data: cursoData } = await supabase
-            .from('cursos')
-            .select('nombre, codigo')
-            .eq('id', profile.curso_id)
-            .maybeSingle();
-
-          const { data: evaluacionesData, error: evalError } = await supabase
-            .from('evaluaciones')
-            .select('id, fecha, puntaje_promedio, nivel, puntaje_brainstorming, puntaje_affinity, puntaje_ishikawa, puntaje_dofa, puntaje_pareto')
-            .eq('estudiante_id', profile.id)
-            .order('fecha', { ascending: false });
-          
-          if (evalError) {
-            console.error('Error fetching valoraciones for student:', profile.id, evalError);
-          }
-
-          // Fetch momento progreso
-          const { data: momentoData } = await supabase
-            .from('momento_progreso')
-            .select('momento, completado, fecha_completado')
-            .eq('estudiante_id', profile.id)
-            .order('fecha_completado', { ascending: false });
-
-          // Fetch nivelatorio evaluation
-          const { data: nivelatorioData } = await supabase
-            .from('student_evaluations')
-            .select('*')
-            .eq('user_id', profile.id)
-            .eq('momento', 'nivelatorio')
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          
-          return {
-            id: profile.id,
-            email: profile.email,
-            full_name: profile.full_name,
-            created_at: profile.created_at,
-            curso: cursoData,
-            evaluaciones: evaluacionesData || [],
-            momentoProgreso: momentoData || [],
-            nivelatorioEval: nivelatorioData
-          };
-        })
-      );
-
-      setEstudiantes(estudiantesWithEvaluaciones);
     } catch (error) {
       console.error('Error fetching estudiantes:', error);
       toast({
@@ -192,10 +242,27 @@ export const EstudiantesManager = () => {
   const fetchEstudiantesAutorizados = async () => {
     try {
       setIsLoadingAutorizados(true);
-      const { data, error } = await supabase
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No autenticado');
+
+      const { data: rolesData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+
+      const isAdmin = rolesData?.some(r => r.role === 'admin');
+
+      let query = supabase
         .from('estudiantes_autorizados')
         .select('*')
         .order('nombre_completo', { ascending: true });
+
+      if (!isAdmin) {
+        query = query.eq('correo_coordinador', user.email!.toLowerCase());
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setEstudiantesAutorizados(data || []);
