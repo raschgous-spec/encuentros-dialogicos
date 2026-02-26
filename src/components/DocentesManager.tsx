@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2, Mail, User as UserIcon } from 'lucide-react';
+import { Plus, Trash2, Mail, User as UserIcon, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -36,12 +36,25 @@ interface Docente {
   cursos_count?: number;
 }
 
+interface EstudianteAsignado {
+  id: string;
+  nombre_completo: string;
+  correo: string;
+  documento: string;
+  programa: string;
+  facultad: string;
+  sede: string;
+}
+
 export const DocentesManager = () => {
   const [docentes, setDocentes] = useState<Docente[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [docenteToDelete, setDocenteToDelete] = useState<string | null>(null);
+  const [expandedDocente, setExpandedDocente] = useState<string | null>(null);
+  const [estudiantesAsignados, setEstudiantesAsignados] = useState<EstudianteAsignado[]>([]);
+  const [loadingEstudiantes, setLoadingEstudiantes] = useState(false);
   const [newDocente, setNewDocente] = useState({
     email: '',
     password: '',
@@ -99,6 +112,32 @@ export const DocentesManager = () => {
         description: 'No se pudieron cargar los docentes',
         variant: 'destructive',
       });
+    }
+  };
+
+  const toggleExpandDocente = async (docenteId: string, email: string) => {
+    if (expandedDocente === docenteId) {
+      setExpandedDocente(null);
+      setEstudiantesAsignados([]);
+      return;
+    }
+    
+    setExpandedDocente(docenteId);
+    setLoadingEstudiantes(true);
+    try {
+      const { data, error } = await supabase
+        .from('estudiantes_autorizados')
+        .select('id, nombre_completo, correo, documento, programa, facultad, sede')
+        .eq('correo_coordinador', email.toLowerCase())
+        .order('nombre_completo');
+
+      if (error) throw error;
+      setEstudiantesAsignados(data || []);
+    } catch (error) {
+      console.error('Error fetching assigned students:', error);
+      setEstudiantesAsignados([]);
+    } finally {
+      setLoadingEstudiantes(false);
     }
   };
 
@@ -265,8 +304,11 @@ export const DocentesManager = () => {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {docentes.map((docente) => (
-          <Card key={docente.id}>
-            <CardHeader>
+          <Card key={docente.id} className={expandedDocente === docente.id ? 'col-span-full' : ''}>
+            <CardHeader
+              className="cursor-pointer"
+              onClick={() => toggleExpandDocente(docente.id, docente.email)}
+            >
               <div className="flex justify-between items-start">
                 <div className="space-y-1 flex-1">
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -278,16 +320,24 @@ export const DocentesManager = () => {
                     {docente.email}
                   </CardDescription>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setDocenteToDelete(docente.id);
-                    setDeleteDialogOpen(true);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  {expandedDocente === docente.id ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDocenteToDelete(docente.id);
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -298,6 +348,36 @@ export const DocentesManager = () => {
               <Badge variant="outline" className="text-xs">
                 Creado: {new Date(docente.created_at).toLocaleDateString()}
               </Badge>
+
+              {expandedDocente === docente.id && (
+                <div className="mt-4 border-t pt-4">
+                  <h4 className="text-sm font-semibold flex items-center gap-2 mb-3">
+                    <Users className="h-4 w-4" />
+                    Estudiantes asignados
+                    <Badge variant="secondary" className="ml-1">{estudiantesAsignados.length}</Badge>
+                  </h4>
+                  {loadingEstudiantes ? (
+                    <p className="text-sm text-muted-foreground">Cargando...</p>
+                  ) : estudiantesAsignados.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No hay estudiantes asignados a este coordinador.</p>
+                  ) : (
+                    <div className="max-h-64 overflow-y-auto space-y-2">
+                      {estudiantesAsignados.map((est) => (
+                        <div key={est.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50 text-sm">
+                          <div className="min-w-0">
+                            <p className="font-medium truncate">{est.nombre_completo}</p>
+                            <p className="text-xs text-muted-foreground truncate">{est.correo}</p>
+                          </div>
+                          <div className="text-right shrink-0 ml-2">
+                            <p className="text-xs text-muted-foreground">{est.programa}</p>
+                            <p className="text-xs text-muted-foreground">{est.sede}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
