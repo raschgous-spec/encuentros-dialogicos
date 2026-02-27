@@ -477,7 +477,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      unaccent: { Args: { "": string }; Returns: string }
       validate_coordinator_registration: {
         Args: {
           p_correo: string
