@@ -33,20 +33,36 @@ export const RolesManager = () => {
 
   const fetchUsers = async () => {
     try {
-      // Get all profiles with their roles
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, email, full_name');
-
-      if (profilesError) throw profilesError;
-
+      // Fetch all roles first (much smaller table)
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role');
 
       if (rolesError) throw rolesError;
 
-      const usersWithRoles: UserWithRole[] = (profiles || []).map(profile => {
+      // Fetch all profiles using pagination to avoid 1000 row limit
+      let allProfiles: { id: string; email: string; full_name: string | null }[] = [];
+      let from = 0;
+      const pageSize = 1000;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data: batch, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, email, full_name')
+          .range(from, from + pageSize - 1);
+
+        if (profilesError) throw profilesError;
+        if (batch && batch.length > 0) {
+          allProfiles = [...allProfiles, ...batch];
+          from += pageSize;
+          hasMore = batch.length === pageSize;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      const usersWithRoles: UserWithRole[] = allProfiles.map(profile => {
         const userRole = roles?.find(r => r.user_id === profile.id);
         return {
           id: profile.id,
