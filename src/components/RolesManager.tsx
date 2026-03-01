@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,6 +14,8 @@ interface UserWithRole {
   role: 'admin' | 'docente' | 'estudiante' | 'observador';
 }
 
+type RoleFilter = 'all' | 'admin' | 'docente' | 'estudiante' | 'observador';
+
 const roleLabels = {
   admin: { label: 'Administrador', icon: Shield, color: 'bg-red-500' },
   docente: { label: 'Coordinador', icon: UserCog, color: 'bg-blue-500' },
@@ -22,10 +23,35 @@ const roleLabels = {
   observador: { label: 'Observador Administrativo', icon: Users, color: 'bg-orange-500' },
 };
 
+const paginateQuery = async (table: string, selectCols: string) => {
+  let allData: any[] = [];
+  let from = 0;
+  const pageSize = 1000;
+  let hasMore = true;
+
+  while (hasMore) {
+    const { data: batch, error } = await supabase
+      .from(table as any)
+      .select(selectCols)
+      .range(from, from + pageSize - 1);
+
+    if (error) throw error;
+    if (batch && batch.length > 0) {
+      allData = [...allData, ...batch];
+      from += pageSize;
+      hasMore = batch.length === pageSize;
+    } else {
+      hasMore = false;
+    }
+  }
+  return allData;
+};
+
 export const RolesManager = () => {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>('all');
 
   useEffect(() => {
     fetchUsers();
@@ -33,37 +59,13 @@ export const RolesManager = () => {
 
   const fetchUsers = async () => {
     try {
-      // Fetch all roles first (much smaller table)
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
+      const [allRoles, allProfiles] = await Promise.all([
+        paginateQuery('user_roles', 'user_id, role'),
+        paginateQuery('profiles', 'id, email, full_name'),
+      ]);
 
-      if (rolesError) throw rolesError;
-
-      // Fetch all profiles using pagination to avoid 1000 row limit
-      let allProfiles: { id: string; email: string; full_name: string | null }[] = [];
-      let from = 0;
-      const pageSize = 1000;
-      let hasMore = true;
-
-      while (hasMore) {
-        const { data: batch, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, email, full_name')
-          .range(from, from + pageSize - 1);
-
-        if (profilesError) throw profilesError;
-        if (batch && batch.length > 0) {
-          allProfiles = [...allProfiles, ...batch];
-          from += pageSize;
-          hasMore = batch.length === pageSize;
-        } else {
-          hasMore = false;
-        }
-      }
-
-      const usersWithRoles: UserWithRole[] = allProfiles.map(profile => {
-        const userRole = roles?.find(r => r.user_id === profile.id);
+      const usersWithRoles: UserWithRole[] = allProfiles.map((profile: any) => {
+        const userRole = allRoles.find((r: any) => r.user_id === profile.id);
         return {
           id: profile.id,
           email: profile.email,
@@ -72,7 +74,6 @@ export const RolesManager = () => {
         };
       });
 
-      // Sort: admins first, then docentes, then estudiantes
       usersWithRoles.sort((a, b) => {
         const order = { admin: 0, docente: 1, observador: 2, estudiante: 3 };
         return order[a.role] - order[b.role];
@@ -104,9 +105,7 @@ export const RolesManager = () => {
       if (data?.error) throw new Error(data.error);
 
       toast.success(data.message || 'Rol actualizado correctamente');
-      
-      // Update local state
-      setUsers(prev => prev.map(user => 
+      setUsers(prev => prev.map(user =>
         user.id === userId ? { ...user, role: newRole as UserWithRole['role'] } : user
       ));
     } catch (error: any) {
@@ -135,6 +134,8 @@ export const RolesManager = () => {
     estudiante: users.filter(u => u.role === 'estudiante').length,
   };
 
+  const filteredUsers = roleFilter === 'all' ? users : users.filter(u => u.role === roleFilter);
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -144,6 +145,13 @@ export const RolesManager = () => {
       </div>
     );
   }
+
+  const statCards: { key: RoleFilter; icon: typeof Shield; count: number; label: string; iconClass: string }[] = [
+    { key: 'admin', icon: Shield, count: counts.admin, label: 'Administradores', iconClass: 'text-destructive' },
+    { key: 'docente', icon: UserCog, count: counts.docente, label: 'Coordinadores', iconClass: 'text-primary' },
+    { key: 'observador', icon: Users, count: counts.observador, label: 'Observadores', iconClass: 'text-secondary-foreground' },
+    { key: 'estudiante', icon: GraduationCap, count: counts.estudiante, label: 'Estudiantes', iconClass: 'text-accent-foreground' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -158,57 +166,37 @@ export const RolesManager = () => {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats - clickable to filter */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-destructive" />
-              <div>
-                <p className="text-2xl font-bold">{counts.admin}</p>
-                <p className="text-xs text-muted-foreground">Administradores</p>
+        {statCards.map(({ key, icon: Icon, count, label, iconClass }) => (
+          <Card
+            key={key}
+            className={`cursor-pointer transition-all hover:shadow-md ${roleFilter === key ? 'ring-2 ring-primary' : ''}`}
+            onClick={() => setRoleFilter(roleFilter === key ? 'all' : key)}
+          >
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-2">
+                <Icon className={`h-5 w-5 ${iconClass}`} />
+                <div>
+                  <p className="text-2xl font-bold">{count}</p>
+                  <p className="text-xs text-muted-foreground">{label}</p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2">
-              <UserCog className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-2xl font-bold">{counts.docente}</p>
-                <p className="text-xs text-muted-foreground">Coordinadores</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-secondary-foreground" />
-              <div>
-                <p className="text-2xl font-bold">{counts.observador}</p>
-                <p className="text-xs text-muted-foreground">Observadores</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2">
-              <GraduationCap className="h-5 w-5 text-accent-foreground" />
-              <div>
-                <p className="text-2xl font-bold">{counts.estudiante}</p>
-                <p className="text-xs text-muted-foreground">Estudiantes</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
+
+      {roleFilter !== 'all' && (
+        <p className="text-sm text-muted-foreground">
+          Mostrando {filteredUsers.length} {roleLabels[roleFilter]?.label.toLowerCase() || roleFilter}(s).{' '}
+          <button className="text-primary underline" onClick={() => setRoleFilter('all')}>Ver todos</button>
+        </p>
+      )}
 
       {/* User list */}
       <div className="grid gap-4">
-        {users.map(user => (
+        {filteredUsers.map(user => (
           <Card key={user.id}>
             <CardContent className="py-4">
               <div className="flex items-center justify-between">
