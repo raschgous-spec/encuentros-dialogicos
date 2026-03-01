@@ -49,26 +49,39 @@ export const EstadisticasManager = () => {
     fetchEstadisticas();
   }, []);
 
+  const paginateQuery = async (table: string, selectCols: string) => {
+    let allData: any[] = [];
+    let from = 0;
+    const pageSize = 1000;
+    let hasMore = true;
+    while (hasMore) {
+      const { data: batch, error } = await supabase
+        .from(table as any)
+        .select(selectCols)
+        .range(from, from + pageSize - 1);
+      if (error) throw error;
+      if (batch && batch.length > 0) {
+        allData = [...allData, ...batch];
+        from += pageSize;
+        hasMore = batch.length === pageSize;
+      } else {
+        hasMore = false;
+      }
+    }
+    return allData;
+  };
+
   const fetchEstadisticas = async () => {
     try {
       setIsLoading(true);
       
-      // Obtener todos los estudiantes
-      const { data: estudiantesData, error: estudiantesError } = await supabase
-        .from('profiles')
-        .select('id');
+      const [estudiantesData, progresosData] = await Promise.all([
+        paginateQuery('profiles', 'id'),
+        paginateQuery('momento_progreso', 'estudiante_id, momento, completado'),
+      ]);
 
-      if (estudiantesError) throw estudiantesError;
-
-      const total = estudiantesData?.length || 0;
+      const total = estudiantesData.length;
       setTotalEstudiantes(total);
-
-      // Obtener progreso de todos los momentos
-      const { data: progresosData, error: progresosError } = await supabase
-        .from('momento_progreso')
-        .select('estudiante_id, momento, completado');
-
-      if (progresosError) throw progresosError;
 
       // Calcular estadísticas por momento
       const estadisticas: EstadisticasMomento[] = MOMENTOS.map(({ key, label }) => {
