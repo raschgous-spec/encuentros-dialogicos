@@ -5,7 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, Clock, TrendingUp, User, Calendar, ChevronRight, Search, Filter } from 'lucide-react';
+import { FileText, Clock, TrendingUp, User, Calendar, ChevronRight, Search, Filter, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { addLogoToPDF } from '@/utils/pdfExport';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -63,6 +66,7 @@ export const ValoracionesAdminManager = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDiagnostico, setSelectedDiagnostico] = useState<DiagnosticoEval | null>(null);
   const [selectedNivelatorio, setSelectedNivelatorio] = useState<NivelatorioEval | null>(null);
+  const [approvalFilter, setApprovalFilter] = useState<'all' | 'passed' | 'failed'>('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -189,7 +193,82 @@ export const ValoracionesAdminManager = () => {
   };
 
   const filteredDiagnosticos = diagnosticos.filter(d => filterBySearch(d.full_name, d.email));
-  const filteredNivelatorios = nivelatorios.filter(n => filterBySearch(n.full_name, n.email));
+  const filteredNivelatorios = nivelatorios.filter(n => {
+    if (!filterBySearch(n.full_name, n.email)) return false;
+    if (approvalFilter === 'passed') return n.passed;
+    if (approvalFilter === 'failed') return !n.passed;
+    return true;
+  });
+
+  const aprobadosCount = nivelatorios.filter(n => filterBySearch(n.full_name, n.email) && n.passed).length;
+  const noAprobadosCount = nivelatorios.filter(n => filterBySearch(n.full_name, n.email) && !n.passed).length;
+
+  const generateNivelatorioPDF = (group: 'passed' | 'failed') => {
+    const items = nivelatorios.filter(n => {
+      if (!filterBySearch(n.full_name, n.email)) return false;
+      return group === 'passed' ? n.passed : !n.passed;
+    });
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPosition = 10;
+
+    yPosition = addLogoToPDF(doc, yPosition);
+
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    const title = group === 'passed' ? 'ESTUDIANTES APROBADOS - NIVELATORIO' : 'ESTUDIANTES NO APROBADOS - NIVELATORIO';
+    doc.text(title, pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 8;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total: ${items.length} estudiante(s) | Fecha de generación: ${new Date().toLocaleDateString()}`, pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 12;
+
+    const tableData = items.map((n, i) => [
+      String(i + 1),
+      n.full_name || 'Sin nombre',
+      n.email,
+      n.dimension,
+      `${n.automatic_score}/${n.max_score}`,
+      new Date(n.completed_at).toLocaleDateString(),
+    ]);
+
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['#', 'Nombre', 'Correo', 'Dimensión', 'Puntaje', 'Fecha']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: group === 'passed' ? [34, 197, 94] : [239, 68, 68], textColor: 255, fontStyle: 'bold' },
+      styles: { fontSize: 8, cellPadding: 3 },
+      columnStyles: {
+        0: { cellWidth: 10 },
+        1: { cellWidth: 40 },
+        2: { cellWidth: 50 },
+        3: { cellWidth: 35 },
+        4: { cellWidth: 20, halign: 'center' },
+        5: { cellWidth: 25, halign: 'center' },
+      },
+    });
+
+    const pageCount = doc.internal.pages.length - 1;
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(
+        `Página ${i} de ${pageCount} | ENCUENTROS DIALÓGICOS - Universidad de Cundinamarca`,
+        pageWidth / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: 'center' }
+      );
+    }
+
+    const fileName = group === 'passed' ? 'nivelatorio_aprobados' : 'nivelatorio_no_aprobados';
+    doc.save(`${fileName}_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast({ title: 'PDF generado', description: `Se descargó el listado de ${group === 'passed' ? 'aprobados' : 'no aprobados'}` });
+  };
 
   if (isLoading) {
     return (
@@ -297,6 +376,46 @@ export const ValoracionesAdminManager = () => {
 
         {/* NIVELATORIOS */}
         <TabsContent value="nivelatorios" className="space-y-3">
+          {/* Filter & Download Bar */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Filtrar:</span>
+            </div>
+            <Button
+              variant={approvalFilter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setApprovalFilter('all')}
+            >
+              Todos ({aprobadosCount + noAprobadosCount})
+            </Button>
+            <Button
+              variant={approvalFilter === 'passed' ? 'default' : 'outline'}
+              size="sm"
+              className={approvalFilter === 'passed' ? 'bg-green-600 hover:bg-green-700' : ''}
+              onClick={() => setApprovalFilter('passed')}
+            >
+              Aprobados ({aprobadosCount})
+            </Button>
+            <Button
+              variant={approvalFilter === 'failed' ? 'default' : 'outline'}
+              size="sm"
+              className={approvalFilter === 'failed' ? 'bg-red-600 hover:bg-red-700' : ''}
+              onClick={() => setApprovalFilter('failed')}
+            >
+              No aprobados ({noAprobadosCount})
+            </Button>
+            <div className="ml-auto flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => generateNivelatorioPDF('passed')} disabled={aprobadosCount === 0}>
+                <Download className="h-4 w-4 mr-1" />
+                PDF Aprobados
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => generateNivelatorioPDF('failed')} disabled={noAprobadosCount === 0}>
+                <Download className="h-4 w-4 mr-1" />
+                PDF No aprobados
+              </Button>
+            </div>
+          </div>
           {filteredNivelatorios.map((evaluacion) => (
             <Card key={evaluacion.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
