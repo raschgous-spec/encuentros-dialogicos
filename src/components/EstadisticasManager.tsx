@@ -75,9 +75,10 @@ export const EstadisticasManager = () => {
     try {
       setIsLoading(true);
       
-      const [estudiantesData, progresosData] = await Promise.all([
+      const [estudiantesData, progresosData, studentEvalsData] = await Promise.all([
         paginateQuery('profiles', 'id'),
         paginateQuery('momento_progreso', 'estudiante_id, momento, completado'),
+        paginateQuery('student_evaluations', 'user_id, momento, passed'),
       ]);
 
       const total = estudiantesData.length;
@@ -87,9 +88,29 @@ export const EstadisticasManager = () => {
       const estadisticas: EstadisticasMomento[] = MOMENTOS.map(({ key, label }) => {
         const progresosDelMomento = progresosData?.filter(p => p.momento === key) || [];
         
-        const completados = progresosDelMomento.filter(p => p.completado === true).length;
-        const enProgreso = progresosDelMomento.filter(p => p.completado === false).length;
-        const pendientes = total - completados - enProgreso;
+        let completados = progresosDelMomento.filter(p => p.completado === true).length;
+        let enProgreso = progresosDelMomento.filter(p => p.completado === false).length;
+
+        // Enrich with student_evaluations data (e.g. nivelatorio entries not in momento_progreso)
+        if (key === 'nivelatorio' || key === 'diagnostico') {
+          const evalsDelMomento = studentEvalsData?.filter(e => e.momento === key) || [];
+          const evalUserIds = new Set(evalsDelMomento.map(e => e.user_id));
+          const progresoUserIds = new Set(progresosDelMomento.map(p => p.estudiante_id));
+          
+          // Count users with evaluations but no momento_progreso entry
+          for (const userId of evalUserIds) {
+            if (!progresoUserIds.has(userId)) {
+              const eval_ = evalsDelMomento.find(e => e.user_id === userId);
+              if (eval_?.passed) {
+                completados++;
+              } else {
+                enProgreso++;
+              }
+            }
+          }
+        }
+
+        const pendientes = Math.max(0, total - completados - enProgreso);
         const porcentajeCompletado = total > 0 ? Math.round((completados / total) * 100) : 0;
 
         return {

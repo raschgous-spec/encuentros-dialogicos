@@ -69,28 +69,60 @@ export const ValoracionesAdminManager = () => {
     fetchAll();
   }, []);
 
+  const paginateQuery = async (table: string, selectCols: string, filters?: { column: string; value: string }[]) => {
+    let allData: any[] = [];
+    let from = 0;
+    const pageSize = 1000;
+    let hasMore = true;
+    while (hasMore) {
+      let query = supabase.from(table as any).select(selectCols).range(from, from + pageSize - 1);
+      if (filters) {
+        for (const f of filters) {
+          query = query.eq(f.column, f.value);
+        }
+      }
+      const { data: batch, error } = await query;
+      if (error) throw error;
+      if (batch && batch.length > 0) {
+        allData = [...allData, ...batch];
+        from += pageSize;
+        hasMore = batch.length === pageSize;
+      } else {
+        hasMore = false;
+      }
+    }
+    return allData;
+  };
+
+  const paginateProfiles = async (ids: string[]) => {
+    if (ids.length === 0) return [];
+    let allProfiles: any[] = [];
+    const chunkSize = 500;
+    for (let i = 0; i < ids.length; i += chunkSize) {
+      const chunk = ids.slice(i, i + chunkSize);
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', chunk);
+      if (data) allProfiles = [...allProfiles, ...data];
+    }
+    return allProfiles;
+  };
+
   const fetchAll = async () => {
     try {
       setIsLoading(true);
 
-      // Fetch diagnosticos with profile info
-      const { data: diagData, error: diagError } = await supabase
-        .from('evaluaciones')
-        .select('*')
-        .order('fecha', { ascending: false });
-
-      if (diagError) throw diagError;
+      // Fetch all diagnosticos with pagination
+      const diagData = await paginateQuery('evaluaciones', '*');
+      diagData.sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 
       // Fetch profiles for diagnosticos
-      const estudianteIds = [...new Set((diagData || []).map(d => d.estudiante_id))];
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, full_name, email')
-        .in('id', estudianteIds.length > 0 ? estudianteIds : ['none']);
+      const estudianteIds = [...new Set(diagData.map((d: any) => d.estudiante_id))];
+      const profilesData = await paginateProfiles(estudianteIds);
+      const profilesMap = new Map(profilesData.map((p: any) => [p.id, p]));
 
-      const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
-
-      const diagWithNames: DiagnosticoEval[] = (diagData || []).map(d => ({
+      const diagWithNames: DiagnosticoEval[] = diagData.map((d: any) => ({
         ...d,
         full_name: profilesMap.get(d.estudiante_id)?.full_name || null,
         email: profilesMap.get(d.estudiante_id)?.email || '',
@@ -98,24 +130,15 @@ export const ValoracionesAdminManager = () => {
 
       setDiagnosticos(diagWithNames);
 
-      // Fetch nivelatorios with profile info
-      const { data: nivData, error: nivError } = await supabase
-        .from('student_evaluations')
-        .select('*')
-        .eq('momento', 'nivelatorio')
-        .order('completed_at', { ascending: false });
+      // Fetch all nivelatorios with pagination
+      const nivData = await paginateQuery('student_evaluations', '*', [{ column: 'momento', value: 'nivelatorio' }]);
+      nivData.sort((a: any, b: any) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime());
 
-      if (nivError) throw nivError;
+      const nivUserIds = [...new Set(nivData.map((n: any) => n.user_id))];
+      const nivProfilesData = await paginateProfiles(nivUserIds);
+      const nivProfilesMap = new Map(nivProfilesData.map((p: any) => [p.id, p]));
 
-      const nivUserIds = [...new Set((nivData || []).map(n => n.user_id))];
-      const { data: nivProfilesData } = await supabase
-        .from('profiles')
-        .select('id, full_name, email')
-        .in('id', nivUserIds.length > 0 ? nivUserIds : ['none']);
-
-      const nivProfilesMap = new Map((nivProfilesData || []).map(p => [p.id, p]));
-
-      const nivWithNames: NivelatorioEval[] = (nivData || []).map(n => ({
+      const nivWithNames: NivelatorioEval[] = nivData.map((n: any) => ({
         ...n,
         full_name: nivProfilesMap.get(n.user_id)?.full_name || null,
         email: nivProfilesMap.get(n.user_id)?.email || '',
