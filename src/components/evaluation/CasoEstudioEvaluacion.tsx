@@ -79,9 +79,9 @@ export const CasoEstudioEvaluacion = ({ onComplete }: CasoEstudioEvaluacionProps
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    // Randomize tools order when component mounts (arbolProblemas always first)
-    const tools: ToolComponent[] = ['brainstorming', 'affinity', 'ishikawa', 'dofa', 'pareto'];
-    setToolsOrder(['arbolProblemas', ...shuffleArray(tools)]);
+    // Randomize tools order: arbolProblemas always first, brainstorming always before affinity
+    const otherTools: ToolComponent[] = ['ishikawa', 'dofa', 'pareto'];
+    setToolsOrder(['arbolProblemas', 'brainstorming', 'affinity', ...shuffleArray(otherTools)]);
   }, []);
 
   const handleTipoSelect = (tipo: 'dimension' | 'translocal') => {

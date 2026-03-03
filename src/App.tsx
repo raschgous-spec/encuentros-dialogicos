@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import DocenteDashboard from "./pages/DocenteDashboard";
 import EstudianteDashboard from "./pages/EstudianteDashboard";
@@ -56,6 +57,7 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/guia-pdf" element={<GenerarGuiaPDF />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
