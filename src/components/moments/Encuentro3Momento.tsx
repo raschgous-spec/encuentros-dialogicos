@@ -61,15 +61,15 @@ const actaFormSchema = z.object({
   identificacionSecretario: z.string().trim().min(1, { message: "El número de identificación es requerido" }).max(50),
   facultadProgramaSecretario: z.string().trim().min(1, { message: "La facultad y programa son requeridos" }).max(300),
   correoSecretario: z.string().trim().min(1, { message: "El correo institucional es requerido" }).email({ message: "Ingrese un correo válido" }).max(200),
-  participantes: z.string().trim().min(1, { message: "Los participantes son requeridos" }).max(2000),
-  objetivos: z.string().trim().min(1, { message: "Los objetivos son requeridos" }).max(1000),
+  participantes: z.string().trim().min(1, { message: "Los participantes son requeridos" }),
+  objetivos: z.string().trim().min(1, { message: "Los objetivos son requeridos" }),
   // Agenda del día
-  agendaBienvenida: z.string().trim().min(1, { message: "Este campo es requerido" }).max(500),
-  agendaSecretario: z.string().trim().min(1, { message: "Este campo es requerido" }).max(500),
-  agendaInforme: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
-  agendaLecturaOrden: z.string().trim().min(1, { message: "Este campo es requerido" }).max(500),
-  agendaDocumentoCoordinador: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
-  agendaIntervencionEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }).max(1000),
+  agendaBienvenida: z.string().trim().min(1, { message: "Este campo es requerido" }),
+  agendaSecretario: z.string().trim().min(1, { message: "Este campo es requerido" }),
+  agendaInforme: z.string().trim().min(1, { message: "Este campo es requerido" }),
+  agendaLecturaOrden: z.string().trim().min(1, { message: "Este campo es requerido" }),
+  agendaDocumentoCoordinador: z.string().trim().min(1, { message: "Este campo es requerido" }),
+  agendaIntervencionEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }),
   // Contenido
   temasInstitucionales: z.array(z.object({
     tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200),
@@ -96,7 +96,7 @@ const actaFormSchema = z.object({
     })).optional()
   })).min(1, { message: "Debe agregar al menos un tema del programa" }),
   // Proposiciones y plan
-  proposicionesEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }).max(2000),
+  proposicionesEstudiantes: z.string().trim().min(1, { message: "Este campo es requerido" }),
   planMejoramiento: z.array(z.object({
     tema: z.string().trim().min(1, { message: "El tema es requerido" }).max(200),
     descripcionNecesidad: z.string().trim().min(1, { message: "La descripción es requerida" }).max(500),

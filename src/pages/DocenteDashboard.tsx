@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Users, FileText, PlusCircle, BarChart3, FolderOpen, ArrowLeft } from 'lucide-react';
+import { BookOpen, Users, FileText, PlusCircle, BarChart3, FolderOpen, ArrowLeft, ClipboardList, ExternalLink } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CursosManager } from '@/components/CursosManager';
 import { EstudiantesManager } from '@/components/EstudiantesManager';
 import { EvaluacionesManager } from '@/components/EvaluacionesManager';
 import { EstadisticasManager } from '@/components/EstadisticasManager';
 import { SeguimientoTiempoReal } from '@/components/SeguimientoTiempoReal';
+import { ActasEstudiantesViewer } from '@/components/ActasEstudiantesViewer';
 
 const DocenteDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -38,6 +39,7 @@ const DocenteDashboard = () => {
               <TabsTrigger value="estudiantes">Estudiantes</TabsTrigger>
               <TabsTrigger value="evaluaciones">Valoraciones</TabsTrigger>
               <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
+              <TabsTrigger value="actas">Actas</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -193,6 +195,30 @@ const DocenteDashboard = () => {
 
             <TabsContent value="estadisticas">
               <EstadisticasManager />
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ClipboardList className="h-5 w-5" />
+                    Plan de Mejoramiento
+                  </CardTitle>
+                  <CardDescription>
+                    Completa el formulario de plan de mejoramiento institucional
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    className="w-full"
+                    onClick={() => window.open('https://forms.office.com/Pages/ResponsePage.aspx?id=oGfaB0MfjE6Xf1-ItkcO5i11o9mVt19AhoOf5jnhkOhUQ0tQUUZWWUE4TU5NVDFSQkZTUEFYMDNTTy4u', '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Abrir Formulario Plan de Mejoramiento
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="actas">
+              <ActasEstudiantesViewer />
             </TabsContent>
           </Tabs>
         </div>

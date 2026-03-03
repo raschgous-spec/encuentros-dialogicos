@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { BarChart3, Users, TrendingUp, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
@@ -44,6 +45,8 @@ export const EstadisticasManager = () => {
   const [totalEstudiantes, setTotalEstudiantes] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user, hasRole } = useAuth();
+  const isAdmin = hasRole('admin');
 
   useEffect(() => {
     fetchEstadisticas();
@@ -81,19 +84,25 @@ export const EstadisticasManager = () => {
         paginateQuery('student_evaluations', 'user_id, momento, passed'),
       ]);
 
-      const total = estudiantesData.length;
+      // Filter out the coordinator's own profile for docente context
+      const studentProfiles = isAdmin 
+        ? estudiantesData 
+        : estudiantesData.filter((p: any) => p.id !== user?.id);
+
+      const total = studentProfiles.length;
+      const studentIds = new Set(studentProfiles.map((p: any) => p.id));
       setTotalEstudiantes(total);
 
       // Calcular estadísticas por momento
       const estadisticas: EstadisticasMomento[] = MOMENTOS.map(({ key, label }) => {
-        const progresosDelMomento = progresosData?.filter(p => p.momento === key) || [];
+        const progresosDelMomento = progresosData?.filter(p => p.momento === key && studentIds.has(p.estudiante_id)) || [];
         
         let completados = progresosDelMomento.filter(p => p.completado === true).length;
         let enProgreso = progresosDelMomento.filter(p => p.completado === false).length;
 
         // Enrich with student_evaluations data (e.g. nivelatorio entries not in momento_progreso)
         if (key === 'nivelatorio' || key === 'diagnostico') {
-          const evalsDelMomento = studentEvalsData?.filter(e => e.momento === key) || [];
+          const evalsDelMomento = studentEvalsData?.filter(e => e.momento === key && studentIds.has(e.user_id)) || [];
           const evalUserIds = new Set(evalsDelMomento.map(e => e.user_id));
           const progresoUserIds = new Set(progresosDelMomento.map(p => p.estudiante_id));
           
