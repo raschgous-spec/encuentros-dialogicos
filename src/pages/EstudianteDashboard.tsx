@@ -190,6 +190,12 @@ const EstudianteDashboard = () => {
 
       if (error) throw error;
 
+      // Open satisfaction survey for encuentros 1-4
+      const encuentroMomentos = ['encuentro1', 'encuentro2', 'encuentro3', 'encuentro4'];
+      if (encuentroMomentos.includes(momento)) {
+        window.open('https://forms.office.com/Pages/ResponsePage.aspx?id=oGfaB0MfjE6Xf1-ItkcO5i11o9mVt19AhoOf5jnhkOhUQ0tQUUZWWUE4TU5NVDFSQkZTUEFYMDNTTy4u', '_blank');
+      }
+
       // Update local state to unlock next moment
       const momentOrder = ['diagnostico', 'nivelatorio', 'encuentro1', 'encuentro2', 'encuentro3', 'encuentro4'];
       const currentIndex = momentOrder.indexOf(momento);
