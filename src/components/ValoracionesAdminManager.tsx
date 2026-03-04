@@ -34,6 +34,11 @@ interface DiagnosticoEval {
   tiempos_respuesta: any;
   full_name: string | null;
   email: string;
+  sede?: string;
+  facultad?: string;
+  programa?: string;
+  nombre_coordinador?: string;
+  correo_coordinador?: string;
 }
 
 interface NivelatorioEval {
@@ -57,6 +62,11 @@ interface NivelatorioEval {
   dofa_data: any;
   pareto_data: any;
   arbol_problemas_data: any;
+  sede?: string;
+  facultad?: string;
+  programa?: string;
+  nombre_coordinador?: string;
+  correo_coordinador?: string;
 }
 
 export const ValoracionesAdminManager = () => {
@@ -117,6 +127,13 @@ export const ValoracionesAdminManager = () => {
     try {
       setIsLoading(true);
 
+      // Fetch estudiantes_autorizados for sede/facultad/programa/coordinador info
+      const estAutData = await paginateQuery('estudiantes_autorizados', 'correo, sede, facultad, programa, nombre_coordinador, correo_coordinador');
+      const estAutMap = new Map<string, any>();
+      estAutData.forEach((ea: any) => {
+        estAutMap.set(ea.correo?.toLowerCase(), ea);
+      });
+
       // Fetch all diagnosticos with pagination
       const diagData = await paginateQuery('evaluaciones', '*');
       diagData.sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
@@ -126,11 +143,21 @@ export const ValoracionesAdminManager = () => {
       const profilesData = await paginateProfiles(estudianteIds);
       const profilesMap = new Map(profilesData.map((p: any) => [p.id, p]));
 
-      const diagWithNames: DiagnosticoEval[] = diagData.map((d: any) => ({
-        ...d,
-        full_name: profilesMap.get(d.estudiante_id)?.full_name || null,
-        email: profilesMap.get(d.estudiante_id)?.email || '',
-      }));
+      const diagWithNames: DiagnosticoEval[] = diagData.map((d: any) => {
+        const profile = profilesMap.get(d.estudiante_id);
+        const email = profile?.email || '';
+        const estAut = estAutMap.get(email.toLowerCase());
+        return {
+          ...d,
+          full_name: profile?.full_name || null,
+          email,
+          sede: estAut?.sede || '',
+          facultad: estAut?.facultad || '',
+          programa: estAut?.programa || '',
+          nombre_coordinador: estAut?.nombre_coordinador || '',
+          correo_coordinador: estAut?.correo_coordinador || '',
+        };
+      });
 
       setDiagnosticos(diagWithNames);
 
@@ -142,11 +169,21 @@ export const ValoracionesAdminManager = () => {
       const nivProfilesData = await paginateProfiles(nivUserIds);
       const nivProfilesMap = new Map(nivProfilesData.map((p: any) => [p.id, p]));
 
-      const nivWithNames: NivelatorioEval[] = nivData.map((n: any) => ({
-        ...n,
-        full_name: nivProfilesMap.get(n.user_id)?.full_name || null,
-        email: nivProfilesMap.get(n.user_id)?.email || '',
-      }));
+      const nivWithNames: NivelatorioEval[] = nivData.map((n: any) => {
+        const profile = nivProfilesMap.get(n.user_id);
+        const email = profile?.email || '';
+        const estAut = estAutMap.get(email.toLowerCase());
+        return {
+          ...n,
+          full_name: profile?.full_name || null,
+          email,
+          sede: estAut?.sede || '',
+          facultad: estAut?.facultad || '',
+          programa: estAut?.programa || '',
+          nombre_coordinador: estAut?.nombre_coordinador || '',
+          correo_coordinador: estAut?.correo_coordinador || '',
+        };
+      });
 
       setNivelatorios(nivWithNames);
     } catch (error) {
@@ -202,6 +239,127 @@ export const ValoracionesAdminManager = () => {
 
   const aprobadosCount = nivelatorios.filter(n => filterBySearch(n.full_name, n.email) && n.passed).length;
   const noAprobadosCount = nivelatorios.filter(n => filterBySearch(n.full_name, n.email) && !n.passed).length;
+
+  const generateDiagnosticoExportPDF = () => {
+    const items = filteredDiagnosticos;
+    if (items.length === 0) return;
+
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPosition = 10;
+
+    yPosition = addLogoToPDF(doc, yPosition);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('REPORTE DIAGNÓSTICOS - DESAGREGADO', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 6;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total: ${items.length} registro(s) | Fecha: ${new Date().toLocaleDateString()}`, pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 10;
+
+    const tableData = items.map((d, i) => [
+      String(i + 1),
+      (d.full_name || 'Sin nombre').substring(0, 25),
+      d.sede || '-',
+      d.facultad || '-',
+      (d.programa || '-').substring(0, 20),
+      (d.nombre_coordinador || '-').substring(0, 20),
+      d.puntaje_brainstorming?.toFixed(0) ?? '-',
+      d.puntaje_affinity?.toFixed(0) ?? '-',
+      d.puntaje_ishikawa?.toFixed(0) ?? '-',
+      d.puntaje_dofa?.toFixed(0) ?? '-',
+      d.puntaje_pareto?.toFixed(0) ?? '-',
+      d.puntaje_promedio?.toFixed(1) ?? '-',
+      d.nivel || '-',
+    ]);
+
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['#', 'Nombre', 'Sede', 'Facultad', 'Programa', 'Coordinador', 'Brain.', 'Afin.', 'Ishik.', 'DOFA', 'Pareto', 'Prom.', 'Nivel']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: 'bold', fontSize: 7 },
+      styles: { fontSize: 6, cellPadding: 2 },
+      columnStyles: {
+        0: { cellWidth: 8 },
+        6: { halign: 'center' as const }, 7: { halign: 'center' as const }, 8: { halign: 'center' as const },
+        9: { halign: 'center' as const }, 10: { halign: 'center' as const }, 11: { halign: 'center' as const },
+      },
+    });
+
+    const pageCount = doc.internal.pages.length - 1;
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(7);
+      doc.text(`Página ${i} de ${pageCount} | ENCUENTROS DIALÓGICOS - Universidad de Cundinamarca`, pageWidth / 2, doc.internal.pageSize.getHeight() - 8, { align: 'center' });
+    }
+
+    doc.save(`diagnosticos_desagregado_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast({ title: 'PDF generado', description: 'Reporte de diagnósticos desagregado descargado' });
+  };
+
+  const generateNivelatorioExportPDF = () => {
+    const items = filteredNivelatorios;
+    if (items.length === 0) return;
+
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPosition = 10;
+
+    yPosition = addLogoToPDF(doc, yPosition);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('REPORTE NIVELATORIOS - DESAGREGADO', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 6;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total: ${items.length} registro(s) | Fecha: ${new Date().toLocaleDateString()}`, pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 10;
+
+    const tableData = items.map((n, i) => [
+      String(i + 1),
+      (n.full_name || 'Sin nombre').substring(0, 22),
+      n.sede || '-',
+      n.facultad || '-',
+      (n.programa || '-').substring(0, 18),
+      (n.nombre_coordinador || '-').substring(0, 18),
+      n.dimension?.substring(0, 12) || '-',
+      n.brainstorming_data ? '✓' : '✗',
+      n.affinity_data ? '✓' : '✗',
+      n.arbol_problemas_data ? '✓' : '✗',
+      n.ishikawa_data ? '✓' : '✗',
+      n.dofa_data ? '✓' : '✗',
+      n.pareto_data ? '✓' : '✗',
+      `${n.automatic_score}/${n.max_score}`,
+      n.passed ? 'Sí' : 'No',
+    ]);
+
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['#', 'Nombre', 'Sede', 'Facultad', 'Programa', 'Coordinador', 'Dimensión', 'Brain.', 'Afin.', 'Árbol', 'Ishik.', 'DOFA', 'Pareto', 'Puntaje', 'Aprob.']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: 'bold', fontSize: 6.5 },
+      styles: { fontSize: 6, cellPadding: 1.5 },
+      columnStyles: {
+        0: { cellWidth: 7 },
+        7: { halign: 'center' as const }, 8: { halign: 'center' as const }, 9: { halign: 'center' as const },
+        10: { halign: 'center' as const }, 11: { halign: 'center' as const }, 12: { halign: 'center' as const },
+        13: { halign: 'center' as const }, 14: { halign: 'center' as const },
+      },
+    });
+
+    const pageCount = doc.internal.pages.length - 1;
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(7);
+      doc.text(`Página ${i} de ${pageCount} | ENCUENTROS DIALÓGICOS - Universidad de Cundinamarca`, pageWidth / 2, doc.internal.pageSize.getHeight() - 8, { align: 'center' });
+    }
+
+    doc.save(`nivelatorios_desagregado_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast({ title: 'PDF generado', description: 'Reporte de nivelatorios desagregado descargado' });
+  };
 
   const generateNivelatorioPDF = (group: 'passed' | 'failed') => {
     const items = nivelatorios.filter(n => {
@@ -322,6 +480,12 @@ export const ValoracionesAdminManager = () => {
 
         {/* DIAGNÓSTICOS */}
         <TabsContent value="diagnosticos" className="space-y-3">
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" onClick={generateDiagnosticoExportPDF} disabled={filteredDiagnosticos.length === 0}>
+              <Download className="h-4 w-4 mr-1" />
+              Exportar PDF Desagregado
+            </Button>
+          </div>
           {filteredDiagnosticos.map((evaluacion) => (
             <Card key={evaluacion.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
@@ -413,6 +577,10 @@ export const ValoracionesAdminManager = () => {
               <Button variant="outline" size="sm" onClick={() => generateNivelatorioPDF('failed')} disabled={noAprobadosCount === 0}>
                 <Download className="h-4 w-4 mr-1" />
                 PDF No aprobados
+              </Button>
+              <Button variant="outline" size="sm" onClick={generateNivelatorioExportPDF} disabled={filteredNivelatorios.length === 0}>
+                <Download className="h-4 w-4 mr-1" />
+                PDF Desagregado
               </Button>
             </div>
           </div>
