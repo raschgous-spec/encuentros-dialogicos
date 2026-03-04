@@ -5,7 +5,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Target, Lightbulb, Lock, ClipboardList, Plus, Trash2, Download } from 'lucide-react';
+import { Users, Target, Lightbulb, Lock, ClipboardList, Plus, Trash2, Download, ExternalLink } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -748,13 +748,21 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
             </TabsContent>
           </Tabs>
 
-          {onComplete && (
-            <div className="mt-6">
+          <div className="mt-6 space-y-3">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => window.open('https://forms.office.com/Pages/ResponsePage.aspx?id=oGfaB0MfjE6Xf1-ItkcO5i11o9mVt19AhoOf5jnhkOhUQ0tQUUZWWUE4TU5NVDFSQkZTUEFYMDNTTy4u', '_blank')}
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Encuesta de Satisfacción
+            </Button>
+            {onComplete && (
               <Button onClick={handleComplete} className="w-full" disabled={isLocked}>
                 {isLocked ? 'Momento Bloqueado' : 'Marcar como Completado'}
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

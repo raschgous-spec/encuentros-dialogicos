@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download } from 'lucide-react';
+import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download, ExternalLink } from 'lucide-react';
 import { StudentSearchInput } from '@/components/StudentSearchInput';
 import { CoordinatorSearchInput } from '@/components/CoordinatorSearchInput';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -1965,13 +1965,21 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
             </TabsContent>
           </Tabs>
 
-          {onComplete && (
-            <div className="mt-6">
+          <div className="mt-6 space-y-3">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => window.open('https://forms.office.com/Pages/ResponsePage.aspx?id=oGfaB0MfjE6Xf1-ItkcO5i11o9mVt19AhoOf5jnhkOhUQ0tQUUZWWUE4TU5NVDFSQkZTUEFYMDNTTy4u', '_blank')}
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Encuesta de Satisfacción
+            </Button>
+            {onComplete && (
               <Button onClick={onComplete} className="w-full" disabled={isLocked}>
                 {isLocked ? 'Momento Bloqueado' : 'Marcar como Completado'}
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
