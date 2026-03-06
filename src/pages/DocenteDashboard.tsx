@@ -7,7 +7,7 @@ import { BookOpen, Users, FileText, PlusCircle, BarChart3, FolderOpen, ArrowLeft
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CursosManager } from '@/components/CursosManager';
 import { EstudiantesManager } from '@/components/EstudiantesManager';
-import { EvaluacionesManager } from '@/components/EvaluacionesManager';
+import { ValoracionesCoordinadorManager } from '@/components/ValoracionesCoordinadorManager';
 import { EstadisticasManager } from '@/components/EstadisticasManager';
 import { SeguimientoTiempoReal } from '@/components/SeguimientoTiempoReal';
 import { ActasEstudiantesViewer } from '@/components/ActasEstudiantesViewer';
@@ -172,7 +172,7 @@ const DocenteDashboard = () => {
                   <CardDescription>Últimos diagnósticos completados por estudiantes</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <EvaluacionesManager showRecent={true} />
+                  <ValoracionesCoordinadorManager showRecent={true} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -190,7 +190,7 @@ const DocenteDashboard = () => {
             </TabsContent>
 
             <TabsContent value="evaluaciones">
-              <EvaluacionesManager showRecent={false} />
+              <ValoracionesCoordinadorManager showRecent={false} />
             </TabsContent>
 
             <TabsContent value="estadisticas">
