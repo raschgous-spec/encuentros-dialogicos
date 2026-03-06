@@ -468,6 +468,63 @@ export const ValoracionesAdminManager = () => {
         />
       </div>
 
+      {/* Contadores por nivel */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Diagnósticos por Nivel</CardTitle>
+            <CardDescription>Distribución de niveles alcanzados</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              const counts = { avanzado: 0, intermedio: 0, basico: 0, inicial: 0, sin_nivel: 0 };
+              filteredDiagnosticos.forEach(d => {
+                const n = d.nivel?.toLowerCase();
+                if (n === 'avanzado') counts.avanzado++;
+                else if (n === 'intermedio') counts.intermedio++;
+                else if (n === 'basico' || n === 'básico') counts.basico++;
+                else if (n === 'inicial') counts.inicial++;
+                else counts.sin_nivel++;
+              });
+              return (
+                <div className="flex flex-wrap gap-3">
+                  <Badge variant="outline" className="gap-1 border-green-500 text-green-700"><span className="font-bold">{counts.avanzado}</span> Avanzado</Badge>
+                  <Badge variant="outline" className="gap-1 border-blue-500 text-blue-700"><span className="font-bold">{counts.intermedio}</span> Intermedio</Badge>
+                  <Badge variant="outline" className="gap-1 border-yellow-500 text-yellow-700"><span className="font-bold">{counts.basico}</span> Básico</Badge>
+                  <Badge variant="outline" className="gap-1 border-orange-500 text-orange-700"><span className="font-bold">{counts.inicial}</span> Inicial</Badge>
+                  {counts.sin_nivel > 0 && <Badge variant="outline" className="gap-1"><span className="font-bold">{counts.sin_nivel}</span> Sin nivel</Badge>}
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Nivelatorios por Nivel</CardTitle>
+            <CardDescription>Distribución según puntaje obtenido</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              const counts = { avanzado: 0, intermedio: 0, basico: 0 };
+              filteredNivelatorios.forEach(n => {
+                const pct = n.max_score > 0 ? (n.automatic_score / n.max_score) * 100 : 0;
+                if (pct >= 85) counts.avanzado++;
+                else if (pct >= 60) counts.intermedio++;
+                else counts.basico++;
+              });
+              return (
+                <div className="flex flex-wrap gap-3">
+                  <Badge variant="outline" className="gap-1 border-green-500 text-green-700"><span className="font-bold">{counts.avanzado}</span> Avanzado</Badge>
+                  <Badge variant="outline" className="gap-1 border-blue-500 text-blue-700"><span className="font-bold">{counts.intermedio}</span> Intermedio</Badge>
+                  <Badge variant="outline" className="gap-1 border-yellow-500 text-yellow-700"><span className="font-bold">{counts.basico}</span> Básico</Badge>
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+      </div>
+
       <Tabs defaultValue="diagnosticos" className="space-y-4">
         <TabsList>
           <TabsTrigger value="diagnosticos">
