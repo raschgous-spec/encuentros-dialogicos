@@ -27,7 +27,7 @@ export function extractPlanItems(plan: any): any[] {
  * Always stores items under 'planMejoramiento' key as a proper array.
  */
 export function buildPlanPayload(data: {
-  planMejoramiento: any[];
+  planMejoramiento?: any[];
   tituloProyecto?: string;
   propositoGeneral?: string;
   objetivoGeneral?: string;
