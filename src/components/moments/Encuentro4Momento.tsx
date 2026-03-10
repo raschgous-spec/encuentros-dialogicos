@@ -118,7 +118,7 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
             propositoGeneral: plan.propositoGeneral || '',
             objetivoGeneral: plan.objetivoGeneral || '',
             objetivosEspecificos: plan.objetivosEspecificos || [],
-            planMejoramiento: Array.isArray(plan) ? plan : (plan.planMejoramiento || []),
+            planMejoramiento: extractPlanItems(plan),
             indicadoresLogro: plan.indicadoresLogro || [],
             seguimiento: plan.seguimiento || '',
           });
