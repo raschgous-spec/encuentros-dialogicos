@@ -403,15 +403,25 @@ export const generateConsolidatedPlanPDF = async (
   };
 
   actasData.forEach(acta => {
-    const planData = acta.plan_mejoramiento as any[];
-    if (planData && Array.isArray(planData)) {
-      planData.forEach(item => {
-        allPlanItems.push({
-          ...item,
-          momento: momentoNames[acta.momento] || acta.momento
-        });
-      });
+    const plan = acta.plan_mejoramiento as any;
+    // Extract items: handle array, {planMejoramiento: [...]}, or {0: item, 1: item} formats
+    let planItems: any[] = [];
+    if (Array.isArray(plan)) {
+      planItems = plan;
+    } else if (plan?.planMejoramiento && Array.isArray(plan.planMejoramiento)) {
+      planItems = plan.planMejoramiento;
+    } else if (plan && typeof plan === 'object') {
+      const numericKeys = Object.keys(plan).filter(k => !isNaN(Number(k)));
+      if (numericKeys.length > 0) {
+        planItems = numericKeys.sort((a, b) => Number(a) - Number(b)).map(k => plan[k]).filter(item => item && typeof item === 'object' && 'tema' in item);
+      }
     }
+    planItems.forEach(item => {
+      allPlanItems.push({
+        ...item,
+        momento: momentoNames[acta.momento] || acta.momento
+      });
+    });
   });
 
   if (allPlanItems.length === 0) {

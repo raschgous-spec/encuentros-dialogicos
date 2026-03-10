@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Textarea } from '@/components/ui/textarea';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { extractPlanItems } from '@/utils/planMejoramiento';
 
 // Helper function to add logo to PDF
 const addLogoToPDF = (doc: jsPDF, yPosition: number = 10): number => {
@@ -118,7 +119,7 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
             propositoGeneral: plan.propositoGeneral || '',
             objetivoGeneral: plan.objetivoGeneral || '',
             objetivosEspecificos: plan.objetivosEspecificos || [],
-            planMejoramiento: Array.isArray(plan) ? plan : (plan.planMejoramiento || []),
+            planMejoramiento: extractPlanItems(plan),
             indicadoresLogro: plan.indicadoresLogro || [],
             seguimiento: plan.seguimiento || '',
           });
@@ -138,7 +139,7 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
               propositoGeneral: plan.propositoGeneral || '',
               objetivoGeneral: plan.objetivoGeneral || '',
               objetivosEspecificos: plan.objetivosEspecificos || [],
-              planMejoramiento: Array.isArray(plan) ? plan : (plan.planMejoramiento || []),
+              planMejoramiento: extractPlanItems(plan),
               indicadoresLogro: plan.indicadoresLogro || [],
               seguimiento: plan.seguimiento || '',
             });

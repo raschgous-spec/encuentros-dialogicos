@@ -23,6 +23,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { extractPlanItems, buildPlanPayload } from '@/utils/planMejoramiento';
 
 // Helper function to add logo to PDF
 const addLogoToPDF = (doc: jsPDF, yPosition: number = 10): number => {
@@ -225,7 +226,10 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
             temasFacultad: (data.temas_facultad as any) || [{ tema: '', participaciones: [] }],
             temasPrograma: (data.temas_programa as any) || [{ tema: '', participaciones: [] }],
             proposicionesEstudiantes: data.proposiciones_estudiantes || '',
-            planMejoramiento: (Array.isArray(data.plan_mejoramiento) ? data.plan_mejoramiento : [{ tema: '', descripcionNecesidad: '', estrategia: '', accionesMejora: '', responsables: '', fechaInicial: '', fechaFinal: '', indicadorCumplimiento: '', observaciones: '' }]) as any,
+            planMejoramiento: (() => {
+              const items = extractPlanItems(data.plan_mejoramiento);
+              return items.length > 0 ? items : [{ tema: '', descripcionNecesidad: '', estrategia: '', accionesMejora: '', responsables: '', fechaInicial: '', fechaFinal: '', indicadorCumplimiento: '', observaciones: '' }];
+            })() as any,
             tituloProyecto: (data.plan_mejoramiento as any)?.tituloProyecto || '',
             propositoGeneral: (data.plan_mejoramiento as any)?.propositoGeneral || '',
             objetivoGeneral: (data.plan_mejoramiento as any)?.objetivoGeneral || '',
@@ -630,15 +634,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
           temas_facultad: data.temasFacultad,
           temas_programa: data.temasPrograma,
           proposiciones_estudiantes: data.proposicionesEstudiantes,
-          plan_mejoramiento: {
-            ...data.planMejoramiento,
-            tituloProyecto: data.tituloProyecto,
-            propositoGeneral: data.propositoGeneral,
-            objetivoGeneral: data.objetivoGeneral,
-            objetivosEspecificos: data.objetivosEspecificos,
-            indicadoresLogro: data.indicadoresLogro,
-            seguimiento: data.seguimiento,
-          } as any,
+          plan_mejoramiento: buildPlanPayload(data) as any,
         }, {
           onConflict: 'estudiante_id,momento'
         });
