@@ -23,6 +23,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { extractPlanItems, buildPlanPayload } from '@/utils/planMejoramiento';
 
 // Helper function to add logo to PDF
 const addLogoToPDF = (doc: jsPDF, yPosition: number = 10): number => {

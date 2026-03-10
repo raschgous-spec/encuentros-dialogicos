@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Textarea } from '@/components/ui/textarea';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { extractPlanItems } from '@/utils/planMejoramiento';
 
 // Helper function to add logo to PDF
 const addLogoToPDF = (doc: jsPDF, yPosition: number = 10): number => {
