@@ -239,7 +239,12 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
             temasFacultad: (data.temas_facultad as any) || [{ tema: '', participaciones: [] }],
             temasPrograma: (data.temas_programa as any) || [{ tema: '', participaciones: [] }],
             proposicionesEstudiantes: data.proposiciones_estudiantes || '',
-            planMejoramiento: (Array.isArray(data.plan_mejoramiento) ? data.plan_mejoramiento : prevData?.plan_mejoramiento || [{ tema: '', descripcionNecesidad: '', estrategia: '', accionesMejora: '', responsables: '', fechaInicial: '', fechaFinal: '', indicadorCumplimiento: '', observaciones: '' }]) as any,
+            planMejoramiento: (() => {
+              const items = extractPlanItems(data.plan_mejoramiento);
+              if (items.length > 0) return items;
+              const prevItems = extractPlanItems(prevData?.plan_mejoramiento);
+              return prevItems.length > 0 ? prevItems : [{ tema: '', descripcionNecesidad: '', estrategia: '', accionesMejora: '', responsables: '', fechaInicial: '', fechaFinal: '', indicadorCumplimiento: '', observaciones: '' }];
+            })() as any,
             tituloProyecto: (data.plan_mejoramiento as any)?.tituloProyecto || (prevData?.plan_mejoramiento as any)?.tituloProyecto || '',
             propositoGeneral: (data.plan_mejoramiento as any)?.propositoGeneral || (prevData?.plan_mejoramiento as any)?.propositoGeneral || '',
             objetivoGeneral: (data.plan_mejoramiento as any)?.objetivoGeneral || (prevData?.plan_mejoramiento as any)?.objetivoGeneral || '',
