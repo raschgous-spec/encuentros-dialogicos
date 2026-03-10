@@ -102,11 +102,8 @@ const EstudianteDashboard = () => {
             if (item.completado) {
               progress[item.momento] = true;
               
-              // Special case: encuentro1 requires passing nivelatorio evaluation
-              if (item.momento === 'nivelatorio') {
-                progress['encuentro1'] = nivelatorioPassedEvaluation;
-              } else if (item.momento !== 'encuentro1') {
-                // For other moments, unlock next if current is completed
+              // For completed moments, unlock next
+              if (item.momento !== 'encuentro1') {
                 const momentOrder = ['diagnostico', 'nivelatorio', 'encuentro1', 'encuentro2', 'encuentro3', 'encuentro4'];
                 const currentIndex = momentOrder.indexOf(item.momento);
                 if (currentIndex < momentOrder.length - 1) {
@@ -115,6 +112,26 @@ const EstudianteDashboard = () => {
               }
             }
           });
+        }
+
+        // Special case: if student passed nivelatorio evaluation, always unlock encuentro1
+        // This works even if momento_progreso record is missing
+        if (nivelatorioPassedEvaluation) {
+          progress['nivelatorio'] = true;
+          progress['encuentro1'] = true;
+          
+          // Ensure momento_progreso record exists for nivelatorio
+          const hasNivelatorioProgress = progressData?.some(p => p.momento === 'nivelatorio' && p.completado);
+          if (!hasNivelatorioProgress) {
+            supabase.from('momento_progreso').upsert({
+              estudiante_id: user.id,
+              momento: 'nivelatorio',
+              completado: true,
+              fecha_completado: new Date().toISOString(),
+            }, { onConflict: 'estudiante_id,momento' }).then(({ error }) => {
+              if (error) console.error('Error auto-creating nivelatorio progress:', error);
+            });
+          }
         }
 
         setMomentoProgress(progress);
