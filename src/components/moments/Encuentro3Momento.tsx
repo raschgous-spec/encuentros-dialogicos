@@ -659,15 +659,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
           temas_facultad: data.temasFacultad,
           temas_programa: data.temasPrograma,
           proposiciones_estudiantes: data.proposicionesEstudiantes,
-          plan_mejoramiento: {
-            ...data.planMejoramiento,
-            tituloProyecto: data.tituloProyecto,
-            propositoGeneral: data.propositoGeneral,
-            objetivoGeneral: data.objetivoGeneral,
-            objetivosEspecificos: data.objetivosEspecificos,
-            indicadoresLogro: data.indicadoresLogro,
-            seguimiento: data.seguimiento,
-          } as any,
+          plan_mejoramiento: buildPlanPayload(data) as any,
         }, {
           onConflict: 'estudiante_id,momento'
         });
