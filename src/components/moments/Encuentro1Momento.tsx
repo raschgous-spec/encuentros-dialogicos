@@ -1716,9 +1716,29 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                       </Accordion>
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={isLocked || isSaving}>
-                      {isSaving ? 'Guardando...' : 'Guardar Acta'}
-                    </Button>
+                    <div className="flex flex-col gap-2">
+                      {/* Auto-save indicator */}
+                      {lastSaved && (
+                        <p className="text-xs text-muted-foreground text-center">
+                          {isAutoSaving ? '⏳ Autoguardando...' : `✓ Último guardado: ${lastSaved.toLocaleTimeString('es-CO')}`}
+                        </p>
+                      )}
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex-1"
+                          disabled={isLocked || isSaving || isAutoSaving}
+                          onClick={() => saveProgress(false)}
+                        >
+                          <Save className="h-4 w-4 mr-2" />
+                          Guardar Progreso
+                        </Button>
+                        <Button type="submit" className="flex-1" disabled={isLocked || isSaving}>
+                          {isSaving ? 'Guardando...' : 'Completar y Guardar Acta'}
+                        </Button>
+                      </div>
+                    </div>
                   </form>
                 </Form>
               </div>
