@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download, ExternalLink } from 'lucide-react';
+import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download, ExternalLink, Save } from 'lucide-react';
 import { StudentSearchInput } from '@/components/StudentSearchInput';
 import { CoordinatorSearchInput } from '@/components/CoordinatorSearchInput';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -129,7 +129,10 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
   const [problematica, setProblematica] = useState<ProblematicaNivelatorio | null>(null);
   const [activeTab, setActiveTab] = useState('acta');
   const [isSaving, setIsSaving] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Default to nivelatorio problematica when loaded
   useEffect(() => {
@@ -247,6 +250,83 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
 
     loadActa();
   }, [user, actaForm]);
+
+  // Save progress without validation (partial save)
+  const saveProgress = useCallback(async (silent = false) => {
+    if (!user || isLocked) return;
+    
+    const data = actaForm.getValues();
+    const hasData = data.fecha || data.lugar || data.facultad || data.participantes;
+    if (!hasData) return;
+
+    if (silent) setIsAutoSaving(true);
+    else setIsSaving(true);
+
+    try {
+      const { error } = await supabase
+        .from('actas_encuentro')
+        .upsert({
+          estudiante_id: user.id,
+          momento: 'encuentro1',
+          fecha: data.fecha || new Date().toISOString().split('T')[0],
+          lugar: data.lugar || '-',
+          hora_inicio: data.horaInicio || '00:00',
+          hora_fin: data.horaFin || '00:00',
+          facultad: data.facultad || '-',
+          programa_academico: data.programaAcademico || '-',
+          nombre_director: data.nombreDirector || '-',
+          responsable: data.responsable || '-',
+          nombre_secretario: data.nombreSecretario || '-',
+          identificacion_secretario: data.identificacionSecretario || '-',
+          facultad_programa_secretario: data.facultadProgramaSecretario || '-',
+          correo_secretario: data.correoSecretario || 'pending@temp.com',
+          participantes: data.participantes || '-',
+          objetivos: data.objetivos || '-',
+          agenda_bienvenida: data.agendaBienvenida || '-',
+          agenda_secretario: data.agendaSecretario || '-',
+          agenda_informe: data.agendaInforme || '-',
+          agenda_lectura_orden: data.agendaLecturaOrden || '-',
+          agenda_documento_coordinador: data.agendaDocumentoCoordinador || '-',
+          agenda_intervencion_estudiantes: data.agendaIntervencionEstudiantes || '-',
+          temas_institucionales: data.temasInstitucionales || [],
+          temas_facultad: data.temasFacultad || [],
+          temas_programa: data.temasPrograma || [],
+          proposiciones_estudiantes: data.proposicionesEstudiantes || '-',
+          plan_mejoramiento: buildPlanPayload(data) as any,
+        }, {
+          onConflict: 'estudiante_id,momento'
+        });
+
+      if (error) throw error;
+      setLastSaved(new Date());
+      if (!silent) {
+        toast({ title: "Progreso guardado", description: "Tu progreso se ha guardado. Puedes continuar más tarde." });
+      }
+    } catch (error) {
+      console.error('Error saving progress:', error);
+      if (!silent) {
+        toast({ title: "Error al guardar progreso", description: "No se pudo guardar el progreso", variant: "destructive" });
+      }
+    } finally {
+      setIsSaving(false);
+      setIsAutoSaving(false);
+    }
+  }, [user, isLocked, actaForm, toast]);
+
+  // Auto-save with debounce (30 seconds after last change)
+  useEffect(() => {
+    if (isLoading || isLocked) return;
+    const subscription = actaForm.watch(() => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+      autoSaveTimerRef.current = setTimeout(() => {
+        saveProgress(true);
+      }, 30000);
+    });
+    return () => {
+      subscription.unsubscribe();
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    };
+  }, [isLoading, isLocked, actaForm, saveProgress]);
 
   const { fields: objetivosFields, append: appendObjetivo, remove: removeObjetivo } = useFieldArray({
     control: actaForm.control,
@@ -1636,9 +1716,29 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                       </Accordion>
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={isLocked || isSaving}>
-                      {isSaving ? 'Guardando...' : 'Guardar Acta'}
-                    </Button>
+                    <div className="flex flex-col gap-2">
+                      {/* Auto-save indicator */}
+                      {lastSaved && (
+                        <p className="text-xs text-muted-foreground text-center">
+                          {isAutoSaving ? '⏳ Autoguardando...' : `✓ Último guardado: ${lastSaved.toLocaleTimeString('es-CO')}`}
+                        </p>
+                      )}
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex-1"
+                          disabled={isLocked || isSaving || isAutoSaving}
+                          onClick={() => saveProgress(false)}
+                        >
+                          <Save className="h-4 w-4 mr-2" />
+                          Guardar Progreso
+                        </Button>
+                        <Button type="submit" className="flex-1" disabled={isLocked || isSaving}>
+                          {isSaving ? 'Guardando...' : 'Completar y Guardar Acta'}
+                        </Button>
+                      </div>
+                    </div>
                   </form>
                 </Form>
               </div>
