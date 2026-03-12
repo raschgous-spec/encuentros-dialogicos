@@ -19,6 +19,9 @@ import {
   Cell,
 } from 'recharts';
 import { Progress } from '@/components/ui/progress';
+import { HierarchicalFilters, FilterValues } from '@/components/filters/HierarchicalFilters';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface EstadisticasMomento {
   momento: string;
@@ -48,9 +51,23 @@ export const EstadisticasManager = () => {
   const { user, hasRole } = useAuth();
   const isAdmin = hasRole('admin');
 
+  // Hierarchical filter state
+  const [filters, setFilters] = useState<FilterValues>({ sede: '', facultad: '', programa: '' });
+  const [allProfiles, setAllProfiles] = useState<any[]>([]);
+  const [allEstAutorizados, setAllEstAutorizados] = useState<any[]>([]);
+  const [allProgresos, setAllProgresos] = useState<any[]>([]);
+  const [allStudentEvals, setAllStudentEvals] = useState<any[]>([]);
+
   useEffect(() => {
     fetchEstadisticas();
   }, []);
+
+  // Recalculate when filters change
+  useEffect(() => {
+    if (!isLoading) {
+      recalculate();
+    }
+  }, [filters]);
 
   const paginateQuery = async (table: string, selectCols: string) => {
     let allData: any[] = [];
@@ -78,62 +95,20 @@ export const EstadisticasManager = () => {
     try {
       setIsLoading(true);
       
-      const [estudiantesData, progresosData, studentEvalsData] = await Promise.all([
-        paginateQuery('profiles', 'id'),
+      const [estudiantesData, progresosData, studentEvalsData, estAutorizados] = await Promise.all([
+        paginateQuery('profiles', 'id, email'),
         paginateQuery('momento_progreso', 'estudiante_id, momento, completado'),
         paginateQuery('student_evaluations', 'user_id, momento, passed'),
+        paginateQuery('estudiantes_autorizados', 'correo, sede, facultad, programa'),
       ]);
 
-      // Filter out the coordinator's own profile for docente context
-      const studentProfiles = isAdmin 
-        ? estudiantesData 
-        : estudiantesData.filter((p: any) => p.id !== user?.id);
+      setAllProfiles(estudiantesData);
+      setAllProgresos(progresosData);
+      setAllStudentEvals(studentEvalsData);
+      setAllEstAutorizados(estAutorizados);
 
-      const total = studentProfiles.length;
-      const studentIds = new Set(studentProfiles.map((p: any) => p.id));
-      setTotalEstudiantes(total);
-
-      // Calcular estadísticas por momento
-      const estadisticas: EstadisticasMomento[] = MOMENTOS.map(({ key, label }) => {
-        const progresosDelMomento = progresosData?.filter(p => p.momento === key && studentIds.has(p.estudiante_id)) || [];
-        
-        let completados = progresosDelMomento.filter(p => p.completado === true).length;
-        let enProgreso = progresosDelMomento.filter(p => p.completado === false).length;
-
-        // Enrich with student_evaluations data (e.g. nivelatorio entries not in momento_progreso)
-        if (key === 'nivelatorio' || key === 'diagnostico') {
-          const evalsDelMomento = studentEvalsData?.filter(e => e.momento === key && studentIds.has(e.user_id)) || [];
-          const evalUserIds = new Set(evalsDelMomento.map(e => e.user_id));
-          const progresoUserIds = new Set(progresosDelMomento.map(p => p.estudiante_id));
-          
-          // Count users with evaluations but no momento_progreso entry
-          for (const userId of evalUserIds) {
-            if (!progresoUserIds.has(userId)) {
-              const eval_ = evalsDelMomento.find(e => e.user_id === userId);
-              if (eval_?.passed) {
-                completados++;
-              } else {
-                enProgreso++;
-              }
-            }
-          }
-        }
-
-        const pendientes = Math.max(0, total - completados - enProgreso);
-        const porcentajeCompletado = total > 0 ? Math.round((completados / total) * 100) : 0;
-
-        return {
-          momento: key,
-          label,
-          totalEstudiantes: total,
-          completados,
-          enProgreso,
-          pendientes,
-          porcentajeCompletado,
-        };
-      });
-
-      setEstadisticasMomentos(estadisticas);
+      // Initial calculation
+      calculateStats(estudiantesData, progresosData, studentEvalsData, estAutorizados, { sede: '', facultad: '', programa: '' });
     } catch (error) {
       console.error('Error fetching estadísticas:', error);
       toast({
@@ -146,6 +121,137 @@ export const EstadisticasManager = () => {
     }
   };
 
+  const recalculate = () => {
+    calculateStats(allProfiles, allProgresos, allStudentEvals, allEstAutorizados, filters);
+  };
+
+  const calculateStats = (
+    profiles: any[],
+    progresos: any[],
+    studentEvals: any[],
+    estAutorizados: any[],
+    currentFilters: FilterValues
+  ) => {
+    // Build email-to-profile map for filtering
+    const emailToProfileId = new Map<string, string>();
+    profiles.forEach((p: any) => {
+      emailToProfileId.set(p.email?.toLowerCase(), p.id);
+    });
+
+    // Filter estudiantes_autorizados by filters
+    let filteredEst = estAutorizados;
+    if (currentFilters.sede) filteredEst = filteredEst.filter((e: any) => e.sede === currentFilters.sede);
+    if (currentFilters.facultad) filteredEst = filteredEst.filter((e: any) => e.facultad === currentFilters.facultad);
+    if (currentFilters.programa) filteredEst = filteredEst.filter((e: any) => e.programa === currentFilters.programa);
+
+    // Get matching profile IDs
+    let studentIds: Set<string>;
+    if (currentFilters.sede || currentFilters.facultad || currentFilters.programa) {
+      const matchingIds = new Set<string>();
+      filteredEst.forEach((e: any) => {
+        const profileId = emailToProfileId.get(e.correo?.toLowerCase());
+        if (profileId) matchingIds.add(profileId);
+      });
+      studentIds = matchingIds;
+    } else {
+      studentIds = new Set(profiles.filter((p: any) => !isAdmin || true).map((p: any) => p.id));
+      if (!isAdmin && user) {
+        studentIds.delete(user.id);
+      }
+    }
+
+    const total = studentIds.size;
+    setTotalEstudiantes(total);
+
+    const estadisticas: EstadisticasMomento[] = MOMENTOS.map(({ key, label }) => {
+      const progresosDelMomento = progresos?.filter(p => p.momento === key && studentIds.has(p.estudiante_id)) || [];
+      
+      let completados = progresosDelMomento.filter(p => p.completado === true).length;
+      let enProgreso = progresosDelMomento.filter(p => p.completado === false).length;
+
+      if (key === 'nivelatorio' || key === 'diagnostico') {
+        const evalsDelMomento = studentEvals?.filter(e => e.momento === key && studentIds.has(e.user_id)) || [];
+        const progresoUserIds = new Set(progresosDelMomento.map(p => p.estudiante_id));
+        
+        for (const eval_ of evalsDelMomento) {
+          if (!progresoUserIds.has(eval_.user_id)) {
+            if (eval_.passed) completados++;
+            else enProgreso++;
+          }
+        }
+      }
+
+      const pendientes = Math.max(0, total - completados - enProgreso);
+      const porcentajeCompletado = total > 0 ? Math.round((completados / total) * 100) : 0;
+
+      return { momento: key, label, totalEstudiantes: total, completados, enProgreso, pendientes, porcentajeCompletado };
+    });
+
+    setEstadisticasMomentos(estadisticas);
+  };
+
+  const filterLabel = () => {
+    const parts: string[] = [];
+    if (filters.sede) parts.push(filters.sede);
+    if (filters.facultad) parts.push(filters.facultad);
+    if (filters.programa) parts.push(filters.programa);
+    return parts.length > 0 ? parts.join(' > ') : 'General (sin filtros)';
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF('landscape');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 15;
+
+    // Logo
+    try {
+      const logo = new Image();
+      logo.src = '/logo-udec.png';
+      doc.addImage(logo, 'PNG', (pageWidth - 60) / 2, y, 60, 20);
+      y += 30;
+    } catch { y += 5; }
+
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('REPORTE DE ESTADÍSTICAS POR MOMENTO', pageWidth / 2, y, { align: 'center' });
+    y += 8;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Filtro: ${filterLabel()}`, pageWidth / 2, y, { align: 'center' });
+    y += 5;
+    doc.text(`Fecha: ${new Date().toLocaleDateString('es-CO')}`, pageWidth / 2, y, { align: 'center' });
+    y += 10;
+
+    doc.text(`Total estudiantes: ${totalEstudiantes}`, 14, y);
+    y += 8;
+
+    autoTable(doc, {
+      startY: y,
+      head: [['Momento', 'Completados', 'En Progreso', 'Pendientes', '% Completado']],
+      body: estadisticasMomentos.map(e => [
+        e.label,
+        e.completados.toString(),
+        e.enProgreso.toString(),
+        e.pendientes.toString(),
+        `${e.porcentajeCompletado}%`,
+      ]),
+      theme: 'grid',
+      headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+      styles: { fontSize: 9, cellPadding: 3 },
+    });
+
+    // Footer
+    const pageCount = doc.internal.pages.length - 1;
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.text(`Página ${i} de ${pageCount} | Encuentros Dialógicos - Universidad de Cundinamarca`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+    }
+
+    doc.save(`estadisticas_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -156,12 +262,8 @@ export const EstadisticasManager = () => {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Card key={i}>
-              <CardHeader>
-                <Skeleton className="h-6 w-3/4" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-10 w-1/2" />
-              </CardContent>
+              <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
+              <CardContent><Skeleton className="h-10 w-1/2" /></CardContent>
             </Card>
           ))}
         </div>
@@ -177,18 +279,9 @@ export const EstadisticasManager = () => {
   }));
 
   const consolidadoData = [
-    {
-      name: 'Completados',
-      value: estadisticasMomentos.reduce((sum, est) => sum + est.completados, 0),
-    },
-    {
-      name: 'En Progreso',
-      value: estadisticasMomentos.reduce((sum, est) => sum + est.enProgreso, 0),
-    },
-    {
-      name: 'Pendientes',
-      value: estadisticasMomentos.reduce((sum, est) => sum + est.pendientes, 0),
-    },
+    { name: 'Completados', value: estadisticasMomentos.reduce((sum, est) => sum + est.completados, 0) },
+    { name: 'En Progreso', value: estadisticasMomentos.reduce((sum, est) => sum + est.enProgreso, 0) },
+    { name: 'Pendientes', value: estadisticasMomentos.reduce((sum, est) => sum + est.pendientes, 0) },
   ];
 
   return (
@@ -200,6 +293,18 @@ export const EstadisticasManager = () => {
         </p>
       </div>
 
+      {/* Filtros jerárquicos */}
+      <Card>
+        <CardContent className="pt-4">
+          <HierarchicalFilters
+            data={allEstAutorizados.map((e: any) => ({ sede: e.sede, facultad: e.facultad, programa: e.programa }))}
+            filters={filters}
+            onFilterChange={setFilters}
+            onExportPDF={handleExportPDF}
+          />
+        </CardContent>
+      </Card>
+
       {/* Resumen General */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -210,7 +315,7 @@ export const EstadisticasManager = () => {
           <CardContent>
             <div className="text-2xl font-bold">{totalEstudiantes}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Registrados en el sistema
+              {filters.sede || filters.facultad || filters.programa ? 'Filtrados' : 'Registrados en el sistema'}
             </p>
           </CardContent>
         </Card>
@@ -224,9 +329,7 @@ export const EstadisticasManager = () => {
             <div className="text-2xl font-bold">
               {Math.round(estadisticasMomentos.reduce((sum, est) => sum + est.porcentajeCompletado, 0) / 6)}%
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Promedio en todos los momentos
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Promedio en todos los momentos</p>
           </CardContent>
         </Card>
 
@@ -237,9 +340,7 @@ export const EstadisticasManager = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">6</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Encuentros dialógicos
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Encuentros dialógicos</p>
           </CardContent>
         </Card>
       </div>
@@ -250,9 +351,7 @@ export const EstadisticasManager = () => {
           <Card key={estadistica.momento}>
             <CardHeader>
               <CardTitle className="text-base">{estadistica.label}</CardTitle>
-              <CardDescription>
-                Progreso del momento
-              </CardDescription>
+              <CardDescription>Progreso del momento</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -262,7 +361,6 @@ export const EstadisticasManager = () => {
                 </div>
                 <Progress value={estadistica.porcentajeCompletado} className="h-2" />
               </div>
-
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
@@ -271,7 +369,6 @@ export const EstadisticasManager = () => {
                   </div>
                   <span className="font-bold">{estadistica.completados}</span>
                 </div>
-
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-yellow-500" />
@@ -279,7 +376,6 @@ export const EstadisticasManager = () => {
                   </div>
                   <span className="font-bold">{estadistica.enProgreso}</span>
                 </div>
-
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <AlertCircle className="h-4 w-4 text-gray-400" />
@@ -298,9 +394,7 @@ export const EstadisticasManager = () => {
         <Card>
           <CardHeader>
             <CardTitle>Distribución por Momento</CardTitle>
-            <CardDescription>
-              Comparación de estados en cada momento
-            </CardDescription>
+            <CardDescription>Comparación de estados en cada momento</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -321,9 +415,7 @@ export const EstadisticasManager = () => {
         <Card>
           <CardHeader>
             <CardTitle>Estado Consolidado</CardTitle>
-            <CardDescription>
-              Distribución total en todos los momentos
-            </CardDescription>
+            <CardDescription>Distribución total en todos los momentos</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -353,9 +445,7 @@ export const EstadisticasManager = () => {
       <Card>
         <CardHeader>
           <CardTitle>Resumen Detallado</CardTitle>
-          <CardDescription>
-            Vista completa del progreso en todos los momentos
-          </CardDescription>
+          <CardDescription>Vista completa del progreso en todos los momentos</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
