@@ -129,7 +129,10 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
   const [problematica, setProblematica] = useState<ProblematicaNivelatorio | null>(null);
   const [activeTab, setActiveTab] = useState('acta');
   const [isSaving, setIsSaving] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Default to nivelatorio problematica when loaded
   useEffect(() => {
