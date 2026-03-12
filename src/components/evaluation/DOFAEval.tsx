@@ -55,7 +55,7 @@ export const DOFAEval = ({ problematica, onComplete }: DOFAEvalProps) => {
   const handleSubmit = () => {
     const hasAllQuadrants = Object.values(matrix).every(arr => arr.length >= 2);
     if (hasAllQuadrants) {
-      onComplete({ matrix });
+      onComplete(matrix);
     }
   };
 
