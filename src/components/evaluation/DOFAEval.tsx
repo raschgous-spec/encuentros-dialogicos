@@ -15,7 +15,7 @@ interface DOFAMatrix {
 
 interface DOFAEvalProps {
   problematica: string;
-  onComplete: (data: { matrix: DOFAMatrix }) => void;
+  onComplete: (data: DOFAMatrix) => void;
 }
 
 const quadrants = [
