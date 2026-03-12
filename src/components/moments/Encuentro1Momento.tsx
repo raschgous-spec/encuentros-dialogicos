@@ -132,7 +132,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Default to nivelatorio problematica when loaded
   useEffect(() => {
