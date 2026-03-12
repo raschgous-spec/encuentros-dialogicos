@@ -251,6 +251,83 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
     loadActa();
   }, [user, actaForm]);
 
+  // Save progress without validation (partial save)
+  const saveProgress = useCallback(async (silent = false) => {
+    if (!user || isLocked) return;
+    
+    const data = actaForm.getValues();
+    const hasData = data.fecha || data.lugar || data.facultad || data.participantes;
+    if (!hasData) return;
+
+    if (silent) setIsAutoSaving(true);
+    else setIsSaving(true);
+
+    try {
+      const { error } = await supabase
+        .from('actas_encuentro')
+        .upsert({
+          estudiante_id: user.id,
+          momento: 'encuentro1',
+          fecha: data.fecha || new Date().toISOString().split('T')[0],
+          lugar: data.lugar || '-',
+          hora_inicio: data.horaInicio || '00:00',
+          hora_fin: data.horaFin || '00:00',
+          facultad: data.facultad || '-',
+          programa_academico: data.programaAcademico || '-',
+          nombre_director: data.nombreDirector || '-',
+          responsable: data.responsable || '-',
+          nombre_secretario: data.nombreSecretario || '-',
+          identificacion_secretario: data.identificacionSecretario || '-',
+          facultad_programa_secretario: data.facultadProgramaSecretario || '-',
+          correo_secretario: data.correoSecretario || 'pending@temp.com',
+          participantes: data.participantes || '-',
+          objetivos: data.objetivos || '-',
+          agenda_bienvenida: data.agendaBienvenida || '-',
+          agenda_secretario: data.agendaSecretario || '-',
+          agenda_informe: data.agendaInforme || '-',
+          agenda_lectura_orden: data.agendaLecturaOrden || '-',
+          agenda_documento_coordinador: data.agendaDocumentoCoordinador || '-',
+          agenda_intervencion_estudiantes: data.agendaIntervencionEstudiantes || '-',
+          temas_institucionales: data.temasInstitucionales || [],
+          temas_facultad: data.temasFacultad || [],
+          temas_programa: data.temasPrograma || [],
+          proposiciones_estudiantes: data.proposicionesEstudiantes || '-',
+          plan_mejoramiento: buildPlanPayload(data) as any,
+        }, {
+          onConflict: 'estudiante_id,momento'
+        });
+
+      if (error) throw error;
+      setLastSaved(new Date());
+      if (!silent) {
+        toast({ title: "Progreso guardado", description: "Tu progreso se ha guardado. Puedes continuar más tarde." });
+      }
+    } catch (error) {
+      console.error('Error saving progress:', error);
+      if (!silent) {
+        toast({ title: "Error al guardar progreso", description: "No se pudo guardar el progreso", variant: "destructive" });
+      }
+    } finally {
+      setIsSaving(false);
+      setIsAutoSaving(false);
+    }
+  }, [user, isLocked, actaForm, toast]);
+
+  // Auto-save with debounce (30 seconds after last change)
+  useEffect(() => {
+    if (isLoading || isLocked) return;
+    const subscription = actaForm.watch(() => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+      autoSaveTimerRef.current = setTimeout(() => {
+        saveProgress(true);
+      }, 30000);
+    });
+    return () => {
+      subscription.unsubscribe();
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    };
+  }, [isLoading, isLocked, actaForm, saveProgress]);
+
   const { fields: objetivosFields, append: appendObjetivo, remove: removeObjetivo } = useFieldArray({
     control: actaForm.control,
     name: "objetivosEspecificos",
