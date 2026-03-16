@@ -50,6 +50,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
               <TabsTrigger value="valoraciones">Valoraciones</TabsTrigger>
               <TabsTrigger value="importar">Importar</TabsTrigger>
+              <TabsTrigger value="actas">Actas</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
