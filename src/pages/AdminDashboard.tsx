@@ -11,6 +11,7 @@ import { RolesManager } from '@/components/RolesManager';
 import { ImportManager } from '@/components/admin/ImportManager';
 import { EstadisticasManager } from '@/components/EstadisticasManager';
 import { ValoracionesAdminManager } from '@/components/ValoracionesAdminManager';
+import { ActasEstudiantesViewer } from '@/components/ActasEstudiantesViewer';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
