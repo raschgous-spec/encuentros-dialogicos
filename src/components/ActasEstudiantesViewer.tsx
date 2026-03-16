@@ -141,99 +141,240 @@ export const ActasEstudiantesViewer = () => {
     const doc = new jsPDF();
     let yPos = 15;
 
+    // Helper to check page break
+    const checkPageBreak = (needed: number = 30) => {
+      if (yPos > 270 - needed) { doc.addPage(); yPos = 20; }
+    };
+
+    // Header
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('ACTA DE ENCUENTRO', 105, yPos, { align: 'center' });
+    doc.text('ACTA DE REUNIÓN', 105, yPos, { align: 'center' });
     yPos += 8;
     doc.setFontSize(12);
     doc.text(momentoLabels[acta.momento] || acta.momento, 105, yPos, { align: 'center' });
     yPos += 12;
 
-    doc.setFontSize(10);
+    // --- INFORMACIÓN GENERAL ---
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text('Estudiante:', 20, yPos);
+    doc.text('INFORMACIÓN GENERAL', 20, yPos);
+    yPos += 7;
+
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(acta.full_name || '', 55, yPos);
-    yPos += 6;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Correo:', 20, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(acta.email || '', 55, yPos);
-    yPos += 6;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Fecha:', 20, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(acta.fecha || '', 55, yPos);
-    yPos += 6;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Lugar:', 20, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(acta.lugar || '', 55, yPos);
-    yPos += 6;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Facultad:', 20, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(acta.facultad || '', 55, yPos);
-    yPos += 6;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Programa:', 20, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(acta.programa_academico || '', 55, yPos);
+    doc.text(`Estudiante: ${acta.full_name || ''}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Correo: ${acta.email || ''}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Fecha: ${acta.fecha || ''}`, 20, yPos);
+    doc.text(`Lugar: ${acta.lugar || ''}`, 120, yPos);
+    yPos += 5;
+    doc.text(`Hora de inicio: ${acta.hora_inicio || ''}`, 20, yPos);
+    doc.text(`Hora de finalización: ${acta.hora_fin || ''}`, 120, yPos);
+    yPos += 5;
+    doc.text(`Facultad: ${acta.facultad || ''}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Programa Académico: ${acta.programa_academico || ''}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Director: ${acta.nombre_director || ''}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Responsable: ${acta.responsable || ''}`, 20, yPos);
     yPos += 10;
 
+    // --- SECRETARIO ---
+    checkPageBreak();
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SECRETARIO', 20, yPos);
+    yPos += 7;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Nombre: ${acta.nombre_secretario || ''}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Identificación: ${acta.identificacion_secretario || ''}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Facultad/Programa: ${acta.facultad_programa_secretario || ''}`, 20, yPos);
+    yPos += 5;
+    doc.text(`Correo: ${acta.correo_secretario || ''}`, 20, yPos);
+    yPos += 10;
+
+    // --- PARTICIPANTES ---
+    checkPageBreak();
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PARTICIPANTES', 20, yPos);
+    yPos += 7;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
     if (acta.participantes) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('Participantes:', 20, yPos);
-      yPos += 6;
-      doc.setFont('helvetica', 'normal');
       const lines = doc.splitTextToSize(acta.participantes, 170);
       doc.text(lines, 20, yPos);
-      yPos += lines.length * 5 + 5;
+      yPos += lines.length * 4.5 + 5;
     }
 
+    // --- OBJETIVOS ---
+    checkPageBreak();
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('OBJETIVOS', 20, yPos);
+    yPos += 7;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
     if (acta.objetivos) {
-      if (yPos > 250) { doc.addPage(); yPos = 20; }
-      doc.setFont('helvetica', 'bold');
-      doc.text('Objetivos:', 20, yPos);
-      yPos += 6;
-      doc.setFont('helvetica', 'normal');
       const lines = doc.splitTextToSize(acta.objetivos, 170);
       doc.text(lines, 20, yPos);
-      yPos += lines.length * 5 + 5;
+      yPos += lines.length * 4.5 + 5;
     }
 
-    if (acta.proposiciones_estudiantes) {
-      if (yPos > 250) { doc.addPage(); yPos = 20; }
+    // --- AGENDA DEL DÍA ---
+    checkPageBreak(40);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('AGENDA DEL DÍA', 20, yPos);
+    yPos += 5;
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Punto', 'Descripción']],
+      body: [
+        ['1. Bienvenida', acta.agenda_bienvenida || ''],
+        ['2. Verificación de quórum y nombramiento de secretario', acta.agenda_secretario || ''],
+        ['3. Informe de gestión', acta.agenda_informe || ''],
+        ['4. Lectura del orden del día', acta.agenda_lectura_orden || ''],
+        ['5. Documento del coordinador', acta.agenda_documento_coordinador || ''],
+        ['6. Intervención de estudiantes', acta.agenda_intervencion_estudiantes || ''],
+      ],
+      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [66, 139, 202], fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 50 }, 1: { cellWidth: 130 } },
+    });
+    yPos = (doc as any).lastAutoTable.finalY + 10;
+
+    // --- Helper for temas sections ---
+    const renderTemas = (title: string, temas: any[]) => {
+      if (!temas || !Array.isArray(temas) || temas.length === 0) return;
+      checkPageBreak(30);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text('Proposiciones:', 20, yPos);
-      yPos += 6;
-      doc.setFont('helvetica', 'normal');
+      doc.text(title, 20, yPos);
+      yPos += 5;
+
+      temas.forEach((temaObj: any, index: number) => {
+        checkPageBreak();
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${index + 1}. ${temaObj.tema || ''}`, 20, yPos);
+        yPos += 5;
+
+        if (temaObj.participaciones && Array.isArray(temaObj.participaciones) && temaObj.participaciones.length > 0) {
+          autoTable(doc, {
+            startY: yPos,
+            head: [['Estudiante', 'Pregunta/Aporte', 'Respuesta']],
+            body: temaObj.participaciones.map((p: any) => [
+              p.nombreEstudiante || '',
+              p.preguntaAporte || '',
+              p.respuesta || '',
+            ]),
+            styles: { fontSize: 8, cellPadding: 2 },
+            headStyles: { fillColor: [66, 139, 202] },
+          });
+          yPos = (doc as any).lastAutoTable.finalY + 7;
+        }
+      });
+    };
+
+    renderTemas('TEMAS INSTITUCIONALES', acta.temas_institucionales);
+    renderTemas('TEMAS DE FACULTAD', acta.temas_facultad);
+    renderTemas('TEMAS DEL PROGRAMA', acta.temas_programa);
+
+    // --- PROPOSICIONES ---
+    checkPageBreak();
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PROPOSICIONES DE LOS ESTUDIANTES', 20, yPos);
+    yPos += 7;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    if (acta.proposiciones_estudiantes) {
       const lines = doc.splitTextToSize(acta.proposiciones_estudiantes, 170);
       doc.text(lines, 20, yPos);
-      yPos += lines.length * 5 + 5;
+      yPos += lines.length * 4.5 + 5;
     }
 
-    // Plan de mejoramiento
-    if (acta.plan_mejoramiento && Array.isArray(acta.plan_mejoramiento) && acta.plan_mejoramiento.length > 0) {
-      if (yPos > 230) { doc.addPage(); yPos = 20; }
+    // --- PLAN DE MEJORAMIENTO (metadata) ---
+    const plan = acta.plan_mejoramiento;
+    if (plan && typeof plan === 'object') {
+      checkPageBreak(40);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text('Plan de Mejoramiento:', 20, yPos);
-      yPos += 6;
+      doc.text('FORMULACIÓN DEL PLAN DE MEJORAMIENTO', 20, yPos);
+      yPos += 7;
 
-      autoTable(doc, {
-        startY: yPos,
-        head: [['Tema', 'Necesidad', 'Estrategia', 'Acciones', 'Responsables']],
-        body: acta.plan_mejoramiento.map((item: any) => [
-          item.tema || '',
-          item.descripcionNecesidad || '',
-          item.estrategia || '',
-          item.accionesMejora || '',
-          item.responsables || '',
-        ]),
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-        margin: { left: 20, right: 20 },
-      });
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      if (plan.tituloProyecto) {
+        doc.setFont('helvetica', 'bold');
+        doc.text('Título del Proyecto:', 20, yPos);
+        yPos += 5;
+        doc.setFont('helvetica', 'normal');
+        const tLines = doc.splitTextToSize(plan.tituloProyecto, 170);
+        doc.text(tLines, 20, yPos);
+        yPos += tLines.length * 4.5 + 3;
+      }
+
+      if (plan.propositoGeneral) {
+        checkPageBreak();
+        doc.setFont('helvetica', 'bold');
+        doc.text('Propósito General:', 20, yPos);
+        yPos += 5;
+        doc.setFont('helvetica', 'normal');
+        const pLines = doc.splitTextToSize(plan.propositoGeneral, 170);
+        doc.text(pLines, 20, yPos);
+        yPos += pLines.length * 4.5 + 3;
+      }
+
+      if (plan.objetivoGeneral) {
+        checkPageBreak();
+        doc.setFont('helvetica', 'bold');
+        doc.text('Objetivo General:', 20, yPos);
+        yPos += 5;
+        doc.setFont('helvetica', 'normal');
+        const oLines = doc.splitTextToSize(plan.objetivoGeneral, 170);
+        doc.text(oLines, 20, yPos);
+        yPos += oLines.length * 4.5 + 3;
+      }
+
+      // --- DETALLE DEL PLAN DE MEJORAMIENTO (table) ---
+      const items = plan.planMejoramiento || (Array.isArray(plan) ? plan : []);
+      if (Array.isArray(items) && items.length > 0) {
+        checkPageBreak(30);
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('DETALLE DEL PLAN DE MEJORAMIENTO', 20, yPos);
+        yPos += 5;
+
+        autoTable(doc, {
+          startY: yPos,
+          head: [['No.', 'Tema', 'Descripción', 'Estrategia', 'Acciones', 'Responsables', 'F. Inicial', 'F. Final', 'Indicador', 'Observaciones']],
+          body: items.map((item: any, index: number) => [
+            (index + 1).toString(),
+            item.tema || '',
+            item.descripcionNecesidad || '',
+            item.estrategia || '',
+            item.accionesMejora || '',
+            item.responsables || '',
+            item.fechaInicial || '',
+            item.fechaFinal || '',
+            item.indicadorCumplimiento || '',
+            item.observaciones || '-',
+          ]),
+          styles: { fontSize: 7, cellPadding: 2 },
+          headStyles: { fillColor: [66, 139, 202], fontStyle: 'bold' },
+          columnStyles: { 0: { cellWidth: 10 } },
+        });
+      }
     }
 
     doc.save(`acta-${acta.momento}-${acta.full_name?.replace(/\s/g, '_')}.pdf`);
