@@ -221,6 +221,10 @@ const AdminDashboard = () => {
             <TabsContent value="valoraciones">
               <ValoracionesAdminManager />
             </TabsContent>
+
+            <TabsContent value="actas">
+              <ActasEstudiantesViewer />
+            </TabsContent>
           </Tabs>
         </div>
       </div>
