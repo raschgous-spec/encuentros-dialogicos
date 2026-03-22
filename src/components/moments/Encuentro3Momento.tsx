@@ -718,7 +718,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
       if (error) throw error;
 
       // Generate PDF
-      generatePDF(data);
+      await generatePDF(data);
 
       toast({
         title: "Acta guardada exitosamente",
