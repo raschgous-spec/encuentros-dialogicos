@@ -784,7 +784,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
 
       console.log('✅ Datos guardados en BD, generando PDF...');
       // Generate PDF
-      generatePDF(data);
+      await generatePDF(data);
       console.log('✅ PDF generado exitosamente');
 
       toast({
