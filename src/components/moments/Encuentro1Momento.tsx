@@ -339,7 +339,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
     name: "indicadoresLogro",
   });
 
-  const generatePDF = (data: z.infer<typeof actaFormSchema>) => {
+  const generatePDF = async (data: z.infer<typeof actaFormSchema>) => {
     console.log('📄 Iniciando generación de PDF del acta...');
     const doc = new jsPDF();
     let yPos = 10;
