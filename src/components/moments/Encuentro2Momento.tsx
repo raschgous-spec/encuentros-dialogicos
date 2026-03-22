@@ -492,6 +492,10 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
                   <li>Proyectos colaborativos</li>
                 </ul>
               </div>
+              {/* Attachments: Attendance Excel + Photo Evidence */}
+              {user && (
+                <ActaAttachments userId={user.id} momento="encuentro2" isLocked={isLocked} />
+              )}
             </TabsContent>
 
             <TabsContent value="plan" className="space-y-4">
