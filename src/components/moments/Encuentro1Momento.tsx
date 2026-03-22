@@ -1717,6 +1717,11 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                       </Accordion>
                     </div>
 
+                    {/* Attachments: Attendance Excel + Photo Evidence */}
+                    {user && (
+                      <ActaAttachments userId={user.id} momento="encuentro1" isLocked={isLocked} />
+                    )}
+
                     <div className="flex flex-col gap-2">
                       {/* Auto-save indicator */}
                       {lastSaved && (
