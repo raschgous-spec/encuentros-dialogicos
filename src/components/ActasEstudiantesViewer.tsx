@@ -137,7 +137,7 @@ export const ActasEstudiantesViewer = () => {
     return matchSearch && matchMomento;
   });
 
-  const exportActaPDF = (acta: ActaConEstudiante) => {
+  const exportActaPDF = async (acta: ActaConEstudiante) => {
     const doc = new jsPDF();
     let yPos = 15;
 
@@ -374,6 +374,53 @@ export const ActasEstudiantesViewer = () => {
           headStyles: { fillColor: [66, 139, 202], fontStyle: 'bold' },
           columnStyles: { 0: { cellWidth: 10 } },
         });
+      }
+    }
+
+    // --- LISTA DE ASISTENTES (from uploaded Excel) ---
+    const { getAttendanceData, getEvidencePhotos } = await import('@/components/moments/ActaAttachments');
+    const attendanceData = await getAttendanceData(acta.estudiante_id, acta.momento);
+    if (attendanceData && attendanceData.length > 1) {
+      doc.addPage();
+      let attY = 20;
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('LISTA DE ASISTENTES AL ENCUENTRO', 20, attY);
+      attY += 7;
+      autoTable(doc, {
+        startY: attY,
+        head: [attendanceData[0].map(String)],
+        body: attendanceData.slice(1).map(row => row.map(cell => String(cell ?? ''))),
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [66, 139, 202], fontStyle: 'bold' },
+      });
+    }
+
+    // --- EVIDENCIAS FOTOGRÁFICAS ---
+    const photoUrls = await getEvidencePhotos(acta.estudiante_id, acta.momento);
+    if (photoUrls.length > 0) {
+      doc.addPage();
+      let pY = 20;
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('EVIDENCIAS FOTOGRÁFICAS DEL ENCUENTRO', 20, pY);
+      pY += 10;
+      for (let i = 0; i < photoUrls.length; i++) {
+        try {
+          const response = await fetch(photoUrls[i]);
+          const blob = await response.blob();
+          const dataUrl = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          });
+          if (pY > 180) { doc.addPage(); pY = 20; }
+          doc.addImage(dataUrl, 'JPEG', 20, pY, 80, 60);
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`Evidencia ${i + 1}`, 20, pY + 65);
+          pY += 75;
+        } catch (err) { console.error('Error adding photo to PDF:', err); }
       }
     }
 

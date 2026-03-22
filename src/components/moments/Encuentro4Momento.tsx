@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ActaAttachments } from '@/components/moments/ActaAttachments';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -490,6 +491,10 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
                   <li>Planificación de acciones futuras</li>
                 </ul>
               </div>
+              {/* Attachments: Attendance Excel + Photo Evidence */}
+              {user && (
+                <ActaAttachments userId={user.id} momento="encuentro4" isLocked={isLocked} />
+              )}
             </TabsContent>
 
             <TabsContent value="plan" className="space-y-4">

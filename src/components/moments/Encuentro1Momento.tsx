@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download, ExternalLink, Save } from 'lucide-react';
 import { StudentSearchInput } from '@/components/StudentSearchInput';
+import { ActaAttachments, getAttendanceData, getEvidencePhotos } from '@/components/moments/ActaAttachments';
 import { CoordinatorSearchInput } from '@/components/CoordinatorSearchInput';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -338,7 +339,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
     name: "indicadoresLogro",
   });
 
-  const generatePDF = (data: z.infer<typeof actaFormSchema>) => {
+  const generatePDF = async (data: z.infer<typeof actaFormSchema>) => {
     console.log('📄 Iniciando generación de PDF del acta...');
     const doc = new jsPDF();
     let yPos = 10;
@@ -667,6 +668,66 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
       });
     }
 
+    // --- LISTA DE ASISTENTES (from uploaded Excel) ---
+    if (user) {
+      const attendanceData = await getAttendanceData(user.id, 'encuentro1');
+      if (attendanceData && attendanceData.length > 1) {
+        doc.addPage();
+        yPos = 20;
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('LISTA DE ASISTENTES AL ENCUENTRO', 20, yPos);
+        yPos += 7;
+
+        autoTable(doc, {
+          startY: yPos,
+          head: [attendanceData[0].map(String)],
+          body: attendanceData.slice(1).map(row => row.map(cell => String(cell ?? ''))),
+          styles: { fontSize: 8, cellPadding: 2 },
+          headStyles: { fillColor: [66, 139, 202], fontStyle: 'bold' },
+        });
+        yPos = (doc as any).lastAutoTable.finalY + 10;
+      }
+
+      // --- EVIDENCIAS FOTOGRÁFICAS ---
+      const photoUrls = await getEvidencePhotos(user.id, 'encuentro1');
+      if (photoUrls.length > 0) {
+        doc.addPage();
+        yPos = 20;
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('EVIDENCIAS FOTOGRÁFICAS DEL ENCUENTRO', 20, yPos);
+        yPos += 10;
+
+        for (let i = 0; i < photoUrls.length; i++) {
+          try {
+            const response = await fetch(photoUrls[i]);
+            const blob = await response.blob();
+            const dataUrl = await new Promise<string>((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.readAsDataURL(blob);
+            });
+
+            if (yPos > 180) {
+              doc.addPage();
+              yPos = 20;
+            }
+
+            const imgWidth = 80;
+            const imgHeight = 60;
+            doc.addImage(dataUrl, 'JPEG', 20, yPos, imgWidth, imgHeight);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Evidencia ${i + 1}`, 20, yPos + imgHeight + 5);
+            yPos += imgHeight + 15;
+          } catch (err) {
+            console.error('Error adding photo to PDF:', err);
+          }
+        }
+      }
+    }
+
     doc.save(`acta-encuentro1-${data.fecha}.pdf`);
   };
 
@@ -723,7 +784,7 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
 
       console.log('✅ Datos guardados en BD, generando PDF...');
       // Generate PDF
-      generatePDF(data);
+      await generatePDF(data);
       console.log('✅ PDF generado exitosamente');
 
       toast({
@@ -1715,6 +1776,11 @@ export const Encuentro1Momento = ({ onComplete, isLocked = false }: Encuentro1Mo
                         </AccordionItem>
                       </Accordion>
                     </div>
+
+                    {/* Attachments: Attendance Excel + Photo Evidence */}
+                    {user && (
+                      <ActaAttachments userId={user.id} momento="encuentro1" isLocked={isLocked} />
+                    )}
 
                     <div className="flex flex-col gap-2">
                       {/* Auto-save indicator */}
