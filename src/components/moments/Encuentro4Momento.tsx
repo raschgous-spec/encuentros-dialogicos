@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ActaAttachments } from '@/components/moments/ActaAttachments';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
