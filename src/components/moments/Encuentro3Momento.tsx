@@ -287,7 +287,7 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
     name: "indicadoresLogro",
   });
 
-  const generatePDF = (data: z.infer<typeof actaFormSchema>) => {
+  const generatePDF = async (data: z.infer<typeof actaFormSchema>) => {
     const doc = new jsPDF();
     let yPos = 10;
 
