@@ -1661,6 +1661,11 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                       </Accordion>
                     </div>
 
+                    {/* Attachments: Attendance Excel + Photo Evidence */}
+                    {user && (
+                      <ActaAttachments userId={user.id} momento="encuentro3" isLocked={isLocked} />
+                    )}
+
                     <Button type="submit" className="w-full" disabled={isLocked || isSaving}>
                       {isSaving ? 'Guardando...' : 'Guardar Acta'}
                     </Button>
