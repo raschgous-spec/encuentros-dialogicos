@@ -137,7 +137,7 @@ export const ActasEstudiantesViewer = () => {
     return matchSearch && matchMomento;
   });
 
-  const exportActaPDF = (acta: ActaConEstudiante) => {
+  const exportActaPDF = async (acta: ActaConEstudiante) => {
     const doc = new jsPDF();
     let yPos = 15;
 
