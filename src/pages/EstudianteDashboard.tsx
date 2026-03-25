@@ -26,22 +26,13 @@ const EstudianteDashboard = () => {
   const [activeTab, setActiveTab] = useState('pad');
   const [momentoProgress, setMomentoProgress] = useState<Record<string, boolean>>({
     diagnostico: true,
-    nivelatorio: false,
-    encuentro1: false,
-    encuentro2: false,
-    encuentro3: false,
-    encuentro4: false,
+    nivelatorio: true,
+    encuentro1: true,
+    encuentro2: true,
+    encuentro3: true,
+    encuentro4: true,
   });
-  const [checkingStatus, setCheckingStatus] = useState(true);
-  const [showUnlockDialog, setShowUnlockDialog] = useState(false);
-  const [unlockCode, setUnlockCode] = useState('');
-  const [momentoToUnlock, setMomentoToUnlock] = useState<string>('');
-  const [unlockedWithCode, setUnlockedWithCode] = useState<Record<string, boolean>>({
-    encuentro1: false,
-    encuentro2: false,
-    encuentro3: false,
-    encuentro4: false,
-  });
+  const [checkingStatus, setCheckingStatus] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
