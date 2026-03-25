@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, BookOpen, Settings, BarChart3, FileText, Shield, ArrowLeft, GraduationCap, Upload, ClipboardList } from 'lucide-react';
+import { Users, BookOpen, Settings, BarChart3, FileText, Shield, ArrowLeft, GraduationCap, Upload, ClipboardList, ExternalLink } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocentesManager } from '@/components/DocentesManager';
 import { EstudiantesManager } from '@/components/EstudiantesManager';
