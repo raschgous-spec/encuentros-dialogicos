@@ -227,6 +227,10 @@ const AdminDashboard = () => {
             <TabsContent value="actas">
               <ActasEstudiantesViewer />
             </TabsContent>
+
+            <TabsContent value="lti">
+              <LtiConfigManager />
+            </TabsContent>
           </Tabs>
         </div>
       </div>
