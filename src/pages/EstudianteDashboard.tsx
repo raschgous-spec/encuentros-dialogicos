@@ -40,18 +40,6 @@ const EstudianteDashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Check if moments were unlocked with code in previous session
-  useEffect(() => {
-    const savedUnlocks = localStorage.getItem('momentos_unlocked');
-    if (savedUnlocks) {
-      try {
-        const unlocks = JSON.parse(savedUnlocks);
-        setUnlockedWithCode(unlocks);
-      } catch (error) {
-        console.error('Error parsing unlocked moments:', error);
-      }
-    }
-  }, []);
 
   useEffect(() => {
     const checkMomentoProgress = async () => {
