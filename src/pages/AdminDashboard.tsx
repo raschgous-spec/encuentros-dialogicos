@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, BookOpen, Settings, BarChart3, FileText, Shield, ArrowLeft, GraduationCap, Upload, ClipboardList } from 'lucide-react';
+import { Users, BookOpen, Settings, BarChart3, FileText, Shield, ArrowLeft, GraduationCap, Upload, ClipboardList, ExternalLink } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocentesManager } from '@/components/DocentesManager';
 import { EstudiantesManager } from '@/components/EstudiantesManager';
@@ -12,6 +12,7 @@ import { ImportManager } from '@/components/admin/ImportManager';
 import { EstadisticasManager } from '@/components/EstadisticasManager';
 import { ValoracionesAdminManager } from '@/components/ValoracionesAdminManager';
 import { ActasEstudiantesViewer } from '@/components/ActasEstudiantesViewer';
+import { LtiConfigManager } from '@/components/LtiConfigManager';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -51,6 +52,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="valoraciones">Valoraciones</TabsTrigger>
               <TabsTrigger value="importar">Importar</TabsTrigger>
               <TabsTrigger value="actas">Actas</TabsTrigger>
+              <TabsTrigger value="lti">LTI / Moodle</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -224,6 +226,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="actas">
               <ActasEstudiantesViewer />
+            </TabsContent>
+
+            <TabsContent value="lti">
+              <LtiConfigManager />
             </TabsContent>
           </Tabs>
         </div>
