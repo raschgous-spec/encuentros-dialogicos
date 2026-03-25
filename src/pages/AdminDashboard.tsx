@@ -52,6 +52,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="valoraciones">Valoraciones</TabsTrigger>
               <TabsTrigger value="importar">Importar</TabsTrigger>
               <TabsTrigger value="actas">Actas</TabsTrigger>
+              <TabsTrigger value="lti">LTI / Moodle</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
