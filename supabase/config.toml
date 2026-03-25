@@ -14,3 +14,9 @@ verify_jwt = true
 
 [functions.update-user-role]
 verify_jwt = true
+
+[functions.lti-oidc-login]
+verify_jwt = false
+
+[functions.lti-launch]
+verify_jwt = false
