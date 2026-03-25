@@ -12,6 +12,7 @@ import DocenteDashboard from "./pages/DocenteDashboard";
 import EstudianteDashboard from "./pages/EstudianteDashboard";
 import ObservadorDashboard from "./pages/ObservadorDashboard";
 import GenerarGuiaPDF from "./pages/GenerarGuiaPDF";
+import LtiCallback from "./pages/LtiCallback";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
