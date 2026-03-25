@@ -282,6 +282,83 @@ export type Database = {
           },
         ]
       }
+      lti_nonces: {
+        Row: {
+          created_at: string
+          id: string
+          login_hint: string | null
+          lti_message_hint: string | null
+          nonce: string
+          platform_id: string | null
+          state: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          login_hint?: string | null
+          lti_message_hint?: string | null
+          nonce: string
+          platform_id?: string | null
+          state: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          login_hint?: string | null
+          lti_message_hint?: string | null
+          nonce?: string
+          platform_id?: string | null
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lti_nonces_platform_id_fkey"
+            columns: ["platform_id"]
+            isOneToOne: false
+            referencedRelation: "lti_platforms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lti_platforms: {
+        Row: {
+          auth_login_url: string
+          auth_token_url: string
+          client_id: string
+          created_at: string
+          deployment_id: string | null
+          id: string
+          issuer: string
+          jwks_url: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          auth_login_url: string
+          auth_token_url: string
+          client_id: string
+          created_at?: string
+          deployment_id?: string | null
+          id?: string
+          issuer: string
+          jwks_url: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          auth_login_url?: string
+          auth_token_url?: string
+          client_id?: string
+          created_at?: string
+          deployment_id?: string | null
+          id?: string
+          issuer?: string
+          jwks_url?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       momento_progreso: {
         Row: {
           completado: boolean | null
@@ -462,6 +539,7 @@ export type Database = {
         Args: { p_documento: string }
         Returns: boolean
       }
+      cleanup_old_nonces: { Args: never; Returns: undefined }
       get_coordinator_options: {
         Args: never
         Returns: {
