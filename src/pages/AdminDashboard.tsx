@@ -12,6 +12,7 @@ import { ImportManager } from '@/components/admin/ImportManager';
 import { EstadisticasManager } from '@/components/EstadisticasManager';
 import { ValoracionesAdminManager } from '@/components/ValoracionesAdminManager';
 import { ActasEstudiantesViewer } from '@/components/ActasEstudiantesViewer';
+import { LtiConfigManager } from '@/components/LtiConfigManager';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
