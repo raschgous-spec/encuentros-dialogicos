@@ -125,47 +125,7 @@ const EstudianteDashboard = () => {
   }, [user]);
 
   const handleTabChange = (value: string) => {
-    const isUnlocked = momentoProgress[value] || unlockedWithCode[value as keyof typeof unlockedWithCode];
-    
-    if (!isUnlocked && (value === 'encuentro1' || value === 'encuentro2' || value === 'encuentro3' || value === 'encuentro4')) {
-      openUnlockDialog(value);
-    } else {
-      setActiveTab(value);
-    }
-  };
-
-  const handleUnlockWithCode = () => {
-    if (unlockCode.trim().toUpperCase() === 'MEDIT') {
-      const newUnlocks = { ...unlockedWithCode, [momentoToUnlock]: true };
-      setUnlockedWithCode(newUnlocks);
-      localStorage.setItem('momentos_unlocked', JSON.stringify(newUnlocks));
-      setShowUnlockDialog(false);
-      setUnlockCode('');
-      setActiveTab(momentoToUnlock);
-      
-      const momentoNames: Record<string, string> = {
-        encuentro1: 'Momento 3 - Encuentro 1',
-        encuentro2: 'Momento 4 - Encuentro 2',
-        encuentro3: 'Momento 5 - Encuentro 3',
-        encuentro4: 'Momento 6 - Encuentro 4',
-      };
-      
-      toast({
-        title: "Momento desbloqueado",
-        description: `Acceso concedido al ${momentoNames[momentoToUnlock]}`,
-      });
-    } else {
-      toast({
-        title: "Código incorrecto",
-        description: "Por favor, verifica el código e intenta nuevamente",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const openUnlockDialog = (momento: string) => {
-    setMomentoToUnlock(momento);
-    setShowUnlockDialog(true);
+    setActiveTab(value);
   };
 
   const handleMomentoComplete = async (momento: string) => {
