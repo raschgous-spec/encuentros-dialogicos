@@ -424,6 +424,11 @@ export const ActasEstudiantesViewer = () => {
       }
     }
 
+    // --- FIRMAS DIGITALES ---
+    const { addSignaturesToPDF } = await import('@/components/moments/SignaturePad');
+    let sigY = (doc as any).lastAutoTable?.finalY ? (doc as any).lastAutoTable.finalY + 15 : 20;
+    await addSignaturesToPDF(doc, acta.estudiante_id, acta.momento, sigY);
+
     doc.save(`acta-${acta.momento}-${acta.full_name?.replace(/\s/g, '_')}.pdf`);
   };
 
