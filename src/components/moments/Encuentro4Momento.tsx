@@ -169,7 +169,7 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
     name: "indicadoresLogro",
   });
 
-  const generatePDF = (data: z.infer<typeof planFormSchema>) => {
+  const generatePDF = async (data: z.infer<typeof planFormSchema>) => {
     const doc = new jsPDF();
     let yPos = 10;
 

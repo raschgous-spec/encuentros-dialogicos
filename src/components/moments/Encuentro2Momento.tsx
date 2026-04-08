@@ -167,7 +167,7 @@ export const Encuentro2Momento = ({ onComplete, isLocked = false }: Encuentro2Mo
     name: "indicadoresLogro",
   });
 
-  const generatePDF = (data: z.infer<typeof planFormSchema>) => {
+  const generatePDF = async (data: z.infer<typeof planFormSchema>) => {
     console.log('📄 Iniciando generación de PDF del plan - Encuentro 2...');
     const doc = new jsPDF();
     let yPos = 10;
