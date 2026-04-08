@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download, ExternalLink, Save } from 'lucide-react';
+import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download, ExternalLink, Save, PenTool } from 'lucide-react';
 import { StudentSearchInput } from '@/components/StudentSearchInput';
 import { ActaAttachments, getAttendanceData, getEvidencePhotos } from '@/components/moments/ActaAttachments';
 import { SignaturePad, addSignaturesToPDF } from '@/components/moments/SignaturePad';
