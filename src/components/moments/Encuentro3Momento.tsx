@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download, ExternalLink } from 'lucide-react';
+import { Users, Target, Lightbulb, Lock, FileText, ClipboardList, Plus, Trash2, Download, ExternalLink, PenTool } from 'lucide-react';
 import { StudentSearchInput } from '@/components/StudentSearchInput';
 import { ActaAttachments } from '@/components/moments/ActaAttachments';
+import { SignaturePad, addSignaturesToPDF } from '@/components/moments/SignaturePad';
 import { CoordinatorSearchInput } from '@/components/CoordinatorSearchInput';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -662,6 +663,10 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
           } catch (err) { console.error('Error adding photo to PDF:', err); }
         }
       }
+
+      // --- FIRMAS DIGITALES ---
+      let sigY = yPos + 15;
+      sigY = await addSignaturesToPDF(doc, user.id, 'encuentro3', sigY);
     }
 
     doc.save(`acta-encuentro3-${data.fecha}.pdf`);
@@ -1713,6 +1718,22 @@ export const Encuentro3Momento = ({ onComplete, isLocked = false }: Encuentro3Mo
                     {/* Attachments: Attendance Excel + Photo Evidence */}
                     {user && (
                       <ActaAttachments userId={user.id} momento="encuentro3" isLocked={isLocked} />
+                    )}
+
+                    {/* Firmas Digitales */}
+                    {user && (
+                      <Card>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-base flex items-center gap-2">
+                            <PenTool className="h-5 w-5 text-primary" />
+                            Firmas Digitales
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                          <SignaturePad userId={user.id} momento="encuentro3" role="estudiante" label="Firma del Estudiante" isLocked={isLocked} />
+                          <SignaturePad userId={user.id} momento="encuentro3" role="coordinador" label="Firma del Coordinador" isLocked={isLocked} />
+                        </CardContent>
+                      </Card>
                     )}
 
                     <Button type="submit" className="w-full" disabled={isLocked || isSaving}>

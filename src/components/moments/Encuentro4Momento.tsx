@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { ActaAttachments } from '@/components/moments/ActaAttachments';
+import { SignaturePad, addSignaturesToPDF } from '@/components/moments/SignaturePad';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Target, Lightbulb, Lock, ClipboardList, Plus, Trash2, Download, ExternalLink } from 'lucide-react';
+import { Users, Target, Lightbulb, Lock, ClipboardList, Plus, Trash2, Download, ExternalLink, PenTool } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -366,6 +367,12 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
       doc.text(segText, 20, yPos);
     }
 
+    // --- FIRMAS DIGITALES ---
+    if (user) {
+      let sigY = yPos + 15;
+      await addSignaturesToPDF(doc, user.id, 'encuentro4', sigY);
+    }
+
     doc.save(`plan-mejoramiento-encuentro4-${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
@@ -494,6 +501,22 @@ export const Encuentro4Momento = ({ onComplete, isLocked = false }: Encuentro4Mo
               {/* Attachments: Attendance Excel + Photo Evidence */}
               {user && (
                 <ActaAttachments userId={user.id} momento="encuentro4" isLocked={isLocked} />
+              )}
+
+              {/* Firmas Digitales */}
+              {user && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <PenTool className="h-5 w-5 text-primary" />
+                      Firmas Digitales
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <SignaturePad userId={user.id} momento="encuentro4" role="estudiante" label="Firma del Estudiante" isLocked={isLocked} />
+                    <SignaturePad userId={user.id} momento="encuentro4" role="coordinador" label="Firma del Coordinador" isLocked={isLocked} />
+                  </CardContent>
+                </Card>
               )}
             </TabsContent>
 
