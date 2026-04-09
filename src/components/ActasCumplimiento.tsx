@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { HierarchicalFilters, FilterValues } from '@/components/filters/HierarchicalFilters';
-import { CheckCircle2, AlertTriangle, XCircle, ArrowLeft, FileText, User } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, XCircle, ArrowLeft, User } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -98,11 +98,8 @@ export const ActasCumplimiento = () => {
     return map;
   }, [profiles]);
 
-  const idToProfile = useMemo(() => {
-    const map = new Map<string, { email: string; full_name: string | null }>();
-    profiles.forEach(p => map.set(p.id, { email: p.email, full_name: p.full_name }));
-    return map;
-  }, [profiles]);
+
+
 
   const studentActaMomentos = useMemo(() => {
     const map = new Map<string, Set<string>>();
