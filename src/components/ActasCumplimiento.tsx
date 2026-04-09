@@ -232,14 +232,19 @@ export const ActasCumplimiento = ({ onFilterChange }: { onFilterChange?: (filter
 
   const handleRowClick = (row: CumplimientoRow) => {
     if (expandedLevel === 'sede') {
-      setFilters({ sede: row.sede, facultad: '', programa: '' });
+      const f = { sede: row.sede, facultad: '', programa: '' };
+      setFilters(f);
       setExpandedLevel('facultad');
+      onFilterChange?.(f);
     } else if (expandedLevel === 'facultad') {
-      setFilters({ sede: row.sede, facultad: row.facultad, programa: '' });
+      const f = { sede: row.sede, facultad: row.facultad, programa: '' };
+      setFilters(f);
       setExpandedLevel('programa');
+      onFilterChange?.(f);
     } else {
-      // programa level → show students detail
-      setSelectedPrograma({ sede: row.sede, facultad: row.facultad, programa: row.programa });
+      const f = { sede: row.sede, facultad: row.facultad, programa: row.programa };
+      setSelectedPrograma(f);
+      onFilterChange?.(f);
     }
   };
 
