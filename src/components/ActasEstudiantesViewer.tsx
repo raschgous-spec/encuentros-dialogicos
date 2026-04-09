@@ -62,6 +62,7 @@ export const ActasEstudiantesViewer = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMomento, setFilterMomento] = useState<string>('all');
+  const [cumplimientoFilter, setCumplimientoFilter] = useState<{ sede: string; facultad: string; programa: string } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
