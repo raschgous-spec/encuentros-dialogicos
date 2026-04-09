@@ -9,6 +9,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { useToast } from '@/hooks/use-toast';
 import { FileText, Search, User, Download } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ActasEstadisticas } from '@/components/ActasEstadisticas';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -445,6 +446,9 @@ export const ActasEstudiantesViewer = () => {
 
   return (
     <div className="space-y-6">
+      {/* Estadísticas */}
+      <ActasEstadisticas />
+
       <div>
         <h2 className="text-2xl font-bold">Actas de Estudiantes</h2>
         <p className="text-muted-foreground">
