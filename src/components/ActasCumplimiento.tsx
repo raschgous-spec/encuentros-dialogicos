@@ -296,7 +296,7 @@ export const ActasCumplimiento = ({ onFilterChange }: { onFilterChange?: (filter
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => setSelectedPrograma(null)}>
+          <Button variant="ghost" size="sm" onClick={() => { setSelectedPrograma(null); onFilterChange?.(null); }}>
             <ArrowLeft className="h-4 w-4 mr-1" /> Volver
           </Button>
           <div>
@@ -395,7 +395,7 @@ export const ActasCumplimiento = ({ onFilterChange }: { onFilterChange?: (filter
           <HierarchicalFilters
             data={estAutorizados}
             filters={filters}
-            onFilterChange={(f) => { setFilters(f); setSelectedPrograma(null); }}
+            onFilterChange={(f) => { setFilters(f); setSelectedPrograma(null); onFilterChange?.(null); }}
             onExportPDF={handleExportPDF}
           />
         </CardContent>
