@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Download, FilterX, Users, FileText, ClipboardCheck, GraduationCap } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Download, FilterX, Users, FileText, ClipboardCheck, GraduationCap, ChevronDown } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -257,61 +258,70 @@ export const ActasEstadisticas = () => {
         </Card>
       </div>
 
-      {/* Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Detalle por Programa</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-3 font-medium">Sede</th>
-                  <th className="text-left py-3 px-3 font-medium">Programa</th>
-                  <th className="text-center py-3 px-3 font-medium">Autorizados</th>
-                  <th className="text-center py-3 px-3 font-medium">Con Actas</th>
-                  <th className="text-center py-3 px-3 font-medium">Diagnóstico</th>
-                  <th className="text-center py-3 px-3 font-medium">Nivelatorio</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.map((row, i) => (
-                  <tr key={`${row.sede}-${row.programa}`} className={i % 2 === 0 ? 'bg-muted/50' : ''}>
-                    <td className="py-2 px-3">{row.sede}</td>
-                    <td className="py-2 px-3">{row.programa}</td>
-                    <td className="text-center py-2 px-3">
-                      <Badge variant="secondary">{row.totalAutorizados}</Badge>
-                    </td>
-                    <td className="text-center py-2 px-3">
-                      <Badge variant={row.conActas > 0 ? 'default' : 'outline'}>{row.conActas}</Badge>
-                    </td>
-                    <td className="text-center py-2 px-3">
-                      <span className="inline-flex items-center justify-center rounded-full bg-green-100 text-green-800 px-2 py-1 text-xs font-medium">
-                        {row.hicieronDiagnostico}
-                      </span>
-                    </td>
-                    <td className="text-center py-2 px-3">
-                      <span className="inline-flex items-center justify-center rounded-full bg-blue-100 text-blue-800 px-2 py-1 text-xs font-medium">
-                        {row.hicieronNivelatorio}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="border-t-2 font-bold">
-                  <td className="py-3 px-3" colSpan={2}>TOTAL</td>
-                  <td className="text-center py-3 px-3">{totals.autorizados}</td>
-                  <td className="text-center py-3 px-3">{totals.conActas}</td>
-                  <td className="text-center py-3 px-3">{totals.diagnostico}</td>
-                  <td className="text-center py-3 px-3">{totals.nivelatorio}</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Table - Collapsible */}
+      <Collapsible>
+        <Card>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+              <CardTitle className="text-base flex items-center justify-between">
+                Detalle por Programa
+                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-3 px-3 font-medium">Sede</th>
+                      <th className="text-left py-3 px-3 font-medium">Programa</th>
+                      <th className="text-center py-3 px-3 font-medium">Autorizados</th>
+                      <th className="text-center py-3 px-3 font-medium">Con Actas</th>
+                      <th className="text-center py-3 px-3 font-medium">Diagnóstico</th>
+                      <th className="text-center py-3 px-3 font-medium">Nivelatorio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stats.map((row, i) => (
+                      <tr key={`${row.sede}-${row.programa}`} className={i % 2 === 0 ? 'bg-muted/50' : ''}>
+                        <td className="py-2 px-3">{row.sede}</td>
+                        <td className="py-2 px-3">{row.programa}</td>
+                        <td className="text-center py-2 px-3">
+                          <Badge variant="secondary">{row.totalAutorizados}</Badge>
+                        </td>
+                        <td className="text-center py-2 px-3">
+                          <Badge variant={row.conActas > 0 ? 'default' : 'outline'}>{row.conActas}</Badge>
+                        </td>
+                        <td className="text-center py-2 px-3">
+                          <span className="inline-flex items-center justify-center rounded-full bg-green-100 text-green-800 px-2 py-1 text-xs font-medium">
+                            {row.hicieronDiagnostico}
+                          </span>
+                        </td>
+                        <td className="text-center py-2 px-3">
+                          <span className="inline-flex items-center justify-center rounded-full bg-blue-100 text-blue-800 px-2 py-1 text-xs font-medium">
+                            {row.hicieronNivelatorio}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 font-bold">
+                      <td className="py-3 px-3" colSpan={2}>TOTAL</td>
+                      <td className="text-center py-3 px-3">{totals.autorizados}</td>
+                      <td className="text-center py-3 px-3">{totals.conActas}</td>
+                      <td className="text-center py-3 px-3">{totals.diagnostico}</td>
+                      <td className="text-center py-3 px-3">{totals.nivelatorio}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
     </div>
   );
 };

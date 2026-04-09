@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { HierarchicalFilters, FilterValues } from '@/components/filters/HierarchicalFilters';
-import { CheckCircle2, AlertTriangle, XCircle, ArrowLeft, User } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, XCircle, ArrowLeft, User, ChevronDown } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -426,53 +427,62 @@ export const ActasCumplimiento = () => {
         ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            Detalle de Cumplimiento - {expandedLevel === 'sede' ? 'Por Sede' : expandedLevel === 'facultad' ? 'Por Facultad' : 'Por Programa'}
-            <span className="text-xs font-normal text-muted-foreground ml-2">(clic en una fila para desglosar)</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-2 font-medium">Sede</th>
-                  {(expandedLevel === 'facultad' || expandedLevel === 'programa') && <th className="text-left py-3 px-2 font-medium">Facultad</th>}
-                  {expandedLevel === 'programa' && <th className="text-left py-3 px-2 font-medium">Programa</th>}
-                  <th className="text-center py-3 px-2 font-medium">Autoriz.</th>
-                  <th className="text-center py-3 px-2 font-medium">Enc. 1</th>
-                  <th className="text-center py-3 px-2 font-medium">Enc. 2</th>
-                  <th className="text-center py-3 px-2 font-medium">Enc. 3</th>
-                  <th className="text-center py-3 px-2 font-medium">Enc. 4</th>
-                  <th className="text-center py-3 px-2 font-medium">Cumpl.</th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayData.map((row, i) => (
-                  <tr
-                    key={`${row.sede}-${row.facultad}-${row.programa}-${i}`}
-                    className={`cursor-pointer hover:bg-accent/50 transition-colors ${i % 2 === 0 ? 'bg-muted/50' : ''}`}
-                    onClick={() => handleRowClick(row)}
-                  >
-                    <td className="py-2 px-2 text-xs font-medium text-primary underline-offset-2 hover:underline">{row.sede}</td>
-                    {(expandedLevel === 'facultad' || expandedLevel === 'programa') && <td className="py-2 px-2 text-xs">{row.facultad}</td>}
-                    {expandedLevel === 'programa' && <td className="py-2 px-2 text-xs">{row.programa}</td>}
-                    <td className="text-center py-2 px-2"><Badge variant="secondary">{row.totalAutorizados}</Badge></td>
-                    <td className="text-center py-2 px-2">{pctBar(row.conEncuentro1, row.totalAutorizados)}</td>
-                    <td className="text-center py-2 px-2">{pctBar(row.conEncuentro2, row.totalAutorizados)}</td>
-                    <td className="text-center py-2 px-2">{pctBar(row.conEncuentro3, row.totalAutorizados)}</td>
-                    <td className="text-center py-2 px-2">{pctBar(row.conEncuentro4, row.totalAutorizados)}</td>
-                    <td className="text-center py-2 px-2">{getCumplimientoBadge(row.cumplimientoTotal)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {displayData.length === 0 && <p className="text-center text-muted-foreground py-8">No hay datos para los filtros seleccionados</p>}
-          </div>
-        </CardContent>
-      </Card>
+      <Collapsible>
+        <Card>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+              <CardTitle className="text-base flex items-center justify-between">
+                <span>
+                  Detalle de Cumplimiento - {expandedLevel === 'sede' ? 'Por Sede' : expandedLevel === 'facultad' ? 'Por Facultad' : 'Por Programa'}
+                  <span className="text-xs font-normal text-muted-foreground ml-2">(clic en una fila para desglosar)</span>
+                </span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-3 px-2 font-medium">Sede</th>
+                      {(expandedLevel === 'facultad' || expandedLevel === 'programa') && <th className="text-left py-3 px-2 font-medium">Facultad</th>}
+                      {expandedLevel === 'programa' && <th className="text-left py-3 px-2 font-medium">Programa</th>}
+                      <th className="text-center py-3 px-2 font-medium">Autoriz.</th>
+                      <th className="text-center py-3 px-2 font-medium">Enc. 1</th>
+                      <th className="text-center py-3 px-2 font-medium">Enc. 2</th>
+                      <th className="text-center py-3 px-2 font-medium">Enc. 3</th>
+                      <th className="text-center py-3 px-2 font-medium">Enc. 4</th>
+                      <th className="text-center py-3 px-2 font-medium">Cumpl.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayData.map((row, i) => (
+                      <tr
+                        key={`${row.sede}-${row.facultad}-${row.programa}-${i}`}
+                        className={`cursor-pointer hover:bg-accent/50 transition-colors ${i % 2 === 0 ? 'bg-muted/50' : ''}`}
+                        onClick={() => handleRowClick(row)}
+                      >
+                        <td className="py-2 px-2 text-xs font-medium text-primary underline-offset-2 hover:underline">{row.sede}</td>
+                        {(expandedLevel === 'facultad' || expandedLevel === 'programa') && <td className="py-2 px-2 text-xs">{row.facultad}</td>}
+                        {expandedLevel === 'programa' && <td className="py-2 px-2 text-xs">{row.programa}</td>}
+                        <td className="text-center py-2 px-2"><Badge variant="secondary">{row.totalAutorizados}</Badge></td>
+                        <td className="text-center py-2 px-2">{pctBar(row.conEncuentro1, row.totalAutorizados)}</td>
+                        <td className="text-center py-2 px-2">{pctBar(row.conEncuentro2, row.totalAutorizados)}</td>
+                        <td className="text-center py-2 px-2">{pctBar(row.conEncuentro3, row.totalAutorizados)}</td>
+                        <td className="text-center py-2 px-2">{pctBar(row.conEncuentro4, row.totalAutorizados)}</td>
+                        <td className="text-center py-2 px-2">{getCumplimientoBadge(row.cumplimientoTotal)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {displayData.length === 0 && <p className="text-center text-muted-foreground py-8">No hay datos para los filtros seleccionados</p>}
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
     </div>
   );
 };
