@@ -446,6 +446,9 @@ export const ActasEstudiantesViewer = () => {
 
   return (
     <div className="space-y-6">
+      {/* Estadísticas */}
+      <ActasEstadisticas />
+
       <div>
         <h2 className="text-2xl font-bold">Actas de Estudiantes</h2>
         <p className="text-muted-foreground">
