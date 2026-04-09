@@ -64,7 +64,7 @@ const paginate = async (table: string, cols: string) => {
   return all;
 };
 
-export const ActasCumplimiento = () => {
+export const ActasCumplimiento = ({ onFilterChange }: { onFilterChange?: (filter: { sede: string; facultad: string; programa: string } | null) => void }) => {
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<Array<{ id: string; email: string; full_name: string | null }>>([]);
   const [estAutorizados, setEstAutorizados] = useState<Array<{ correo: string; sede: string; facultad: string; programa: string; nombre_completo: string }>>([]);
