@@ -64,7 +64,7 @@ const paginate = async (table: string, cols: string) => {
   return all;
 };
 
-export const ActasCumplimiento = () => {
+export const ActasCumplimiento = ({ onFilterChange }: { onFilterChange?: (filter: { sede: string; facultad: string; programa: string } | null) => void }) => {
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<Array<{ id: string; email: string; full_name: string | null }>>([]);
   const [estAutorizados, setEstAutorizados] = useState<Array<{ correo: string; sede: string; facultad: string; programa: string; nombre_completo: string }>>([]);
@@ -232,14 +232,19 @@ export const ActasCumplimiento = () => {
 
   const handleRowClick = (row: CumplimientoRow) => {
     if (expandedLevel === 'sede') {
-      setFilters({ sede: row.sede, facultad: '', programa: '' });
+      const f = { sede: row.sede, facultad: '', programa: '' };
+      setFilters(f);
       setExpandedLevel('facultad');
+      onFilterChange?.(f);
     } else if (expandedLevel === 'facultad') {
-      setFilters({ sede: row.sede, facultad: row.facultad, programa: '' });
+      const f = { sede: row.sede, facultad: row.facultad, programa: '' };
+      setFilters(f);
       setExpandedLevel('programa');
+      onFilterChange?.(f);
     } else {
-      // programa level → show students detail
-      setSelectedPrograma({ sede: row.sede, facultad: row.facultad, programa: row.programa });
+      const f = { sede: row.sede, facultad: row.facultad, programa: row.programa };
+      setSelectedPrograma(f);
+      onFilterChange?.(f);
     }
   };
 
@@ -291,7 +296,7 @@ export const ActasCumplimiento = () => {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => setSelectedPrograma(null)}>
+          <Button variant="ghost" size="sm" onClick={() => { setSelectedPrograma(null); onFilterChange?.(null); }}>
             <ArrowLeft className="h-4 w-4 mr-1" /> Volver
           </Button>
           <div>
@@ -390,7 +395,7 @@ export const ActasCumplimiento = () => {
           <HierarchicalFilters
             data={estAutorizados}
             filters={filters}
-            onFilterChange={(f) => { setFilters(f); setSelectedPrograma(null); }}
+            onFilterChange={(f) => { setFilters(f); setSelectedPrograma(null); onFilterChange?.(null); }}
             onExportPDF={handleExportPDF}
           />
         </CardContent>
