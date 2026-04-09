@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { FileText, Search, User, Download } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ActasEstadisticas } from '@/components/ActasEstadisticas';
+import { ActasCumplimiento } from '@/components/ActasCumplimiento';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -448,6 +449,9 @@ export const ActasEstudiantesViewer = () => {
     <div className="space-y-6">
       {/* Estadísticas */}
       <ActasEstadisticas />
+
+      {/* Cumplimiento */}
+      <ActasCumplimiento />
 
       <div>
         <h2 className="text-2xl font-bold">Actas de Estudiantes</h2>
