@@ -9,6 +9,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { useToast } from '@/hooks/use-toast';
 import { FileText, Search, User, Download } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ActasEstadisticas } from '@/components/ActasEstadisticas';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 

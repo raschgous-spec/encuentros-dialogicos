@@ -117,7 +117,7 @@ export const ActasEstadisticas = () => {
     const result: ProgramaStat[] = [];
     groups.forEach(({ sede, programa, correos }) => {
       const ids = correos.map(c => emailToId.get(c)).filter(Boolean) as string[];
-      const idSet = new Set(ids);
+      
       result.push({
         sede,
         programa,
