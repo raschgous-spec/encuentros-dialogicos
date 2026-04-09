@@ -456,12 +456,18 @@ export const ActasEstudiantesViewer = () => {
       <ActasEstadisticas />
 
       {/* Cumplimiento */}
-      <ActasCumplimiento />
+      <ActasCumplimiento onFilterChange={setCumplimientoFilter} />
 
       <div>
         <h2 className="text-2xl font-bold">Actas de Estudiantes</h2>
         <p className="text-muted-foreground">
-          {actas.length} actas generadas por tus estudiantes
+          {filteredActas.length} de {actas.length} actas
+          {cumplimientoFilter && (
+            <span className="ml-1">
+              — filtradas por {cumplimientoFilter.programa || cumplimientoFilter.facultad || cumplimientoFilter.sede}
+              <Button variant="link" size="sm" className="ml-1 h-auto p-0 text-xs" onClick={() => setCumplimientoFilter(null)}>Limpiar filtro</Button>
+            </span>
+          )}
         </p>
       </div>
 
