@@ -137,7 +137,11 @@ export const ActasEstudiantesViewer = () => {
       acta.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       acta.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchMomento = filterMomento === 'all' || acta.momento === filterMomento;
-    return matchSearch && matchMomento;
+    const matchCumplimiento = !cumplimientoFilter || (
+      (!cumplimientoFilter.facultad || acta.facultad?.toLowerCase() === cumplimientoFilter.facultad.toLowerCase()) &&
+      (!cumplimientoFilter.programa || acta.programa_academico?.toLowerCase() === cumplimientoFilter.programa.toLowerCase())
+    );
+    return matchSearch && matchMomento && matchCumplimiento;
   });
 
   const exportActaPDF = async (acta: ActaConEstudiante) => {
