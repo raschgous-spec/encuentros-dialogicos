@@ -360,7 +360,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
                         <Button 
                           variant="outline" 
                           className="w-full"
-                          onClick={() => window.open(material.pdfUrl, '_blank')}
+                          onClick={() => downloadPdf(material.pdfUrl, `${material.id}.pdf`)}
                         >
                           <Download className="mr-2 h-4 w-4" />
                           Descargar Material Completo (PDF)
