@@ -35,6 +35,30 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
   const [showReport, setShowReport] = useState(false);
   const [evaluationResult, setEvaluationResult] = useState<any>(null);
 
+  const downloadPdf = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Download failed');
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      // Fallback: open in new tab
+      window.open(url, '_blank');
+      toast({
+        title: 'Descarga alternativa',
+        description: 'El PDF se abrió en una nueva pestaña. Usa el botón de descarga del visor.',
+      });
+    }
+  };
+
   // Load latest evaluation on mount
   useEffect(() => {
     const loadLatestEvaluation = async () => {
@@ -336,7 +360,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
                         <Button 
                           variant="outline" 
                           className="w-full"
-                          onClick={() => window.open(material.pdfUrl, '_blank')}
+                          onClick={() => downloadPdf(material.pdfUrl, `${material.id}.pdf`)}
                         >
                           <Download className="mr-2 h-4 w-4" />
                           Descargar Material Completo (PDF)
