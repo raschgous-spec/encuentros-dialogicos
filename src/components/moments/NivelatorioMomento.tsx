@@ -35,6 +35,30 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
   const [showReport, setShowReport] = useState(false);
   const [evaluationResult, setEvaluationResult] = useState<any>(null);
 
+  const downloadPdf = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Download failed');
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      // Fallback: open in new tab
+      window.open(url, '_blank');
+      toast({
+        title: 'Descarga alternativa',
+        description: 'El PDF se abrió en una nueva pestaña. Usa el botón de descarga del visor.',
+      });
+    }
+  };
+
   // Load latest evaluation on mount
   useEffect(() => {
     const loadLatestEvaluation = async () => {
