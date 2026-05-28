@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +22,7 @@ import { Progress } from '@/components/ui/progress';
 import { HierarchicalFilters, FilterValues } from '@/components/filters/HierarchicalFilters';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import html2canvas from 'html2canvas';
 
 interface EstadisticasMomento {
   momento: string;
@@ -57,6 +58,9 @@ export const EstadisticasManager = () => {
   const [allEstAutorizados, setAllEstAutorizados] = useState<any[]>([]);
   const [allProgresos, setAllProgresos] = useState<any[]>([]);
   const [allStudentEvals, setAllStudentEvals] = useState<any[]>([]);
+
+  const barChartRef = useRef<HTMLDivElement>(null);
+  const pieChartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchEstadisticas();
@@ -198,9 +202,10 @@ export const EstadisticasManager = () => {
     return parts.length > 0 ? parts.join(' > ') : 'General (sin filtros)';
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     const doc = new jsPDF('landscape');
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     let y = 15;
 
     // Logo
@@ -240,6 +245,51 @@ export const EstadisticasManager = () => {
       headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
       styles: { fontSize: 9, cellPadding: 3 },
     });
+
+    // Totales consolidados
+    const totCompletados = estadisticasMomentos.reduce((s, e) => s + e.completados, 0);
+    const totEnProgreso = estadisticasMomentos.reduce((s, e) => s + e.enProgreso, 0);
+    const totPendientes = estadisticasMomentos.reduce((s, e) => s + e.pendientes, 0);
+    const promedio = Math.round(estadisticasMomentos.reduce((s, e) => s + e.porcentajeCompletado, 0) / 6);
+    let afterY = (doc as any).lastAutoTable.finalY + 8;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Totales — Completados: ${totCompletados} | En Progreso: ${totEnProgreso} | Pendientes: ${totPendientes} | Progreso promedio: ${promedio}%`, 14, afterY);
+
+    // Capturar gráficos como imágenes y agregarlos en una página nueva
+    const captureChart = async (el: HTMLDivElement | null) => {
+      if (!el) return null;
+      const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', logging: false });
+      return canvas.toDataURL('image/png');
+    };
+
+    const [barImg, pieImg] = await Promise.all([
+      captureChart(barChartRef.current),
+      captureChart(pieChartRef.current),
+    ]);
+
+    if (barImg || pieImg) {
+      doc.addPage('landscape');
+      let cy = 15;
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('GRÁFICOS DEL DASHBOARD', pageWidth / 2, cy, { align: 'center' });
+      cy += 8;
+
+      const chartW = (pageWidth - 30) / 2;
+      const chartH = Math.min(chartW * 0.65, pageHeight - cy - 25);
+
+      if (barImg) {
+        doc.setFontSize(10);
+        doc.text('Distribución por Momento', 14 + chartW / 2, cy + 5, { align: 'center' });
+        doc.addImage(barImg, 'PNG', 14, cy + 8, chartW, chartH);
+      }
+      if (pieImg) {
+        doc.setFontSize(10);
+        doc.text('Estado Consolidado', 14 + chartW + 10 + chartW / 2, cy + 5, { align: 'center' });
+        doc.addImage(pieImg, 'PNG', 14 + chartW + 10, cy + 8, chartW, chartH);
+      }
+    }
 
     // Footer
     const pageCount = doc.internal.pages.length - 1;
@@ -391,7 +441,7 @@ export const EstadisticasManager = () => {
 
       {/* Gráficos */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card ref={barChartRef as any}>
           <CardHeader>
             <CardTitle>Distribución por Momento</CardTitle>
             <CardDescription>Comparación de estados en cada momento</CardDescription>
@@ -412,7 +462,7 @@ export const EstadisticasManager = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card ref={pieChartRef as any}>
           <CardHeader>
             <CardTitle>Estado Consolidado</CardTitle>
             <CardDescription>Distribución total en todos los momentos</CardDescription>
