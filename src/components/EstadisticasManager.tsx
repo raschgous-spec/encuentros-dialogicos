@@ -256,6 +256,81 @@ export const EstadisticasManager = () => {
     doc.setFont('helvetica', 'bold');
     doc.text(`Totales — Completados: ${totCompletados} | En Progreso: ${totEnProgreso} | Pendientes: ${totPendientes} | Progreso promedio: ${promedio}%`, 14, afterY);
 
+    // ====== Desglose consolidado por Facultad y por Programa ======
+    const emailToId = new Map<string, string>();
+    allProfiles.forEach((p: any) => emailToId.set(p.email?.toLowerCase(), p.id));
+
+    // Aplicar filtros actuales sobre los autorizados
+    let filteredAut = allEstAutorizados;
+    if (filters.sede) filteredAut = filteredAut.filter((e: any) => e.sede === filters.sede);
+    if (filters.facultad) filteredAut = filteredAut.filter((e: any) => e.facultad === filters.facultad);
+    if (filters.programa) filteredAut = filteredAut.filter((e: any) => e.programa === filters.programa);
+
+    const computeGroupRow = (studentIdSet: Set<string>) => {
+      const totalG = studentIdSet.size;
+      const perMomento = MOMENTOS.map(({ key }) => {
+        const progs = allProgresos.filter((p: any) => p.momento === key && studentIdSet.has(p.estudiante_id));
+        let comp = progs.filter((p: any) => p.completado === true).length;
+        if (key === 'nivelatorio' || key === 'diagnostico') {
+          const evals = allStudentEvals.filter((e: any) => e.momento === key && studentIdSet.has(e.user_id));
+          const ids = new Set(progs.map((p: any) => p.estudiante_id));
+          for (const ev of evals) if (!ids.has(ev.user_id) && ev.passed) comp++;
+        }
+        return totalG > 0 ? Math.round((comp / totalG) * 100) : 0;
+      });
+      const promedioG = totalG > 0 ? Math.round(perMomento.reduce((a, b) => a + b, 0) / 6) : 0;
+      return { totalG, perMomento, promedioG };
+    };
+
+    const buildGroupTable = (groupKey: 'facultad' | 'programa', titulo: string) => {
+      const groups = new Map<string, Set<string>>();
+      filteredAut.forEach((e: any) => {
+        const k = e[groupKey] || '(Sin dato)';
+        const pid = emailToId.get(e.correo?.toLowerCase());
+        if (!pid) return;
+        if (!groups.has(k)) groups.set(k, new Set());
+        groups.get(k)!.add(pid);
+      });
+      if (groups.size === 0) return;
+
+      doc.addPage('landscape');
+      let gy = 15;
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(titulo, pageWidth / 2, gy, { align: 'center' });
+      gy += 8;
+
+      const rows = Array.from(groups.entries())
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([name, ids]) => {
+          const r = computeGroupRow(ids);
+          return [
+            name,
+            r.totalG.toString(),
+            ...r.perMomento.map((v) => `${v}%`),
+            `${r.promedioG}%`,
+          ];
+        });
+
+      autoTable(doc, {
+        startY: gy,
+        head: [[
+          groupKey === 'facultad' ? 'Facultad' : 'Programa',
+          'Estudiantes',
+          'M1', 'M2', 'M3', 'M4', 'M5', 'M6',
+          'Prom.',
+        ]],
+        body: rows,
+        theme: 'grid',
+        headStyles: { fillColor: [34, 139, 34], textColor: 255, fontStyle: 'bold' },
+        styles: { fontSize: 8, cellPadding: 2 },
+        columnStyles: { 0: { cellWidth: groupKey === 'facultad' ? 90 : 110 } },
+      });
+    };
+
+    buildGroupTable('facultad', 'CONSOLIDADO POR FACULTAD');
+    buildGroupTable('programa', 'CONSOLIDADO POR PROGRAMA');
+
     // Capturar gráficos como imágenes y agregarlos en una página nueva
     const captureChart = async (el: HTMLDivElement | null) => {
       if (!el) return null;
