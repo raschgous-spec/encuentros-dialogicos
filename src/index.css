@@ -121,3 +121,26 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Tema inmersivo Reto MEDIT: modo oscuro con verde y dorado UDEC */
+.medit {
+  --background: 150 30% 6%;
+  --foreground: 140 15% 92%;
+  --card: 150 25% 10%;
+  --card-foreground: 140 15% 92%;
+  --popover: 150 25% 10%;
+  --popover-foreground: 140 15% 92%;
+  --primary: 142 65% 42%;
+  --primary-foreground: 150 30% 6%;
+  --secondary: 150 20% 15%;
+  --secondary-foreground: 140 15% 92%;
+  --muted: 150 20% 14%;
+  --muted-foreground: 140 10% 62%;
+  --accent: 43 85% 55%;
+  --accent-foreground: 150 30% 6%;
+  --border: 150 20% 20%;
+  --input: 150 20% 20%;
+  --ring: 43 85% 55%;
+  --warning: 38 92% 50%;
+  --destructive: 0 75% 55%;
+}

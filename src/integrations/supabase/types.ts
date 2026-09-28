@@ -389,6 +389,54 @@ export type Database = {
         }
         Relationships: []
       }
+      medit_sesiones: {
+        Row: {
+          casos: Json
+          created_at: string
+          facultad: string | null
+          finished_at: string | null
+          id: string
+          insignia: string | null
+          niveles: Json
+          programa: string | null
+          puntaje_global: number | null
+          ruta: Json
+          sede: string | null
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          casos?: Json
+          created_at?: string
+          facultad?: string | null
+          finished_at?: string | null
+          id?: string
+          insignia?: string | null
+          niveles?: Json
+          programa?: string | null
+          puntaje_global?: number | null
+          ruta?: Json
+          sede?: string | null
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          casos?: Json
+          created_at?: string
+          facultad?: string | null
+          finished_at?: string | null
+          id?: string
+          insignia?: string | null
+          niveles?: Json
+          programa?: string | null
+          puntaje_global?: number | null
+          ruta?: Json
+          sede?: string | null
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       momento_progreso: {
         Row: {
           completado: boolean | null
