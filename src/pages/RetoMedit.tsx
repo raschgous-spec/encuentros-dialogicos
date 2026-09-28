@@ -405,7 +405,7 @@ const RetoMedit = () => {
             )}
           </div>
           <div className="flex gap-3 justify-center mt-10">
-            <Button variant="outline" onClick={() => navigate('/docente')}>Volver al panel</Button>
+            <Button variant="outline" onClick={() => navigate('/gestor')}>Volver al panel</Button>
             <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => { setRes(null); setSes(null); setFase('onboarding'); }}>Nueva expedición</Button>
           </div>
         </div>
