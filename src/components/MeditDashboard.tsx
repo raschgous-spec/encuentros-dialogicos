@@ -16,7 +16,7 @@ const COMP = [
 const INSIGNIAS = ['Estratega de Soluciones', 'Metodólogo', 'Investigador Táctico'];
 
 const celda = (v: number | null) =>
-  v === null ? 'bg-muted text-muted-foreground' : v >= 80 ? 'bg-level-avanzado text-level-avanzado-fg' : v >= 55 ? 'bg-level-intermedio text-level-intermedio-fg' : 'bg-level-basico text-level-basico-fg';
+  v === null ? 'bg-muted text-muted-foreground' : v >= 80 ? 'bg-level-avanzado text-level-avanzado-foreground' : v >= 55 ? 'bg-level-intermedio text-level-intermedio-foreground' : 'bg-level-basico text-level-basico-foreground';
 
 export const MeditDashboard = ({ showPlay = true }: { showPlay?: boolean }) => {
   const navigate = useNavigate();
