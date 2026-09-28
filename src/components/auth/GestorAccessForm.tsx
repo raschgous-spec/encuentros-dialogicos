@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,15 +10,23 @@ import { useToast } from '@/hooks/use-toast';
 export const GestorAccessForm = () => {
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
+  const [facultad, setFacultad] = useState('');
+  const [facultades, setFacultades] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    supabase.rpc('get_coordinator_options').then(({ data }) => {
+      setFacultades([...new Set((data || []).map((d: any) => d.facultad as string))].sort());
+    });
+  }, []);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!facultad) { toast({ title: 'Selecciona tu facultad', variant: 'destructive' }); return; }
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('gestor-quick-access', { body: { nombre, correo } });
+      const { data, error } = await supabase.functions.invoke('gestor-quick-access', { body: { nombre, correo, facultad } });
       if (error || !data?.token_hash) {
         let msg = data?.error;
         try { msg = msg || (await (error as any)?.context?.json())?.error; } catch { /* */ }
@@ -41,8 +50,15 @@ export const GestorAccessForm = () => {
         <Input id="g-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} required maxLength={100} />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="g-correo">Correo</Label>
+        <Label htmlFor="g-correo">Correo institucional</Label>
         <Input id="g-correo" type="email" placeholder="usuario@ucundinamarca.edu.co" value={correo} onChange={(e) => setCorreo(e.target.value)} required maxLength={255} />
+      </div>
+      <div className="space-y-2">
+        <Label>Facultad</Label>
+        <Select value={facultad} onValueChange={setFacultad}>
+          <SelectTrigger><SelectValue placeholder="Selecciona tu facultad" /></SelectTrigger>
+          <SelectContent>{facultades.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
+        </Select>
       </div>
       <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Validando...' : 'Ingresar'}</Button>
     </form>

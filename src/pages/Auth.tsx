@@ -218,7 +218,7 @@ const Auth = () => {
       case 'gestor':
         return {
           title: 'Acceso Gestor del Conocimiento y el Aprendizaje',
-          description: 'Ingresa solo con tu nombre y correo, sin contraseña',
+          description: 'Ingresa con tu nombre, correo y facultad. Sin registro ni contraseña',
           icon: Lightbulb,
         };
       case 'observador':
@@ -352,7 +352,7 @@ const Auth = () => {
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 text-sm text-muted-foreground">
             {userType === 'gestor' ? (
-              <p className="text-center">Tu coordinador o el administrador debe haberte registrado como Gestor.</p>
+              <p className="text-center">No necesitas registrarte: tu acceso se crea automáticamente al ingresar.</p>
             ) : userType === 'estudiante' ? (
               <p className="text-center">
                 Para registrarte necesitas tu número de documento y correo institucional registrados en el sistema.
