@@ -59,7 +59,7 @@ const GestorDashboard = () => {
                   <ul className="grid gap-3 md:grid-cols-3 text-sm">
                     <li className="rounded-lg border p-4"><b>Nivel 1 · El Enigma del Método</b><br/>Clasifica expedientes en laboratorios Cuantitativo, Cualitativo o Mixto.</li>
                     <li className="rounded-lg border p-4"><b>Nivel 2 · La Brújula del Proyecto</b><br/>Ordena las fases de la investigación en la secuencia correcta.</li>
-                    <li className="rounded-lg border p-4"><b>Nivel 3 · El Simulador de Soluciones</b><br/>Elige el camino y la matriz (DOFA, Pareto, Ishikawa, Afinidad) para la solución.</li>
+                    <li className="rounded-lg border p-4"><b>Nivel 3 · El Simulador de Soluciones</b><br/>Elige el camino y la matriz (DOFA, Pareto o Ishikawa) para la solución.</li>
                   </ul>
                   <p className="text-sm text-muted-foreground">Cada caso tiene tiempo límite. Al terminar recibes una insignia (Investigador Táctico, Metodólogo o Estratega de Soluciones) que define tu ruta en el Nivelatorio.</p>
                   {ultima && <p className="text-sm">Tu último resultado: <b>{ultima.insignia}</b> · {Math.round(ultima.puntaje_global)} pts</p>}
