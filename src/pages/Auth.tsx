@@ -16,7 +16,7 @@ import { StudentRegistrationForm } from '@/components/auth/StudentRegistrationFo
 type UserType = 'estudiante' | 'docente' | 'admin' | 'observador';
 
 const Auth = () => {
-  const [userType, setUserType] = useState<UserType>('estudiante');
+  const [userType, setUserType] = useState<UserType>('docente');
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, user } = useAuth();
@@ -209,7 +209,7 @@ const Auth = () => {
         };
       case 'docente':
         return {
-          title: 'Acceso Coordinador',
+          title: 'Acceso Coordinador / Gestor del Conocimiento',
           description: 'Gestión de CAI - Encuentros dialógicos y estudiantes',
           icon: BookOpen,
         };
@@ -239,7 +239,7 @@ const Auth = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/inicio')}
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -256,23 +256,17 @@ const Auth = () => {
               />
             </div>
             <CardTitle className="text-2xl font-bold text-center">
-              Encuentros dialógicos Universidad de Cundinamarca
+              Plataforma de Gestores del Conocimiento y el Aprendizaje
             </CardTitle>
             <CardDescription className="text-center">
-              Selecciona tu tipo de acceso
+              Encuentros dialógicos · Selecciona tu tipo de acceso
             </CardDescription>
+            <Button variant="outline" className="mx-auto" onClick={() => navigate('/estudiantes')}>
+              <GraduationCap className="h-4 w-4 mr-2" /> ¿Eres estudiante? Ingresa aquí sin registro
+            </Button>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                type="button"
-                variant={userType === 'estudiante' ? 'default' : 'outline'}
-                className="flex flex-col items-center gap-2 h-auto py-4"
-                onClick={() => setUserType('estudiante')}
-              >
-                <GraduationCap className="h-6 w-6" />
-                <span className="text-xs">Estudiante</span>
-              </Button>
+            <div className="grid grid-cols-3 gap-3">
               <Button
                 type="button"
                 variant={userType === 'docente' ? 'default' : 'outline'}
@@ -280,7 +274,7 @@ const Auth = () => {
                 onClick={() => setUserType('docente')}
               >
                 <BookOpen className="h-6 w-6" />
-                <span className="text-xs">Coordinador</span>
+                <span className="text-xs text-center whitespace-normal">Coordinador / Gestor</span>
               </Button>
               <Button
                 type="button"
