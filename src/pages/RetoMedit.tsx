@@ -17,6 +17,7 @@ interface Sesion {
   limites_ms: Record<string, number>;
   nivel1: { id: string; titulo: string; contexto: string }[];
   nivel2: string[];
+  nivel2_problema?: { unidad: string; problematica: string };
   nivel3: { id: string; contexto: string }[];
 }
 
@@ -202,7 +203,13 @@ const Nivel2 = ({ ses, onDone }: { ses: Sesion; onDone: (fb: any) => void }) => 
     <>
       <BarraTiempo ms={fb ? lim - 1 : ms} limite={lim} titulo="Nivel 2 · La Brújula del Proyecto" />
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <p className="text-muted-foreground mb-6">Un proyecto de mejora institucional llegó desordenado. Conecta las fases en el orden correcto para que la investigación sea válida.</p>
+        {ses.nivel2_problema && (
+          <div className="mb-4 rounded-xl border-l-4 border-primary bg-secondary p-4">
+            <p className="text-xs uppercase tracking-wider text-primary font-semibold mb-1">Problema translocal · {ses.nivel2_problema.unidad}</p>
+            <p className="text-sm">{ses.nivel2_problema.problematica}</p>
+          </div>
+        )}
+        <p className="text-muted-foreground mb-6">El proyecto de investigación para abordar este problema llegó desordenado. Conecta las fases en el orden correcto para que la investigación sea válida.</p>
         <ol className="space-y-0">
           {orden.map((f, i) => (
             <li key={f}>

@@ -7,26 +7,36 @@ const cors = {
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...cors, 'Content-Type': 'application/json' } })
 
-// ---------- Banco de casos (respuestas solo en servidor) ----------
+import { PROBLEMAS } from './problemas.ts'
+
+// ---------- Casos construidos sobre el banco de problemas translocales ----------
+// id de caso = "<id_problema>|<indice_plantilla>"; la respuesta se deriva de la plantilla (solo servidor)
 type Enfoque = 'Cuantitativo' | 'Cualitativo' | 'Mixto'
-const N1: { id: string; titulo: string; contexto: string; ok: Enfoque }[] = [
-  { id: 'n1a', titulo: 'Deserción en primer semestre', contexto: 'La tasa de deserción subió del 12% al 19% en dos años. Planeación necesita medir la magnitud por programa y sede con los registros académicos.', ok: 'Cuantitativo' },
-  { id: 'n1b', titulo: 'Percepción del bienestar', contexto: 'Estudiantes de la sede rural expresan sentirse "invisibles" para la institución. Se busca comprender sus vivencias y significados.', ok: 'Cualitativo' },
-  { id: 'n1c', titulo: 'Apropiación del aula virtual', contexto: 'Se requiere saber cuántos docentes usan el aula virtual y, además, por qué algunos la rechazan, mediante encuestas y entrevistas.', ok: 'Mixto' },
-  { id: 'n1d', titulo: 'Fallas de conectividad', contexto: 'Se reportan caídas de red. Se necesita cuantificar la frecuencia y duración de las interrupciones por edificio durante un mes.', ok: 'Cuantitativo' },
-  { id: 'n1e', titulo: 'Cultura de la calidad', contexto: 'Tras la visita de pares, se quiere interpretar cómo los equipos docentes entienden la autoevaluación, a través de grupos focales.', ok: 'Cualitativo' },
-  { id: 'n1f', titulo: 'Impacto del programa de tutorías', contexto: 'Se evaluará si las tutorías mejoran el promedio académico y cómo las viven los estudiantes que participan.', ok: 'Mixto' },
+const T1: { t: string; ok: Enfoque }[] = [
+  { t: 'Se necesita medir la magnitud y frecuencia del problema con datos estadísticos por municipio y programa.', ok: 'Cuantitativo' },
+  { t: 'Se busca establecer, con encuestas estructuradas, qué porcentaje de la población está afectada.', ok: 'Cuantitativo' },
+  { t: 'Se busca comprender las vivencias y significados que la comunidad le atribuye, mediante entrevistas a profundidad.', ok: 'Cualitativo' },
+  { t: 'Se quiere interpretar la percepción de los actores del territorio a través de grupos focales.', ok: 'Cualitativo' },
+  { t: 'Se requiere cuantificar su alcance con encuestas y, además, comprender sus causas con entrevistas.', ok: 'Mixto' },
+  { t: 'Se evaluará el efecto de una intervención con indicadores y cómo la viven los participantes.', ok: 'Mixto' },
 ]
 const FASES = ['Planteamiento del problema', 'Marco teórico', 'Metodología', 'Recolección de datos', 'Resultados']
 type Herr = 'Ishikawa' | 'Pareto' | 'DOFA'
-const N3: { id: string; contexto: string; ok: Herr; modulo: string }[] = [
-  { id: 'n3a', contexto: 'La cafetería central recibe quejas repetidas. Hay que encontrar las causas raíz agrupadas por mano de obra, métodos, materiales y entorno.', ok: 'Ishikawa', modulo: 'modulo_desarrollo_ishikawa' },
-  { id: 'n3b', contexto: 'Hay 14 tipos de incidencias en la mesa de ayuda. Se debe priorizar el 20% de causas que generan el 80% de los reportes.', ok: 'Pareto', modulo: 'modulo_desarrollo_pareto' },
-  { id: 'n3c', contexto: 'La facultad planea abrir un programa virtual y necesita analizar fortalezas, debilidades, oportunidades y amenazas del entorno.', ok: 'DOFA', modulo: 'modulo_desarrollo_dofa' },
-  { id: 'n3d', contexto: 'La baja asistencia a laboratorios parece tener múltiples causas interrelacionadas que nadie ha organizado.', ok: 'Ishikawa', modulo: 'modulo_desarrollo_ishikawa' },
-  { id: 'n3e', contexto: 'De los motivos de cancelación de matrícula registrados, se debe identificar cuáles pocos concentran la mayoría de casos.', ok: 'Pareto', modulo: 'modulo_desarrollo_pareto' },
-  { id: 'n3f', contexto: 'La dirección quiere definir la estrategia de investigación 2027 considerando el contexto interno y externo.', ok: 'DOFA', modulo: 'modulo_desarrollo_dofa' },
+const MOD: Record<Herr, string> = { Ishikawa: 'modulo_desarrollo_ishikawa', Pareto: 'modulo_desarrollo_pareto', DOFA: 'modulo_desarrollo_dofa' }
+const T3: { t: string; ok: Herr }[] = [
+  { t: 'Hay que encontrar sus causas raíz agrupadas por personas, métodos, recursos y entorno.', ok: 'Ishikawa' },
+  { t: 'Tiene múltiples causas interrelacionadas que nadie ha organizado; se debe identificar su origen.', ok: 'Ishikawa' },
+  { t: 'Se registraron muchos factores asociados; hay que priorizar los pocos que generan la mayoría de los casos.', ok: 'Pareto' },
+  { t: 'Con datos de frecuencia de sus causas, se debe definir el 20% que explica el 80% del impacto.', ok: 'Pareto' },
+  { t: 'Para formular una estrategia territorial, hay que analizar fortalezas, debilidades, oportunidades y amenazas.', ok: 'DOFA' },
+  { t: 'Se debe diseñar un plan considerando el contexto interno de la universidad y el externo del territorio.', ok: 'DOFA' },
 ]
+const prob = (id: string) => PROBLEMAS.find((x) => x.id === id)!
+const tpl = (id: string) => Number(id.split('|')[1])
+const pid = (id: string) => id.split('|')[0]
+const titulo = (p: string) => (p.length > 80 ? p.slice(0, 77).trimEnd() + '…' : p)
+const ctx = (id: string, t: string) => { const p = prob(pid(id)); return `Problema translocal (${p.u}): ${p.p} ${t}` }
+
 const LIMITE_MS: Record<number, number> = { 1: 90_000, 2: 60_000, 3: 90_000 }
 const PESOS: Record<number, number> = { 1: 0.3, 2: 0.3, 3: 0.4 }
 
@@ -65,9 +75,17 @@ Deno.serve(async (req) => {
       const correo = (g?.correo_coordinador || user.email || '').toLowerCase()
       const { data: c } = await admin.from('coordinadores_autorizados').select('facultad, programa, sede').ilike('correo', correo).limit(1).maybeSingle()
 
-      const n1 = shuffle(N1).slice(0, 3)
-      const n3 = shuffle(N3).slice(0, 4)
-      const casos = { n1: n1.map((x) => x.id), n2: shuffle(FASES), n3: n3.map((x) => x.id) }
+      // Evitar repetir problemas ya vistos por el usuario (si quedan suficientes)
+      const { data: prev } = await admin.from('medit_sesiones').select('casos').eq('user_id', user.id)
+      const vistos = new Set<string>((prev || []).flatMap((x: any) => x.casos?.probs || []))
+      let pool = PROBLEMAS.filter((x) => !vistos.has(x.id))
+      if (pool.length < 8) pool = PROBLEMAS
+      const probs = shuffle(pool).slice(0, 8).map((x) => x.id) // 3 N1 + 1 N2 + 4 N3, todos distintos
+      const e1 = shuffle(['Cuantitativo', 'Cualitativo', 'Mixto'] as Enfoque[])
+      const n1 = e1.map((e, i) => { const opts = T1.map((t, k) => ({ t, k })).filter((o) => o.t.ok === e); return `${probs[i]}|${shuffle(opts)[0].k}` })
+      const h3 = shuffle([...shuffle(['Ishikawa', 'Pareto', 'DOFA'] as Herr[]), shuffle(['Ishikawa', 'Pareto', 'DOFA'] as Herr[])[0]])
+      const n3 = h3.map((h, i) => { const opts = T3.map((t, k) => ({ t, k })).filter((o) => o.t.ok === h); return `${probs[4 + i]}|${shuffle(opts)[0].k}` })
+      const casos = { n1, n2: shuffle(FASES), n2_problema: probs[3], n3, probs }
       const { data: s, error } = await admin.from('medit_sesiones').insert({
         user_id: user.id, facultad: (g as any)?.facultad || c?.facultad || null, programa: c?.programa ?? null, sede: c?.sede ?? null, casos,
       }).select('id, started_at').single()
@@ -76,9 +94,10 @@ Deno.serve(async (req) => {
         sesion_id: s.id,
         timestamp_inicio: s.started_at,
         limites_ms: LIMITE_MS,
-        nivel1: n1.map(({ id, titulo, contexto }) => ({ id, titulo, contexto })),
+        nivel1: n1.map((id) => ({ id, titulo: titulo(prob(pid(id)).p), contexto: ctx(id, T1[tpl(id)].t) })),
         nivel2: casos.n2,
-        nivel3: n3.map(({ id, contexto }) => ({ id, contexto })),
+        nivel2_problema: { unidad: prob(probs[3]).u, problematica: prob(probs[3]).p },
+        nivel3: n3.map((id) => ({ id, contexto: ctx(id, T3[tpl(id)].t) })),
       })
     }
 
@@ -94,7 +113,7 @@ Deno.serve(async (req) => {
       const detalle: any[] = []
       if (nivel === 1) {
         const ids: string[] = ses.casos.n1
-        ids.forEach((id) => { const c = N1.find((x) => x.id === id)!; const ok = resp[id] === c.ok; if (ok) base++; detalle.push({ id, elegido: resp[id] ?? null, correcto: ok }) })
+        ids.forEach((id) => { const ok = resp[id] === T1[tpl(id)]?.ok; if (ok) base++; detalle.push({ id, elegido: resp[id] ?? null, correcto: ok }) })
         base = (base / ids.length) * 100
       } else if (nivel === 2) {
         const orden: string[] = Array.isArray(resp.orden) ? resp.orden : []
@@ -104,7 +123,7 @@ Deno.serve(async (req) => {
         detalle.push({ orden, posiciones_correctas: ok })
       } else if (nivel === 3) {
         const ids: string[] = ses.casos.n3
-        ids.forEach((id) => { const c = N3.find((x) => x.id === id)!; const ok = resp[id] === c.ok; if (ok) base++; detalle.push({ id, elegido: resp[id] ?? null, correcto: ok, modulo: c.modulo }) })
+        ids.forEach((id) => { const h = T3[tpl(id)]?.ok; const ok = resp[id] === h; if (ok) base++; detalle.push({ id, elegido: resp[id] ?? null, correcto: ok, modulo: MOD[h] }) })
         base = (base / ids.length) * 100
       } else return json({ error: 'Nivel inválido' }, 400)
 
