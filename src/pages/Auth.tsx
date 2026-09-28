@@ -10,13 +10,15 @@ import { Shield, BookOpen, GraduationCap, ArrowLeft, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import udecLogo from '@/assets/udec-logo.png';
 import { LoginForm } from '@/components/auth/LoginForm';
+import { GestorAccessForm } from '@/components/auth/GestorAccessForm';
+import { Lightbulb } from 'lucide-react';
 import { CoordinatorRegistrationForm } from '@/components/auth/CoordinatorRegistrationForm';
 import { StudentRegistrationForm } from '@/components/auth/StudentRegistrationForm';
 
-type UserType = 'estudiante' | 'docente' | 'admin' | 'observador';
+type UserType = 'estudiante' | 'docente' | 'admin' | 'observador' | 'gestor';
 
 const Auth = () => {
-  const [userType, setUserType] = useState<UserType>('docente');
+  const [userType, setUserType] = useState<UserType>('gestor');
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, user } = useAuth();
@@ -209,9 +211,15 @@ const Auth = () => {
         };
       case 'docente':
         return {
-          title: 'Acceso Coordinador / Gestor del Conocimiento',
+          title: 'Acceso Coordinador',
           description: 'Gestión de CAI - Encuentros dialógicos y estudiantes',
           icon: BookOpen,
+        };
+      case 'gestor':
+        return {
+          title: 'Acceso Gestor del Conocimiento y el Aprendizaje',
+          description: 'Ingresa solo con tu nombre y correo, sin contraseña',
+          icon: Lightbulb,
         };
       case 'observador':
         return {
@@ -266,7 +274,16 @@ const Auth = () => {
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Button
+                type="button"
+                variant={userType === 'gestor' ? 'default' : 'outline'}
+                className="flex flex-col items-center gap-2 h-auto py-4"
+                onClick={() => setUserType('gestor')}
+              >
+                <Lightbulb className="h-6 w-6" />
+                <span className="text-xs text-center whitespace-normal">Gestor del Conocimiento</span>
+              </Button>
               <Button
                 type="button"
                 variant={userType === 'docente' ? 'default' : 'outline'}
@@ -274,7 +291,7 @@ const Auth = () => {
                 onClick={() => setUserType('docente')}
               >
                 <BookOpen className="h-6 w-6" />
-                <span className="text-xs text-center whitespace-normal">Coordinador / Gestor</span>
+                <span className="text-xs">Coordinador</span>
               </Button>
               <Button
                 type="button"
@@ -304,6 +321,7 @@ const Auth = () => {
               </div>
             </div>
 
+            {userType === 'gestor' ? <GestorAccessForm /> : (
             <Tabs value={isLogin ? 'login' : 'signup'} onValueChange={(v) => setIsLogin(v === 'login')}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
@@ -330,9 +348,12 @@ const Auth = () => {
                 ) : null}
               </TabsContent>
             </Tabs>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 text-sm text-muted-foreground">
-            {userType === 'estudiante' ? (
+            {userType === 'gestor' ? (
+              <p className="text-center">Tu coordinador o el administrador debe haberte registrado como Gestor.</p>
+            ) : userType === 'estudiante' ? (
               <p className="text-center">
                 Para registrarte necesitas tu número de documento y correo institucional registrados en el sistema.
               </p>
