@@ -12,6 +12,7 @@ import { EstadisticasManager } from '@/components/EstadisticasManager';
 import { SeguimientoTiempoReal } from '@/components/SeguimientoTiempoReal';
 import { ActasEstudiantesViewer } from '@/components/ActasEstudiantesViewer';
 import { GestoresManager } from '@/components/GestoresManager';
+import { MeditDashboard } from '@/components/MeditDashboard';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -51,6 +52,7 @@ const DocenteDashboard = () => {
               <TabsTrigger value="evaluaciones">Valoraciones</TabsTrigger>
               <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
               <TabsTrigger value="actas">Actas</TabsTrigger>
+              <TabsTrigger value="medit">Reto MEDIT</TabsTrigger>
               {!isGestor && <TabsTrigger value="gestores">Gestores</TabsTrigger>}
             </TabsList>
 
@@ -231,6 +233,10 @@ const DocenteDashboard = () => {
 
             <TabsContent value="gestores">
               <GestoresManager />
+            </TabsContent>
+
+            <TabsContent value="medit">
+              <MeditDashboard />
             </TabsContent>
 
             <TabsContent value="actas">

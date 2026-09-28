@@ -7,6 +7,7 @@ import { Users, BookOpen, Settings, BarChart3, FileText, Shield, ArrowLeft, Grad
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocentesManager } from '@/components/DocentesManager';
 import { GestoresManager } from '@/components/GestoresManager';
+import { MeditDashboard } from '@/components/MeditDashboard';
 import { EstudiantesManager } from '@/components/EstudiantesManager';
 import { RolesManager } from '@/components/RolesManager';
 import { ImportManager } from '@/components/admin/ImportManager';
@@ -54,6 +55,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="valoraciones">Valoraciones</TabsTrigger>
               <TabsTrigger value="importar">Importar</TabsTrigger>
               <TabsTrigger value="actas">Actas</TabsTrigger>
+              <TabsTrigger value="medit">Reto MEDIT</TabsTrigger>
               <TabsTrigger value="lti">LTI / Moodle</TabsTrigger>
             </TabsList>
 
@@ -228,6 +230,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="valoraciones">
               <ValoracionesAdminManager />
+            </TabsContent>
+
+            <TabsContent value="medit">
+              <MeditDashboard />
             </TabsContent>
 
             <TabsContent value="actas">
