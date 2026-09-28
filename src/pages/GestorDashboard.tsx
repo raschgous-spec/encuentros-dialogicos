@@ -9,6 +9,7 @@ import { NivelatorioMomento } from '@/components/moments/NivelatorioMomento';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import metodosImg from '@/assets/metodos-tipos-investigacion.png.asset.json';
 
 const GestorDashboard = () => {
   const navigate = useNavigate();
@@ -73,7 +74,19 @@ const GestorDashboard = () => {
                   <CardTitle>NIVELATORIO</CardTitle>
                   <CardDescription>Material de refuerzo y actividades de nivelación</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-6">
+                  <section className="space-y-2">
+                    <h3 className="font-semibold text-primary">Material de estudio · Métodos y tipos de investigación</h3>
+                    <a href={metodosImg.url} target="_blank" rel="noopener noreferrer">
+                      <img
+                        src={metodosImg.url}
+                        alt="Infografía Universidad de Cundinamarca: métodos y tipos de investigación"
+                        className="w-full rounded-lg border shadow-sm"
+                        loading="lazy"
+                      />
+                    </a>
+                    <p className="text-xs text-muted-foreground">Haz clic en la imagen para verla en tamaño completo.</p>
+                  </section>
                   <NivelatorioMomento onComplete={() => complete('nivelatorio')} />
                 </CardContent>
               </Card>
