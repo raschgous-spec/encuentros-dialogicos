@@ -28,18 +28,17 @@ Deno.serve(async (req) => {
     const isCoord = r.includes('docente') && !selfGestor
     if (!isAdmin && !isCoord) return json({ error: 'Sin permisos' }, 403)
 
-    const { email, password, fullName, correoCoordinador } = await req.json()
+    const { email, fullName, correoCoordinador } = await req.json()
     const e = String(email ?? '').trim().toLowerCase()
     const name = String(fullName ?? '').trim()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return json({ error: 'Correo inválido' }, 400)
-    if (!password || password.length < 8) return json({ error: 'La contraseña debe tener al menos 8 caracteres' }, 400)
     if (name.length < 2 || name.length > 100) return json({ error: 'Nombre inválido' }, 400)
 
     const coord = isAdmin && correoCoordinador ? String(correoCoordinador).trim().toLowerCase() : (user.email || '').toLowerCase()
     if (!coord) return json({ error: 'Debe indicar el correo del coordinador' }, 400)
 
     const { data: nu, error: cErr } = await admin.auth.admin.createUser({
-      email: e, password, email_confirm: true, user_metadata: { full_name: name },
+      email: e, password: crypto.randomUUID() + 'Aa1!', email_confirm: true, user_metadata: { full_name: name },
     })
     if (cErr || !nu.user) return json({ error: cErr?.message || 'No se pudo crear el usuario' }, 400)
     const id = nu.user.id

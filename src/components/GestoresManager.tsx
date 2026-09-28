@@ -34,7 +34,7 @@ export const GestoresManager = () => {
         try { msg = msg || (await (error as any)?.context?.json())?.error; } catch { /* ignore */ }
         throw new Error(msg || 'No se pudo crear');
       }
-      toast({ title: 'Gestor creado', description: `${form.email} ya puede iniciar sesión.` });
+      toast({ title: 'Gestor creado', description: `${form.email} ya puede ingresar con su nombre y correo.` });
       setForm({ fullName: '', email: '', password: '', correoCoordinador: '' });
       load();
     } catch (err: any) {
@@ -59,8 +59,6 @@ export const GestoresManager = () => {
               <Input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required maxLength={100} /></div>
             <div className="space-y-2"><Label>Correo</Label>
               <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></div>
-            <div className="space-y-2"><Label>Contraseña (mín. 8 caracteres)</Label>
-              <Input type="password" minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required /></div>
             {isAdmin && (
               <div className="space-y-2"><Label>Correo del coordinador</Label>
                 <Input type="email" value={form.correoCoordinador} onChange={(e) => setForm({ ...form, correoCoordinador: e.target.value })} required /></div>

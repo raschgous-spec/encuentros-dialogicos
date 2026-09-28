@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.medit-diagnostico]
 verify_jwt = false
+
+[functions.gestor-quick-access]
+verify_jwt = false
