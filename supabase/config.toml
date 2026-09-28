@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.create-gestor]
 verify_jwt = false
+
+[functions.medit-diagnostico]
+verify_jwt = false
