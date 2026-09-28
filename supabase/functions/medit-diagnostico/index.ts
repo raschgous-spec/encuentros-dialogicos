@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
 
     if (accion === 'iniciar') {
       // facultad / programa: vía coordinador (gestor) o propio correo
-      const { data: g } = await admin.from('gestores_conocimiento').select('correo_coordinador').eq('user_id', user.id).maybeSingle()
+      const { data: g } = await admin.from('gestores_conocimiento').select('correo_coordinador, facultad').eq('user_id', user.id).maybeSingle()
       const correo = (g?.correo_coordinador || user.email || '').toLowerCase()
       const { data: c } = await admin.from('coordinadores_autorizados').select('facultad, programa, sede').ilike('correo', correo).limit(1).maybeSingle()
 
@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
       const n3 = shuffle(N3).slice(0, 4)
       const casos = { n1: n1.map((x) => x.id), n2: shuffle(FASES), n3: n3.map((x) => x.id) }
       const { data: s, error } = await admin.from('medit_sesiones').insert({
-        user_id: user.id, facultad: c?.facultad ?? null, programa: c?.programa ?? null, sede: c?.sede ?? null, casos,
+        user_id: user.id, facultad: (g as any)?.facultad || c?.facultad || null, programa: c?.programa ?? null, sede: c?.sede ?? null, casos,
       }).select('id, started_at').single()
       if (error) throw error
       return json({
