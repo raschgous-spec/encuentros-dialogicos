@@ -288,15 +288,17 @@ export type Database = {
           correo_coordinador: string
           created_at: string
           created_by: string | null
+          facultad: string | null
           id: string
           nombre_completo: string
           user_id: string
         }
         Insert: {
           correo: string
-          correo_coordinador: string
+          correo_coordinador?: string
           created_at?: string
           created_by?: string | null
+          facultad?: string | null
           id?: string
           nombre_completo?: string
           user_id: string
@@ -306,6 +308,7 @@ export type Database = {
           correo_coordinador?: string
           created_at?: string
           created_by?: string | null
+          facultad?: string | null
           id?: string
           nombre_completo?: string
           user_id?: string
