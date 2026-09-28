@@ -15,8 +15,6 @@ export default {
     extend: {
       colors: {
         border: "hsl(var(--border))",
-        warning: "hsl(var(--warning))",
-        success: "hsl(var(--success))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
