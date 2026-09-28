@@ -282,6 +282,36 @@ export type Database = {
           },
         ]
       }
+      gestores_conocimiento: {
+        Row: {
+          correo: string
+          correo_coordinador: string
+          created_at: string
+          created_by: string | null
+          id: string
+          nombre_completo: string
+          user_id: string
+        }
+        Insert: {
+          correo: string
+          correo_coordinador: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nombre_completo?: string
+          user_id: string
+        }
+        Update: {
+          correo?: string
+          correo_coordinador?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nombre_completo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lti_nonces: {
         Row: {
           created_at: string
@@ -540,6 +570,7 @@ export type Database = {
         Returns: boolean
       }
       cleanup_old_nonces: { Args: never; Returns: undefined }
+      get_coordinator_email: { Args: { _user_id: string }; Returns: string }
       get_coordinator_options: {
         Args: never
         Returns: {

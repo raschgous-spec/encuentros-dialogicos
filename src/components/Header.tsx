@@ -33,7 +33,7 @@ export const Header = () => {
         title: 'Sesión cerrada',
         description: 'Has cerrado sesión exitosamente',
       });
-      navigate('/auth');
+      navigate('/inicio');
     }
   };
 

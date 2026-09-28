@@ -89,7 +89,7 @@ export const ValoracionesCoordinadorManager = ({ showRecent = false }: { showRec
       const { data: assignedStudents } = await supabase
         .from('estudiantes_autorizados')
         .select('correo')
-        .ilike('correo_coordinador', profileData.email);
+        .ilike('correo_coordinador', ((await supabase.rpc('get_coordinator_email' as any, { _user_id: user.id })).data as string) || profileData.email);
 
       const studentEmails = assignedStudents?.map(s => s.correo.toLowerCase()) || [];
 

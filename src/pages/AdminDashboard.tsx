@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Users, BookOpen, Settings, BarChart3, FileText, Shield, ArrowLeft, GraduationCap, Upload, ClipboardList, ExternalLink } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocentesManager } from '@/components/DocentesManager';
+import { GestoresManager } from '@/components/GestoresManager';
 import { EstudiantesManager } from '@/components/EstudiantesManager';
 import { RolesManager } from '@/components/RolesManager';
 import { ImportManager } from '@/components/admin/ImportManager';
@@ -47,6 +48,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="overview">Panel General</TabsTrigger>
               <TabsTrigger value="estudiantes">Estudiantes</TabsTrigger>
               <TabsTrigger value="docentes">Coordinadores</TabsTrigger>
+              <TabsTrigger value="gestores">Gestores</TabsTrigger>
               <TabsTrigger value="roles">Roles</TabsTrigger>
               <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
               <TabsTrigger value="valoraciones">Valoraciones</TabsTrigger>
@@ -206,6 +208,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="docentes">
               <DocentesManager />
+            </TabsContent>
+
+            <TabsContent value="gestores">
+              <GestoresManager />
             </TabsContent>
 
             <TabsContent value="roles">

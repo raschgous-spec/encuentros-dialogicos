@@ -38,7 +38,7 @@ const Index = () => {
     if (loading) return;
 
     if (!user) {
-      navigate('/auth');
+      navigate('/inicio');
       return;
     }
 

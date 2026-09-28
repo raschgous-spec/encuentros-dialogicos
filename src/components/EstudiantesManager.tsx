@@ -166,7 +166,7 @@ export const EstudiantesManager = () => {
         const { data: autorizados, error: autError } = await supabase
           .from('estudiantes_autorizados')
           .select('correo')
-          .eq('correo_coordinador', user.email!.toLowerCase());
+          .ilike('correo_coordinador', ((await supabase.rpc('get_coordinator_email' as any, { _user_id: user.id })).data as string) || user.email!.toLowerCase());
 
         if (autError) throw autError;
 

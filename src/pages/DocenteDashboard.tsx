@@ -11,10 +11,21 @@ import { ValoracionesCoordinadorManager } from '@/components/ValoracionesCoordin
 import { EstadisticasManager } from '@/components/EstadisticasManager';
 import { SeguimientoTiempoReal } from '@/components/SeguimientoTiempoReal';
 import { ActasEstudiantesViewer } from '@/components/ActasEstudiantesViewer';
+import { GestoresManager } from '@/components/GestoresManager';
+import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const DocenteDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const navigate = useNavigate();
+  const [isGestor, setIsGestor] = useState(false);
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      const { data } = await (supabase as any).from('gestores_conocimiento').select('id').eq('user_id', user.id).maybeSingle();
+      setIsGestor(!!data);
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,11 +51,12 @@ const DocenteDashboard = () => {
               <TabsTrigger value="evaluaciones">Valoraciones</TabsTrigger>
               <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
               <TabsTrigger value="actas">Actas</TabsTrigger>
+              {!isGestor && <TabsTrigger value="gestores">Gestores</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
               <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Panel del Coordinador</h1>
+                <h1 className="text-3xl font-bold mb-2">{isGestor ? 'Panel del Gestor del Conocimiento y el Aprendizaje' : 'Panel del Coordinador'}</h1>
                 <p className="text-muted-foreground">
                   Gestiona contenido, estudiantes y supervisa el progreso académico
                 </p>
@@ -215,6 +227,10 @@ const DocenteDashboard = () => {
                   </Button>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="gestores">
+              <GestoresManager />
             </TabsContent>
 
             <TabsContent value="actas">
