@@ -122,25 +122,26 @@ All colors MUST be HSL.
   }
 }
 
-/* Tema inmersivo Reto MEDIT: modo oscuro con verde y dorado UDEC */
+/* Tema Reto MEDIT: colores institucionales UDEC (verde, blanco, acento dorado suave) */
 .medit {
-  --background: 150 30% 6%;
-  --foreground: 140 15% 92%;
-  --card: 150 25% 10%;
-  --card-foreground: 140 15% 92%;
-  --popover: 150 25% 10%;
-  --popover-foreground: 140 15% 92%;
-  --primary: 142 65% 42%;
-  --primary-foreground: 150 30% 6%;
-  --secondary: 150 20% 15%;
-  --secondary-foreground: 140 15% 92%;
-  --muted: 150 20% 14%;
-  --muted-foreground: 140 10% 62%;
-  --accent: 43 85% 55%;
-  --accent-foreground: 150 30% 6%;
-  --border: 150 20% 20%;
-  --input: 150 20% 20%;
-  --ring: 43 85% 55%;
-  --warning: 38 92% 50%;
-  --destructive: 0 75% 55%;
+  --background: 140 25% 97%;
+  --foreground: 150 30% 14%;
+  --card: 0 0% 100%;
+  --card-foreground: 150 30% 14%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 150 30% 14%;
+  --primary: 142 71% 30%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 142 30% 93%;
+  --secondary-foreground: 142 60% 18%;
+  --muted: 142 20% 94%;
+  --muted-foreground: 150 12% 40%;
+  --accent: 43 80% 48%;
+  --accent-foreground: 150 30% 10%;
+  --border: 142 20% 85%;
+  --input: 142 20% 85%;
+  --ring: 142 71% 30%;
+  --warning: 38 92% 45%;
+  --destructive: 0 72% 48%;
+  background-image: linear-gradient(180deg, hsl(142 45% 92%) 0%, hsl(140 25% 97%) 320px);
 }
