@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
 import RetoMedit from "./pages/RetoMedit";
+import GestorDashboard from "./pages/GestorDashboard";
 import EstudiantesAcceso from "./pages/EstudiantesAcceso";
 import ResetPassword from "./pages/ResetPassword";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -64,6 +65,7 @@ const App = () => (
             } 
           />
           <Route path="/reto-medit" element={<ProtectedRoute allowedRoles={['docente', 'admin']}><RetoMedit /></ProtectedRoute>} />
+          <Route path="/gestor" element={<ProtectedRoute allowedRoles={['docente', 'admin']}><GestorDashboard /></ProtectedRoute>} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/lti-callback" element={<LtiCallback />} />
           <Route path="/guia-pdf" element={<GenerarGuiaPDF />} />
