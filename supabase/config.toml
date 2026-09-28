@@ -20,3 +20,9 @@ verify_jwt = false
 
 [functions.lti-launch]
 verify_jwt = false
+
+[functions.student-quick-access]
+verify_jwt = false
+
+[functions.create-gestor]
+verify_jwt = false
