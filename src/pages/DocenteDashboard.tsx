@@ -25,6 +25,7 @@ const DocenteDashboard = () => {
       if (!user) return;
       const { data } = await (supabase as any).from('gestores_conocimiento').select('id').eq('user_id', user.id).maybeSingle();
       setIsGestor(!!data);
+      if (data) navigate('/gestor', { replace: true });
     });
   }, []);
 
