@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft } from 'lucide-react';
-import { DiagnosticoMomento } from '@/components/moments/DiagnosticoMomento';
 import { NivelatorioMomento } from '@/components/moments/NivelatorioMomento';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,6 +15,13 @@ const GestorDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [tab, setTab] = useState('diagnostico');
+  const [ultima, setUltima] = useState<any>(null);
+  useEffect(() => {
+    if (!user) return;
+    (supabase as any).from('medit_sesiones').select('insignia,puntaje_global').eq('user_id', user.id)
+      .not('finished_at', 'is', null).order('finished_at', { ascending: false }).limit(1).maybeSingle()
+      .then(({ data }: any) => setUltima(data));
+  }, [user]);
 
   const complete = async (momento: string) => {
     if (!user) return;
@@ -46,11 +52,18 @@ const GestorDashboard = () => {
             <TabsContent value="diagnostico">
               <Card>
                 <CardHeader>
-                  <CardTitle>DIAGNÓSTICO</CardTitle>
-                  <CardDescription>Valoración inicial de competencias investigativas</CardDescription>
+                  <CardTitle>DIAGNÓSTICO · Reto MEDIT: Expedición Investigativa</CardTitle>
+                  <CardDescription>Asume el rol de Auditor Estratégico y resuelve las crisis del Buzón de Crisis aplicando el rigor científico.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <DiagnosticoMomento onComplete={() => complete('diagnostico')} />
+                <CardContent className="space-y-4">
+                  <ul className="grid gap-3 md:grid-cols-3 text-sm">
+                    <li className="rounded-lg border p-4"><b>Nivel 1 · El Enigma del Método</b><br/>Clasifica expedientes en laboratorios Cuantitativo, Cualitativo o Mixto.</li>
+                    <li className="rounded-lg border p-4"><b>Nivel 2 · La Brújula del Proyecto</b><br/>Ordena las fases de la investigación en la secuencia correcta.</li>
+                    <li className="rounded-lg border p-4"><b>Nivel 3 · El Simulador de Soluciones</b><br/>Elige el camino y la matriz (DOFA, Pareto o Ishikawa) para la solución.</li>
+                  </ul>
+                  <p className="text-sm text-muted-foreground">Cada caso tiene tiempo límite. Al terminar recibes una insignia (Investigador Táctico, Metodólogo o Estratega de Soluciones) que define tu ruta en el Nivelatorio.</p>
+                  {ultima && <p className="text-sm">Tu último resultado: <b>{ultima.insignia}</b> · {Math.round(ultima.puntaje_global)} pts</p>}
+                  <Button onClick={() => navigate('/reto-medit')}>{ultima ? 'Repetir el reto' : 'Iniciar el reto'}</Button>
                 </CardContent>
               </Card>
             </TabsContent>
