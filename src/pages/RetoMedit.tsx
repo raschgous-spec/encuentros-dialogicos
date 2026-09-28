@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Inbox, Play, Timer, FlaskConical, BarChart3, Layers, ArrowUp, ArrowDown, ArrowLeftIcon, ArrowRight, Award, Loader2, CheckCircle2, XCircle, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { generarPdfMedit } from '@/utils/meditPdf';
+import { Download } from 'lucide-react';
 
 type Fase = 'onboarding' | 'n1' | 'n2' | 'n3' | 'enviando' | 'debrief';
 type Enfoque = 'Cuantitativo' | 'Cualitativo' | 'Mixto';
@@ -335,6 +337,15 @@ const RetoMedit = () => {
     catch (e: any) { toast({ title: 'No se pudo iniciar', description: e.message, variant: 'destructive' }); }
     finally { setLoading(false); }
   };
+  const descargarPdf = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: g } = await (supabase as any).from('gestores_conocimiento').select('nombre_completo,correo,facultad').eq('user_id', user?.id).maybeSingle();
+    generarPdfMedit(res, {
+      nombre: g?.nombre_completo || user?.user_metadata?.full_name || '',
+      correo: g?.correo || user?.email || '',
+      facultad: g?.facultad || user?.user_metadata?.facultad || '',
+    }, MODULOS as any);
+  };
   const finalizar = async () => {
     setFase('enviando');
     try { setRes(await llamar({ accion: 'finalizar', sesion_id: ses!.sesion_id })); setFase('debrief'); }
@@ -405,6 +416,7 @@ const RetoMedit = () => {
             )}
           </div>
           <div className="flex gap-3 justify-center mt-10">
+            <Button variant="outline" onClick={descargarPdf}><Download className="h-4 w-4 mr-2" />Descargar PDF</Button>
             <Button variant="outline" onClick={() => navigate('/gestor')}>Volver al panel</Button>
             <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => { setRes(null); setSes(null); setFase('onboarding'); }}>Nueva expedición</Button>
           </div>
