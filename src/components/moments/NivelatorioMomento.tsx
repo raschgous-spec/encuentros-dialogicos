@@ -266,7 +266,7 @@ export const NivelatorioMomento = ({ onComplete }: NivelatorioMomentoProps) => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-primary border-b-2 border-primary pb-3 mb-6">
-          MOMENTO 2 - NIVELATORIO
+          MOMENTO 2 - NIVELATORIO · CREADORES DE OPORTUNIDADES
         </h1>
       </div>
 

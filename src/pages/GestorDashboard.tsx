@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft } from 'lucide-react';
-import { NivelatorioMomento } from '@/components/moments/NivelatorioMomento';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -89,7 +88,6 @@ const GestorDashboard = () => {
                     <p className="text-xs text-muted-foreground">Haz clic en la imagen para verla en tamaño completo.</p>
                   </section>
                   <MaterialEstudio />
-                  <NivelatorioMomento onComplete={() => complete('nivelatorio')} />
                 </CardContent>
               </Card>
             </TabsContent>
