@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { FileText } from 'lucide-react';
-import { METODOS, TIPOS, VIDEO_INTRO, TemaEstudio } from '@/data/materialNivelatorio';
+import { FileText, Download } from 'lucide-react';
+import { METODOS, TIPOS, VIDEO_INTRO, TemaEstudio, PDF_METODOS_GENERAL } from '@/data/materialNivelatorio';
 
 const Video = ({ id, title }: { id: string; title: string }) => (
   <div className="aspect-video w-full overflow-hidden rounded-lg border bg-muted">
@@ -31,6 +31,12 @@ const Lista = ({ temas }: { temas: TemaEstudio[] }) => (
               </a>
             )}
           </div>
+          {t.pdf && (
+            <a href={t.pdf} download target="_blank" rel="noopener noreferrer"
+              className="mr-4 inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+              <Download className="h-4 w-4" /> Descargar documento de soporte (PDF)
+            </a>
+          )}
           {t.texto && (
             <a href={t.texto} target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
@@ -54,7 +60,13 @@ export const MaterialEstudio = () => (
         <TabsTrigger value="metodos">Métodos de investigación</TabsTrigger>
         <TabsTrigger value="tipos">Tipos de investigación</TabsTrigger>
       </TabsList>
-      <TabsContent value="metodos"><Lista temas={METODOS} /></TabsContent>
+      <TabsContent value="metodos" className="space-y-3">
+        <a href={PDF_METODOS_GENERAL} download target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+          <Download className="h-4 w-4" /> Descargar libro: Métodos de investigación científica (PDF)
+        </a>
+        <Lista temas={METODOS} />
+      </TabsContent>
       <TabsContent value="tipos"><Lista temas={TIPOS} /></TabsContent>
     </Tabs>
   </section>
