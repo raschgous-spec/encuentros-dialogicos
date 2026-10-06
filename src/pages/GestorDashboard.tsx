@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import metodosImg from '@/assets/metodos-tipos-investigacion.png.asset.json';
+import { MaterialEstudio } from '@/components/gestor/MaterialEstudio';
 
 const GestorDashboard = () => {
   const navigate = useNavigate();
@@ -87,6 +88,7 @@ const GestorDashboard = () => {
                     </a>
                     <p className="text-xs text-muted-foreground">Haz clic en la imagen para verla en tamaño completo.</p>
                   </section>
+                  <MaterialEstudio />
                   <NivelatorioMomento onComplete={() => complete('nivelatorio')} />
                 </CardContent>
               </Card>
