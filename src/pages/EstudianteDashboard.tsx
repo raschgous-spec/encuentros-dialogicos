@@ -148,7 +148,7 @@ const EstudianteDashboard = () => {
           <TabsContent value="nivelatorio" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>MOMENTO 2 - NIVELATORIO</CardTitle>
+                <CardTitle>MOMENTO 2 - NIVELATORIO · CREADORES DE OPORTUNIDADES</CardTitle>
                 <CardDescription>
                   Material de refuerzo y actividades de nivelación
                 </CardDescription>
