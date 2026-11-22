@@ -90,6 +90,12 @@ export function LaboratorioNivelatorio() {
      <span className={`flex items-center gap-2 font-mono tabular-nums ${seconds<=15?'text-destructive':'text-primary'}`} aria-label="Tiempo restante"><Timer className="h-5 w-5"/>{Math.floor(seconds/60)}:{String(seconds%60).padStart(2,'0')}</span>
     </div>
     <Progress value={sesion.index/sesion.total*100} className="h-2"/>
+    <div className="border-l-4 border-primary bg-secondary/50 px-5 py-4" aria-label="Orientación de la pregunta">
+     <h3 className="font-semibold text-primary mb-2">Cómo abordar esta pregunta</h3>
+     <p className="text-sm leading-relaxed mb-3">{MISIONES[mision-1]?.orientacion}</p>
+     <ol className="list-decimal pl-5 space-y-1 text-sm leading-relaxed">{MISIONES[mision-1]?.pasos.map(paso=><li key={paso}>{paso}</li>)}</ol>
+     <p className="text-sm text-muted-foreground mt-3">Selecciona una opción con un clic o arrástrala a la zona de conexión. Confirma con «{mision===3?'Validar prototipo':'Fijar conexión'}». Una vez guardada, tu respuesta no se puede cambiar; si hay un error, recibirás un refuerzo antes de continuar.</p>
+    </div>
     <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
      <div className="space-y-5"><div className="border-l-4 border-primary pl-5"><p className="text-xs font-semibold text-primary mb-2">EXPEDIENTE TRANSLOCAL · {task.problema.u}</p><h3 className="text-lg font-semibold leading-relaxed">{task.problema.p}</h3></div>
       <div className="bg-secondary p-5 rounded-md"><p className="text-sm font-semibold text-primary mb-2">{mision===3?'Requerimiento del prototipo':'Necesidad de investigación'}</p><p className="leading-relaxed">{task.necesidad}</p>{mision===3 && <p className="text-sm mt-3 text-muted-foreground">Intervención práctica · análisis de factores del problema</p>}</div>
