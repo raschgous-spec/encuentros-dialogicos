@@ -30,7 +30,17 @@ Deno.serve(async req => {
     const prioridades = [...brechas];
     if (brechas.includes('modulo_identificacion')) prioridades.push('tipo_cuantitativa','tipo_cualitativa');
     if (brechas.includes('modulo_fases_investigacion')) prioridades.push('metodo_deductivo','metodo_inductivo');
-    const {data:created,error:e} = await db.from('gestor_nivelatorio_sesiones').insert({user_id:user.id,facultad:g?.facultad,contenido:createGame(prioridades)}).select('*').single(); if(e) throw e; row=created;
+    const recentIds: string[] = [];
+    for(let offset=0;;offset+=200) {
+     const {data:history,error:historyError} = await db.from('gestor_nivelatorio_sesiones').select('contenido').eq('user_id',user.id).order('started_at',{ascending:false}).order('id',{ascending:false}).range(offset,offset+199);
+     if(historyError) throw historyError;
+     for(const previous of history || []) {
+      const previousGame = previous.contenido as Game;
+      for(const task of previousGame.tasks || []) recentIds.push(task.problema.id);
+     }
+     if(!history || history.length<200) break;
+    }
+    const {data:created,error:e} = await db.from('gestor_nivelatorio_sesiones').insert({user_id:user.id,facultad:g?.facultad,contenido:createGame(prioridades,Date.now(),recentIds)}).select('*').single(); if(e) throw e; row=created;
    }
   } else {
    if (!body.sesion_id) return json({error:'Falta la sesión.'},400);

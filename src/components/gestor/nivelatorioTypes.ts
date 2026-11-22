@@ -4,6 +4,7 @@ export interface ResultadoLaboratorio {
  estado_certificacion: string; diagnostico: string[];
  dominio: { categoria: string; concepto: string; intentos: number; precision: number; completado: boolean }[];
  problemas: ProblemaLaboratorio[];
+ asignaciones?: { mision: number; concepto: string; problema: ProblemaLaboratorio }[];
  proposicion: { problema: string; unidad: string; tipo: string; metodo: string; herramientas: string[]; objetivo: string; desarrollo: string; acciones: string; seguimiento: string };
 }
 export interface SesionLaboratorio {

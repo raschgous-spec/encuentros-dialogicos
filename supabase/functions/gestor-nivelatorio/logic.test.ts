@@ -1,10 +1,23 @@
 import { describe, test, expect } from 'bun:test';
 import { createGame, answer, resume, finalResult } from './logic';
+import { PROBLEMAS } from '../_shared/problemasTranslocales';
 describe('Reglas del Nivelatorio de gestores', () => {
- test('abarca los 7 tipos, los 6 métodos y las 5 herramientas en 3 problemas distintos', () => {
-  const g = createGame(); expect(g.tasks.filter(t => t.mision === 1)).toHaveLength(7); expect(g.tasks.filter(t => t.mision === 2)).toHaveLength(6); expect(g.tasks.filter(t => t.mision === 3)).toHaveLength(5); expect(new Set(g.tasks.map(t => t.problema.id)).size).toBe(3);
+ test('abarca los 7 tipos, los 6 métodos y las 5 herramientas en 18 problemas distintos del banco', () => {
+  const g = createGame(); expect(g.tasks.filter(t => t.mision === 1)).toHaveLength(7); expect(g.tasks.filter(t => t.mision === 2)).toHaveLength(6); expect(g.tasks.filter(t => t.mision === 3)).toHaveLength(5); expect(new Set(g.tasks.map(t => t.problema.id)).size).toBe(18);
+  expect(new Set(g.tasks.map(t => t.problema.p.toLowerCase().replace(/[^a-záéíóúñ0-9]+/g,' ').trim())).size).toBe(18);
+  for(const t of g.tasks) expect(PROBLEMAS.find(p=>p.id===t.problema.id)).toEqual(t.problema);
   expect(g.tasks.filter(t => t.mision === 1).map(t => t.concepto).sort()).toEqual(['aplicada','basica','cualitativa','cuantitativa','descriptiva','explicativa','exploratoria']);
   expect(g.tasks.filter(t => t.mision === 2).map(t => t.concepto).sort()).toEqual(['analitico','deductivo','descriptivo','experimental','inductivo','sintetico']);
+ });
+ test('una nueva prueba no repite los problemas ya asignados al usuario ni sus textos duplicados', () => {
+  const first=createGame();const second=createGame([],0,first.tasks.map(t=>t.problema.id));
+  const keys=new Set(first.tasks.map(t=>t.problema.p.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()));
+  for(const t of second.tasks) expect(keys.has(t.problema.p.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim())).toBe(false);
+ });
+ test('al agotar el banco reutiliza los menos recientes y no los de la última prueba', () => {
+  const last=createGame();const recent=last.tasks.map(t=>t.problema.id);const g=createGame([],0,[...recent,...PROBLEMAS.filter(p=>!recent.includes(p.id)).map(p=>p.id)]);
+  for(const t of g.tasks) expect(recent.includes(t.problema.id)).toBe(false);
+  expect(new Set(g.tasks.map(t=>t.problema.id)).size).toBe(18);
  });
  test('inicia con 3 escudos y cada error resta uno y pausa el reloj', () => {
   const g = createGame([], 0); expect(g.escudos).toBe(3); const n = answer(g, 'incorrecto', 1000).game; expect(n.escudos).toBe(2); expect(n.pausa).toBe(true); expect(resume(n, 10000).remaining_ms).toBe(89000);
