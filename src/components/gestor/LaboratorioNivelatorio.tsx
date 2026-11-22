@@ -96,13 +96,15 @@ export function LaboratorioNivelatorio() {
      <ol className="list-decimal pl-5 space-y-1 text-sm leading-relaxed">{MISIONES[mision-1]?.pasos.map(paso=><li key={paso}>{paso}</li>)}</ol>
      <p className="text-sm text-muted-foreground mt-3">Selecciona una opción con un clic o arrástrala a la zona de conexión. Confirma con «{mision===3?'Validar prototipo':'Fijar conexión'}». Una vez guardada, tu respuesta no se puede cambiar; si hay un error, recibirás un refuerzo antes de continuar.</p>
     </div>
+    <div className="flex items-center gap-3 pt-2" role="separator" aria-label="Inicio de la pregunta"><span className="h-px flex-1 bg-border"/><span className="text-sm font-semibold text-primary">Pregunta {sesion.index+1}</span><span className="h-px flex-1 bg-border"/></div>
     <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
-     <div className="space-y-5"><div className="border-l-4 border-primary pl-5"><p className="text-xs font-semibold text-primary mb-2">EXPEDIENTE TRANSLOCAL · {task.problema.u}</p><h3 className="text-lg font-semibold leading-relaxed">{task.problema.p}</h3></div>
+     <div className="space-y-5"><div className="border-l-4 border-primary pl-5"><p className="text-xs font-semibold text-primary mb-2">ENUNCIADO · EXPEDIENTE TRANSLOCAL · {task.problema.u}</p><h3 className="text-lg font-semibold leading-relaxed">{task.problema.p}</h3></div>
       <div className="bg-secondary p-5 rounded-md"><p className="text-sm font-semibold text-primary mb-2">{mision===3?'Requerimiento del prototipo':'Necesidad de investigación'}</p><p className="leading-relaxed">{task.necesidad}</p>{mision===3 && <p className="text-sm mt-3 text-muted-foreground">Intervención práctica · análisis de factores del problema</p>}</div>
       <p className="text-xs text-muted-foreground">Escenario didáctico sobre un problema del banco translocal; no representa nuevos hallazgos del territorio.</p>
       {feedback && <p className="text-sm font-medium text-primary" role="status">{feedback}</p>}
      </div>
-     <div className="space-y-4">
+     <div className="space-y-4 border-t border-border pt-5 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
+      <h3 className="text-sm font-semibold text-primary">Tu respuesta</h3>
       {sesion.pausa ? <p className="text-sm text-muted-foreground">Respuesta guardada. Continúa después del refuerzo.</p> : <>
       {mision===3 && <div className="grid gap-3 sm:grid-cols-2"><div><label className="block text-sm font-medium mb-2">Tipo validado</label><Select value={tipo} onValueChange={setTipo}><SelectTrigger aria-label="Tipo validado"><SelectValue placeholder="Seleccionar tipo"/></SelectTrigger><SelectContent><SelectItem value="aplicada">Aplicada</SelectItem></SelectContent></Select></div><div><label className="block text-sm font-medium mb-2">Método validado</label><Select value={metodo} onValueChange={setMetodo}><SelectTrigger aria-label="Método validado"><SelectValue placeholder="Seleccionar método"/></SelectTrigger><SelectContent><SelectItem value="analitico">Analítico</SelectItem></SelectContent></Select></div></div>}
       <p className="text-sm font-semibold">{mision===1?'Cartas de investigación':mision===2?'Circuitos metodológicos':'Herramienta de calidad'}</p>
