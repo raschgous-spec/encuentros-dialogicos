@@ -3,3 +3,4 @@
 - Grade gestor Nivelatorio answers, shields, streaks and certification in a Cloud function using owner-scoped sessions and optimistic version checks; the browser must never supply scores or correct answers.
 - Use the shared server-side translocal bank and contextual teaching scenarios, not invented factual territorial data; reuse the existing study repository for rescue resources.
 - Assign one distinct translocal statement per Nivelatorio question, including text-level deduplication; consult paginated owner history to prefer unseen problems and rotate least-recent assignments only after exhausting the finite bank.
+- Persist each Nivelatorio answer once; errors require a rescue before advancing, never a retry, and depleted shields never end a session. Completion requires answering all tasks, independently of certification accuracy.

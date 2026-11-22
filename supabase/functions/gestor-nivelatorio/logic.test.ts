@@ -20,7 +20,7 @@ describe('Reglas del Nivelatorio de gestores', () => {
   expect(new Set(g.tasks.map(t=>t.problema.id)).size).toBe(18);
  });
  test('inicia con 3 escudos y cada error resta uno y pausa el reloj', () => {
-  const g = createGame([], 0); expect(g.escudos).toBe(3); const n = answer(g, 'incorrecto', 1000).game; expect(n.escudos).toBe(2); expect(n.pausa).toBe(true); expect(resume(n, 10000).remaining_ms).toBe(89000);
+  const g = createGame([], 0); expect(g.escudos).toBe(3); const n = answer(g, 'incorrecto', 1000).game; expect(n.escudos).toBe(2); expect(n.pausa).toBe(true); expect(n.remaining_ms).toBe(89000); expect(resume(n, 10000).remaining_ms).toBe(90000);
  });
  test('tres aciertos seguidos activan XP x2 y un error rompe la racha', () => {
   let g = createGame([], 0); for (let i=0;i<3;i++) g = answer(g, g.tasks[g.index].concepto, 100).game; expect(g.xp).toBe(400); g = answer(g, 'incorrecto', 200).game; expect(g.racha).toBe(0);
@@ -48,5 +48,27 @@ describe('Reglas del Nivelatorio de gestores', () => {
   expect(finalResult(g).dominio).toHaveLength(18);expect(finalResult(g).aprobado).toBe(true);
  });
  test('el límite de tiempo se valida en servidor, sin aciertos fuera de plazo', () => { const g = createGame([], 0); expect(answer(g, g.tasks[0].concepto, 90001).correcto).toBe(false); });
- test('sin escudos no permite nuevas respuestas', () => { const g = createGame(); g.escudos=0; expect(() => answer(g,'aplicada')).toThrow(); });
+ test('permite terminar las 18 preguntas aunque todas sean incorrectas y conserva el resultado', () => {
+  let g = createGame([],0);
+  for(let i=0;i<18;i++) {
+   g=answer(g,'incorrecto',100).game;
+   expect(g.pausa).toBe(true);expect(g.capsule).toBeDefined();
+   expect(g.historial).toHaveLength(i+1);
+   g=resume(g,200);
+   expect(g.index).toBe(i+1);
+  }
+  expect(g.escudos).toBe(0);
+  const r=finalResult(g);expect(r.completo).toBe(true);expect(r.precision).toBe(0);expect(r.aprobado).toBe(false);expect(r.intentos).toBe(18);expect(r.dominio.every(d=>d.completado && d.precision===0)).toBe(true);
+ });
+ test('no permite cambiar la respuesta tras el error ni durante el refuerzo', () => {
+  const g=createGame([],0);const n=answer(g,'incorrecto',100).game;
+  expect(()=>answer(n,g.tasks[0].concepto,200)).toThrow();
+  const next=resume(n,300);expect(next.index).toBe(1);expect(next.historial[0].elegido).toBe('incorrecto');expect(next.historial[0].correcto).toBe(false);
+  expect(()=>answer({...next,index:0},g.tasks[0].concepto,400)).toThrow();
+ });
+ test('completar con errores no exige corregirlos para certificarse por precisión', () => {
+  let g=createGame([],0);
+  for(let i=0;i<18;i++){g=answer(g,i<3?'incorrecto':g.tasks[g.index].concepto,100).game;if(g.pausa)g=resume(g,200);}
+  const r=finalResult(g);expect(r.completo).toBe(true);expect(r.precision).toBe(83.33);expect(r.aprobado).toBe(true);
+ });
 });

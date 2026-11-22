@@ -63,7 +63,7 @@ export function createGame(brechas: string[] = [], now = Date.now(), recentIds: 
 }
 export function answer(game: Game, elegido: string, now = Date.now()) {
  const task = game.tasks[game.index];
- if (!task || game.pausa || game.escudos <= 0) throw new Error('La asignación no está disponible.');
+ if (!task || game.pausa || game.historial.some(a => a.id === task.id)) throw new Error('La asignación no está disponible.');
  const elapsed = Math.max(0, now - game.clock_at);
  const time = Math.min(90_000, 90_000 - game.remaining_ms + elapsed);
  const correcto = elapsed <= game.remaining_ms && elegido === task.concepto;
@@ -73,22 +73,22 @@ export function answer(game: Game, elegido: string, now = Date.now()) {
  return { game: next, correcto };
 }
 export function resume(game: Game, now = Date.now()): Game {
- if (!game.pausa || game.escudos <= 0) throw new Error('No se puede continuar esta expedición.');
- return { ...game, pausa: false, capsule: undefined, remaining_ms: game.remaining_ms || 90_000, clock_at: now };
+ if (!game.pausa) throw new Error('No se puede continuar esta expedición.');
+ return { ...game, index: game.index + 1, pausa: false, capsule: undefined, remaining_ms: 90_000, clock_at: now };
 }
 export function finalResult(game: Game) {
  const correct = game.historial.filter(x => x.correcto).length;
  const precision = game.historial.length ? Math.round(correct / game.historial.length * 10000) / 100 : 0;
  const completeMission = (mission: number, concepts: string[]) => concepts.every(concept => {
    const task = game.tasks.find(t => t.mision === mission && t.concepto === concept);
-   return task !== undefined && game.historial.some(a => a.id === task.id && a.mision === mission && a.concepto === concept && a.correcto);
+   return task !== undefined && game.historial.some(a => a.id === task.id && a.mision === mission && a.concepto === concept);
  });
  const completo = game.index === game.tasks.length
    && completeMission(1, TIPOS) && completeMission(2, METODOS) && completeMission(3, HERRAMIENTAS);
  const aprobado = completo && precision >= 80;
  const dominio = game.tasks.map(t => {
    const h = game.historial.filter(a => a.id === t.id);
-   return { categoria: t.mision === 1 ? 'Tipo' : t.mision === 2 ? 'Método' : 'Herramienta', concepto: t.concepto, intentos: h.length, precision: h.length ? Math.round(h.filter(a => a.correcto).length / h.length * 100) : 0, completado: h.some(a => a.correcto) };
+   return { categoria: t.mision === 1 ? 'Tipo' : t.mision === 2 ? 'Método' : 'Herramienta', concepto: t.concepto, intentos: h.length, precision: h.length ? Math.round(h.filter(a => a.correcto).length / h.length * 100) : 0, completado: h.length > 0 };
  });
  const p = game.tasks.find(t => t.mision === 3)?.problema;
  return { precision, aprobado, completo, xp: game.xp, aciertos: correct, intentos: game.historial.length, dominio, problemas: [1, 2, 3].map(n => game.tasks.find(t => t.mision === n)?.problema), asignaciones: game.tasks.map(t => ({ mision:t.mision, concepto:t.concepto, problema:t.problema })), diagnostico: game.diagnostico,

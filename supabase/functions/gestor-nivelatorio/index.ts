@@ -56,8 +56,8 @@ Deno.serve(async req => {
     game = answer(game, body.seleccion).game;
    }
    if(body.accion === 'continuar') game = resume(game);
-   if(body.accion === 'finalizar' && game.index < game.tasks.length && game.escudos > 0) return json({error:'Completa las tres misiones antes de finalizar.'},400);
-   const end = game.index === game.tasks.length || game.escudos === 0 || body.accion === 'finalizar';
+   if(body.accion === 'finalizar' && (game.index < game.tasks.length || game.pausa)) return json({error:'Completa las tres misiones antes de finalizar.'},400);
+   const end = game.index === game.tasks.length && !game.pausa;
    const {data:updated,error} = await db.from('gestor_nivelatorio_sesiones').update({contenido:game,version:row.version+1,...(end ? {estado:'finalizado',resultado:finalResult(game),finished_at:new Date().toISOString()} : {})}).eq('id',row.id).eq('user_id',user.id).eq('version',body.version).select('*').maybeSingle();
    if(error) throw error; if(!updated) return json({error:'Otra respuesta ya se guardó. Actualiza para continuar.'},409); row=updated;
   }

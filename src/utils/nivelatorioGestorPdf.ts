@@ -16,7 +16,7 @@ export async function generarPdfNivelatorioGestor(resultado: ResultadoLaboratori
  let y=table(['Datos del gestor',''],[['Nombre',datos.nombre],['Correo',datos.correo],['Facultad',datos.facultad],['Fecha del resultado',datos.fecha],['Estado',resultado.estado_certificacion],['Precisión / XP',`${resultado.precision}% / ${resultado.xp} XP`]],56);
  if(!borrador){
   y=table(['Misión / concepto','Problema translocal'],resultado.asignaciones ? resultado.asignaciones.map(a=>[`${a.mision}. ${MISIONES[a.mision-1].titulo} · ${NOMBRES[a.concepto]}`,`${a.problema.u}: ${a.problema.p}`]) : resultado.problemas.map((p,i)=>[`${i+1}. ${MISIONES[i].titulo}`,`${p.u}: ${p.p}`]),y);
-  y=table(['Concepto','Intentos','Precisión','Retroalimentación'],resultado.dominio.map(d=>[`${d.categoria}: ${NOMBRES[d.concepto] || d.concepto}`,d.intentos,`${d.precision}%`,!d.completado ? 'Pendiente de desarrollar.' : d.intentos===1 ? 'Dominio demostrado sin rescate.' : 'Completado con apoyo; repasar la cápsula correspondiente.']),y);
+  y=table(['Concepto','Intentos','Precisión','Retroalimentación'],resultado.dominio.map(d=>[`${d.categoria}: ${NOMBRES[d.concepto] || d.concepto}`,d.intentos,`${d.precision}%`,!d.completado ? 'Pendiente de desarrollar.' : d.precision===100 ? 'Dominio demostrado.' : 'Respuesta incorrecta registrada; repasar la cápsula correspondiente.']),y);
  }
  if(y>180){doc.addPage();header();y=56;}
  const p=resultado.proposicion;
