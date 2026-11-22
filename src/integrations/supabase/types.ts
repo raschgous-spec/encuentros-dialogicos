@@ -622,6 +622,57 @@ export type Database = {
         }
         Relationships: []
       }
+      student_study_ai_state: {
+        Row: {
+          created_at: string
+          feature: string
+          message: string
+          status: number
+        }
+        Insert: {
+          created_at?: string
+          feature: string
+          message: string
+          status: number
+        }
+        Update: {
+          created_at?: string
+          feature?: string
+          message?: string
+          status?: number
+        }
+        Relationships: []
+      }
+      student_study_plans: {
+        Row: {
+          created_at: string
+          difficulties: string
+          id: string
+          minutes_per_day: number
+          plan: string
+          results_snapshot: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          difficulties: string
+          id?: string
+          minutes_per_day: number
+          plan: string
+          results_snapshot: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          difficulties?: string
+          id?: string
+          minutes_per_day?: number
+          plan?: string
+          results_snapshot?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

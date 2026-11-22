@@ -4,3 +4,4 @@
 - Use the shared server-side translocal bank and contextual teaching scenarios, not invented factual territorial data; reuse the existing study repository for rescue resources.
 - Assign one distinct translocal statement per Nivelatorio question, including text-level deduplication; consult paginated owner history to prefer unseen problems and rotate least-recent assignments only after exhausting the finite bank.
 - Persist each Nivelatorio answer once; errors require a rescue before advancing, never a retry, and depleted shields never end a session. Completion requires answering all tasks, independently of certification accuracy.
+- Generate student study plans in an authenticated Cloud function using only owner-scoped result summaries; never accept client scores, send identifying profile data to AI, or modify grades or moment progress. Save plans privately and persist terminal provider denials server-side.

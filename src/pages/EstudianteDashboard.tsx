@@ -12,6 +12,7 @@ import { Encuentro3Momento } from '@/components/moments/Encuentro3Momento';
 import { Encuentro4Momento } from '@/components/moments/Encuentro4Momento';
 import { PortafolioMomento } from '@/components/moments/PortafolioMomento';
 import { PADMomento } from '@/components/moments/PADMomento';
+import { PlanEstudioPersonalizado } from '@/components/student/PlanEstudioPersonalizado';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -68,7 +69,7 @@ const EstudianteDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <Header />
+      <Header compact />
       <main className="container mx-auto px-4 py-8">
         <Button
           variant="ghost"
@@ -88,7 +89,7 @@ const EstudianteDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
+          <TabsList className="grid h-auto w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-2 [&>[role=tab]]:min-w-0 [&>[role=tab]]:whitespace-normal [&_span]:break-words">
             <TabsTrigger value="pad" className="flex flex-col items-center gap-1 justify-center py-3">
               <span className="font-semibold text-xs text-center">PAD</span>
             </TabsTrigger>
@@ -112,6 +113,9 @@ const EstudianteDashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="portafolio" className="flex flex-col items-center gap-1 justify-center py-3">
               <span className="font-semibold text-xs text-center">MI ESPACIO DE APRENDIZAJE</span>
+            </TabsTrigger>
+            <TabsTrigger value="plan-estudio" className="flex flex-col items-center gap-1 justify-center py-3">
+              <span className="font-semibold text-xs text-center">MI PLAN DE ESTUDIO</span>
             </TabsTrigger>
           </TabsList>
 
@@ -225,6 +229,10 @@ const EstudianteDashboard = () => {
                 />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="plan-estudio" className="space-y-6">
+            <PlanEstudioPersonalizado />
           </TabsContent>
 
           <TabsContent value="portafolio" className="space-y-6">
