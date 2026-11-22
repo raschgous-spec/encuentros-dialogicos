@@ -58,7 +58,6 @@ const GestorDashboard = () => {
               </Card>
             </TabsContent>
             <TabsContent value="nivelatorio" className="space-y-8">
-              <LaboratorioNivelatorio />
               <Card>
                 <CardHeader>
                   <CardTitle>NIVELATORIO</CardTitle>
@@ -80,6 +79,7 @@ const GestorDashboard = () => {
                   <MaterialEstudio />
                 </CardContent>
               </Card>
+              <LaboratorioNivelatorio />
             </TabsContent>
           </Tabs>
         </div>
