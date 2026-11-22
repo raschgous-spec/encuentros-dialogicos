@@ -55,7 +55,12 @@ export function resume(game: Game, now = Date.now()): Game {
 export function finalResult(game: Game) {
  const correct = game.historial.filter(x => x.correcto).length;
  const precision = game.historial.length ? Math.round(correct / game.historial.length * 10000) / 100 : 0;
- const completo = game.index === game.tasks.length;
+ const completeMission = (mission: number, concepts: string[]) => concepts.every(concept => {
+   const task = game.tasks.find(t => t.mision === mission && t.concepto === concept);
+   return task !== undefined && game.historial.some(a => a.id === task.id && a.mision === mission && a.concepto === concept && a.correcto);
+ });
+ const completo = game.index === game.tasks.length
+   && completeMission(1, TIPOS) && completeMission(2, METODOS) && completeMission(3, HERRAMIENTAS);
  const aprobado = completo && precision >= 80;
  const dominio = game.tasks.map(t => {
    const h = game.historial.filter(a => a.id === t.id);
