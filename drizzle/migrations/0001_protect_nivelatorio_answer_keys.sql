@@ -1,0 +1,2 @@
+REVOKE SELECT ON public.gestor_nivelatorio_sesiones FROM authenticated;
+GRANT SELECT (id, user_id, facultad, estado, version, resultado, started_at, finished_at) ON public.gestor_nivelatorio_sesiones TO authenticated;

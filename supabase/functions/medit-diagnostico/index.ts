@@ -7,7 +7,7 @@ const cors = {
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...cors, 'Content-Type': 'application/json' } })
 
-import { PROBLEMAS } from './problemas.ts'
+import { PROBLEMAS } from '../_shared/problemasTranslocales.ts'
 
 // ---------- Casos construidos sobre el banco de problemas translocales ----------
 // id de caso = "<id_problema>|<indice_plantilla>"; la respuesta se deriva de la plantilla (solo servidor)

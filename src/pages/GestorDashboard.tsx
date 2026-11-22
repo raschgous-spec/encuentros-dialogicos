@@ -7,14 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
 import metodosImg from '@/assets/metodos-tipos-investigacion.png.asset.json';
 import { MaterialEstudio } from '@/components/gestor/MaterialEstudio';
+import { LaboratorioNivelatorio } from '@/components/gestor/LaboratorioNivelatorio';
 
 const GestorDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { toast } = useToast();
   const [tab, setTab] = useState('diagnostico');
   const [ultima, setUltima] = useState<any>(null);
   useEffect(() => {
@@ -24,19 +23,9 @@ const GestorDashboard = () => {
       .then(({ data }: any) => setUltima(data));
   }, [user]);
 
-  const complete = async (momento: string) => {
-    if (!user) return;
-    const { error } = await supabase.from('momento_progreso').upsert(
-      { estudiante_id: user.id, momento, completado: true, fecha_completado: new Date().toISOString() },
-      { onConflict: 'estudiante_id,momento' }
-    );
-    if (error) toast({ title: 'No se pudo guardar el avance', variant: 'destructive' });
-    else toast({ title: 'Avance guardado' });
-  };
-
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header compact />
       <div className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4">
@@ -68,7 +57,8 @@ const GestorDashboard = () => {
                 </CardContent>
               </Card>
             </TabsContent>
-            <TabsContent value="nivelatorio">
+            <TabsContent value="nivelatorio" className="space-y-8">
+              <LaboratorioNivelatorio />
               <Card>
                 <CardHeader>
                   <CardTitle>NIVELATORIO</CardTitle>

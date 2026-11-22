@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 
-export const Header = () => {
+export const Header = ({ compact = false }: { compact?: boolean }) => {
   const { profile, roles, signOut, hasRole } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -65,19 +65,19 @@ export const Header = () => {
 
   return (
     <header className="border-b bg-card">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-6">
+      <div className={`max-w-7xl mx-auto px-4 py-4 flex justify-between items-center ${compact ? 'flex-wrap gap-3' : ''}`}>
+        <div className={`flex items-center ${compact ? 'flex-wrap gap-3 min-w-0' : 'gap-6'}`}>
           <img 
             src={udecLogo} 
             alt="Universidad de Cundinamarca Logo" 
             className="h-12 w-auto object-contain"
           />
-          <div>
-            <h1 className="text-xl font-bold">ENCUENTROS DIALÓGICOS UNIVERSIDAD DE CUNDINAMARCA</h1>
+          <div className={compact ? 'min-w-0 flex-1 basis-48' : ''}>
+            <h1 className={`${compact ? 'text-base sm:text-xl break-words' : 'text-xl'} font-bold`}>ENCUENTROS DIALÓGICOS UNIVERSIDAD DE CUNDINAMARCA</h1>
             <p className="text-sm text-muted-foreground">Gestión del Conocimiento</p>
           </div>
           
-          <nav className="flex items-center gap-2">
+          <nav className={`flex items-center gap-2 ${compact ? 'flex-wrap' : ''}`}>
             {hasRole('admin') && (
               <Button
                 variant={location.pathname === '/admin' ? 'default' : 'ghost'}
@@ -114,9 +114,9 @@ export const Header = () => {
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className={`flex items-center gap-2 ${compact ? 'max-w-full' : ''}`}>
               <User className="h-4 w-4" />
-              {profile?.full_name || profile?.email}
+              <span className={compact ? 'truncate' : ''}>{profile?.full_name || profile?.email}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">

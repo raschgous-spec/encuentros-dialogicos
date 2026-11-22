@@ -282,6 +282,42 @@ export type Database = {
           },
         ]
       }
+      gestor_nivelatorio_sesiones: {
+        Row: {
+          contenido: Json
+          estado: string
+          facultad: string | null
+          finished_at: string | null
+          id: string
+          resultado: Json | null
+          started_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          contenido?: Json
+          estado?: string
+          facultad?: string | null
+          finished_at?: string | null
+          id?: string
+          resultado?: Json | null
+          started_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          contenido?: Json
+          estado?: string
+          facultad?: string | null
+          finished_at?: string | null
+          id?: string
+          resultado?: Json | null
+          started_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
       gestores_conocimiento: {
         Row: {
           correo: string
