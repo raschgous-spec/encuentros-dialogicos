@@ -33,6 +33,16 @@ const AdminDashboard = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver
             </Button>
+            <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/gestor')}
+              className="gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              Acceso Gestor
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -42,6 +52,7 @@ const AdminDashboard = () => {
               <GraduationCap className="w-4 h-4" />
               Acceso Estudiante
             </Button>
+            </div>
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
