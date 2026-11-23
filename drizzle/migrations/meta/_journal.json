@@ -22,6 +22,13 @@
       "when": 1795322855684,
       "tag": "0002_student_personalized_study_plans",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795445689697,
+      "tag": "0003_restrict_authorized_lists",
+      "breakpoints": true
     }
   ]
 }
